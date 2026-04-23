@@ -514,6 +514,38 @@ body {
   color: var(--ivory-dim);
 }
 
+/* family section */
+
+.family-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-bottom: 80px;
+}
+
+.family-img {
+  aspect-ratio: 4/3;
+}
+
+.family-copy p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  line-height: 1.55;
+  color: var(--ivory);
+  margin: 0 0 20px;
+  opacity: 0.9;
+}
+
+@media (max-width: 900px) {
+  .family-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-bottom: 50px;
+  }
+  .family-copy p { font-size: 18px; }
+}
+
 /* booking */
 
 .book-intro {

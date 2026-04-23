@@ -110,8 +110,8 @@ function Landing({ onNav, tweaks }) {
       </div>
 
       <div className="tagline">
-        <div className="tagline-kicker">BEWAHRE DEINE GESCHICHTE</div>
-        <div className="tagline-main">Tinte, die nicht vergisst.</div>
+        <div className="tagline-kicker">SEIT 2018 · GUNZENHAUSEN</div>
+        <div className="tagline-main">Kein Motiv zweimal.</div>
       </div>
     </div>
   );
@@ -192,18 +192,18 @@ function About({ onBack }) {
     <div className="page with-bg">
       <PageHead
         kicker="Über uns · Est. 2018"
-        title="Das bin" titleEm="Ich"
+        title="Das sind" titleEm="wir"
         meta={<>
           <b>Seit 2018</b>
           <div>Gunzenhausen</div>
-          <div>Nadia Reyhani</div>
+          <div>Kleopatra INK</div>
         </>}
         onBack={onBack}
       />
       <div className="about-hero">
         <div className="about-copy">
-          <p>Kleopatra INK ist ein kleines Studio in Gunzenhausen, gegründet 2018 von Nadia Reyhani. Ein Studio, eine Künstlerin, eine Handschrift — und der Glaube, dass ein Tattoo mehr ist als Farbe unter der Haut.</p>
-          <p>Jede Arbeit beginnt mit einem persönlichen Gespräch. Ich höre zu, zeichne, verwerfe und zeichne wieder — bis das Motiv so scharf ist wie die Nadel, die es setzt.</p>
+          <p>Kleopatra INK ist ein Familienstudio in Gunzenhausen — gegründet 2018, gewachsen aus echter Leidenschaft für Tätowierkunst. Ein Künstler, eine Familie, eine Handschrift. Und der Glaube, dass jedes Tattoo ein Einzelstück sein muss.</p>
+          <p>Jede Arbeit beginnt mit einem persönlichen Gespräch. Wir hören zu, skizzieren, verwerfen und zeichnen wieder — bis das Motiv so scharf ist wie die Nadel, die es setzt. Kein Motiv verlässt unser Studio zweimal.</p>
           <p>Hygiene nach DIN EN 17141. Pigmente nach EU-REACH. Kein Small-Talk, keine Kompromisse.</p>
         </div>
         <div className="placeholder about-img">
@@ -212,17 +212,17 @@ function About({ onBack }) {
         </div>
       </div>
 
-      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '0 0 24px' }}>Die Künstlerin</h3>
+      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '0 0 24px' }}>Der Künstler</h3>
       <div className="team-grid solo">
         <div className="team-card">
           <div className="placeholder">
             <div className="ph-label">PORTRAIT</div>
-            <div className="ph-sub">Nadia, im Studio</div>
+            <div className="ph-sub">Im Studio, bei der Arbeit</div>
           </div>
           <div className="team-info">
-            <h4 className="team-name">Nadia Reyhani</h4>
-            <div className="team-role">Founder · Tätowiererin</div>
-            <div className="team-bio">Seit 2014 Nadel in der Hand, seit 2018 mit eigenem Studio in Gunzenhausen. Spezialisiert auf großflächiges Blackwork, Fineline und ornamentale Cover-Ups. Jede Arbeit ein Einzelstück — nichts wird doppelt getätowiert.</div>
+            <h4 className="team-name">Kleopatra INK</h4>
+            <div className="team-role">Tätowierer · Gründer</div>
+            <div className="team-bio">Seit 2018 in Gunzenhausen zuhause. Spezialisiert auf großflächiges Blackwork, präzises Fineline und ornamentale Cover-Ups. Jede Arbeit ein Einzelstück — nichts wird doppelt getätowiert.</div>
             <div className="team-specs">
               <span className="spec">Blackwork</span>
               <span className="spec">Fineline</span>
@@ -231,6 +231,18 @@ function About({ onBack }) {
               <span className="spec">Script</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '60px 0 24px' }}>Die Familie</h3>
+      <div className="family-section">
+        <div className="placeholder family-img">
+          <div className="ph-label">FAMILIENFOTO</div>
+          <div className="ph-sub">Familie · Kinder · Hund</div>
+        </div>
+        <div className="family-copy">
+          <p className="cormorant">Hinter Kleopatra INK steckt mehr als ein Studio — es ist ein Familienunternehmen. Termine, Organisation und das herzliche Empfangen der Kunden liegen in familiärer Hand. Wer herkommt, ist kein Laufkundschaft, sondern Gast.</p>
+          <p className="cormorant">Das spürt man vom ersten Anruf an.</p>
         </div>
       </div>
     </div>
@@ -363,27 +375,41 @@ function Booking({ onBack }) {
 // ── Testimonials ──────────────────────────────────────────────────────────────
 
 const TESTIS = [
-  { name: 'Selin K.',    info: '2024 · Sleeve',    stars: 5, text: 'Nadia hat aus meiner vagen Idee einen kompletten Unterarm gezaubert. Sechs Sitzungen, kein langweiliger Moment.' },
-  { name: 'Tobias R.',   info: '2025 · Script',    stars: 5, text: 'Die Beratung war entspannt und unaufdringlich. Mein Schriftzug sitzt millimetergenau, die Linien sind so dünn, dass ich sie bei bestimmtem Licht zweimal ansehen muss.' },
-  { name: 'Julia M.',    info: '2024 · Cover-Up',  stars: 5, text: 'Hatte ein altes, wirklich schlechtes Tattoo. Nadia hat es in ein ornamentales Stück verwandelt, das jetzt mein Lieblings-Körperstück ist.' },
-  { name: 'Marc H.',     info: '2023 · Ornamental',stars: 5, text: 'Großes Stück auf dem Oberschenkel. Saubere Linien, kräftige Schattierung — mittlerweile ein Gesprächsthema, jedes Mal am Pool.' },
-  { name: 'Anja P.',     info: '2025 · Fineline',  stars: 5, text: 'Ich war super nervös vor meinem ersten Tattoo. Nadia hat mich durchgehend betreut, das Studio ist clean und ruhig.' },
-  { name: 'Ivan D.',     info: '2024 · Blackwork', stars: 5, text: 'Großflächiges Blackwork, ornamental, auf der Brust. Drei Sitzungen, jede genau getimed, Heilung problemlos. Top.' },
-  { name: 'Rebecca S.',  info: '2025 · Dotwork',   stars: 5, text: 'Das Mandala auf meinem Rücken — Geduld, Symmetrie, Meditation in Nadel-Form.' },
-  { name: 'Philipp T.',  info: '2024 · Script',    stars: 4, text: 'Eine kleine Terminverschiebung, aber die Arbeit selbst war makellos. Nadia wusste genau, welche Schriftart ich eigentlich wollte.' },
-  { name: 'Leyla A.',    info: '2023 · Fineline',  stars: 5, text: 'Kleines Motiv am Schlüsselbein. Unaufgeregt, professionell, perfekt umgesetzt.' },
+  { name: 'Sam78',           info: 'vor 6 Monaten',  stars: 5, text: 'Super sympathisches Tattoo-Studio! Hat uns als Familie total ernst genommen und unsere Wünsche ehrlich und professionell beurteilt, sodass wir alle mit einem tollen Ergebnis nach Hause gegangen sind.' },
+  { name: 'Janine',          info: 'vor 9 Monaten',  stars: 5, text: 'Bin absolut begeistert. Ich war vor 2 Wochen in diesem Tattoostudio, um mir mein allererstes Tattoo stechen zu lassen. Es wurde mir empfohlen und ich bekam echt das beste Ergebnis, das ich mir vorstellen konnte.' },
+  { name: 'Mareen Bickel',   info: 'vor 7 Monaten',  stars: 5, text: 'Ich habe mir heute ein Tattoo bei den beiden stechen lassen und ein weiteres verschönern. Ich bin mehr als begeistert und meeeega happy damit! Besser hätte man es nicht umsetzen können.' },
+  { name: 'Sina Le',         info: 'vor 9 Monaten',  stars: 5, text: 'Hier kommt man gerne her. Super lieb, tolle Atmosphäre und geniale Umsetzung. Bin einfach begeistert.' },
+  { name: 'Angela Weidner',  info: 'vor 3 Jahren',   stars: 5, text: 'Super Arbeit richtige Kunstwerke werden da gemacht. Ich habe 4 Tattoos stechen lassen und jedes einzelne ist so schön geworden. Man nimmt sich total viel Zeit für jeden Kunden.' },
+  { name: 'Sven Höfler',     info: 'vor einem Jahr', stars: 5, text: 'Das Studio wurde mir empfohlen und ich muss sagen, dass mein Tattoo absolut Klasse geworden ist. Vom Beratungsgespräch bis zum Endergebnis ist absolute Professionalität zu spüren.' },
+  { name: 'Laura-Jane Büscher', info: 'vor 2 Jahren', stars: 5, text: 'Bin mehr als zufrieden mit meinem Tattoo. Sehr präzise und professionell gestochen.' },
+  { name: 'Klara Popp',      info: 'vor 2 Jahren',   stars: 5, text: 'Das Studio wurde mir von meiner Freundin empfohlen. Hinter einem unscheinbaren Studio steckt absolute Leidenschaft und Professionalität!' },
+  { name: 'Frank Carlet',    info: 'vor 2 Jahren',   stars: 5, text: 'Ich habe heute mein erstes Tattoo bekommen. Das Studio wurde mir von einer Freundin empfohlen und ich traf auf einen Künstler der seine Arbeit mit totaler Hingabe ausführt.' },
+  { name: 'Maria Sillinger', info: 'vor 3 Jahren',   stars: 5, text: 'Ich hatte nur einen Termin zur Besprechung, aber da er Zeit hatte, hat er mir das Tattoo direkt ohne neuen Termin gestochen, war echt super.' },
+  { name: 'Jürgen M.',       info: 'vor 3 Jahren',   stars: 5, text: 'Sehr tollen Eindruck von dort bekommen und es ist ganz einfach zu finden. Meine Erwartungen wurden übertroffen 👍 einfach genial.' },
+  { name: 'Melany Deinzer',  info: 'vor 2 Jahren',   stars: 5, text: 'Absolut tolle und freundliche Beratung. Wurde so herzlich und lieb behandelt. Alles ist absolut professionell und auch das Stechen hat super wunderbar funktioniert.' },
+  { name: 'Jannis Rabus',    info: 'vor 3 Jahren',   stars: 5, text: 'Durch Zufall auf diesen KÜNSTLER gestoßen. Seine Arbeit ist mehr als perfekt, nimmt sich Zeit für seinen Kunden und geht auf jeden Wunsch ein.' },
+  { name: 'Thomas',          info: 'vor 3 Jahren',   stars: 5, text: 'Ich bin durch meinen besten Freund an dieses Studio geraten — und wahnsinnig glücklich darüber!' },
+  { name: 'Vanessa Zapke',   info: 'vor 3 Jahren',   stars: 5, text: 'Bin sehr begeistert. Ganz liebe Besitzer und ein sauberes Studio. Man fühlt sich von Anfang an sehr wohl und gut aufgehoben. Eine super Beratung im Vorfeld.' },
+  { name: 'Julia M.',        info: 'vor 2 Jahren',   stars: 5, text: 'Ich bin mehr als zufrieden. Mein Tattoo ist sehr sauber gestochen und war innerhalb kürzester Zeit ohne Komplikationen abgeheilt. Ich bin absolut glücklich damit und bereue es keine Sekunde. Gerne wieder ❤️' },
+  { name: 'Celine Weissmann',info: 'vor 2 Jahren',   stars: 5, text: 'Ich bin mega zufrieden mit meinem Tattoo. Alle beide sind super sympathisch und wissen genau was sie machen. Es wurde super beraten und man bekommt schnell einen Termin.' },
+  { name: 'Lisa',            info: 'vor 4 Jahren',   stars: 5, text: 'Super tolles Team! Mega saubere, akkurate Arbeit und immer freundlich. Sind aus Sachsen und zufällig auf dieses Tattoostudio gestoßen. Beide waren sehr herzlich und zuvorkommend.' },
+  { name: 'Sabrina Fichtner',info: 'vor 3 Jahren',   stars: 5, text: 'TOP Tattoostudio! Kompetente und freundliche Beratung, ich bin was Tattoos angeht durch ganz Deutschland getingelt, meine Motive wurden aber nie so umgesetzt wie hier.' },
+  { name: 'Evelyn Root',     info: 'vor 2 Jahren',   stars: 5, text: 'Ich war heute mittlerweile zum fünften Mal dort. Ich kann dieses Studio jedem wirklich nur ans Herz legen, mit Abstand das beste Studio in dem ich bisher war.' },
+  { name: 'S. Winkler',      info: 'vor 3 Jahren',   stars: 5, text: 'Absolut empfehlenswert, die Besitzer sind sehr freundlich und kommen gerne den Wünschen nach. Mein Beratungstermin wurde anschließend direkt zum Tattoo-Termin.' },
+  { name: 'Sigrid Grüner',   info: 'vor einem Jahr', stars: 5, text: 'Tolle Arbeit, super nett. Sehr talentiert. Mega Ergebnis. Seine Frau macht Termine und sie ist sehr freundlich und hat die angenehmste Stimme die ich je hörte am Telefon.' },
+  { name: 'Kipfl',           info: 'vor 2 Jahren',   stars: 5, text: '100% Vertrauen in ein Cover-Up gelegt und nicht enttäuscht worden! Super Studio, modern und sauber — der Tätowierer ist unfassbar begabt.' },
 ];
 
 function Testimonials({ onBack }) {
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Stimmen · Google & direkt"
+        kicker="Stimmen · Google"
         title="Was unsere" titleEm="Kunden sagen"
         meta={<>
-          <b>4,9 ★</b>
-          <div>312 Bewertungen</div>
-          <div>Google · Instagram</div>
+          <b>5,0 ★</b>
+          <div>23 Bewertungen</div>
+          <div>Google</div>
         </>}
         onBack={onBack}
       />
