@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kleopatra INK — Tattoo Studio Gunzenhausen</title>
+    <script>
+      // Suppress benign "ResizeObserver loop completed" warning.
+      if (typeof window.ResizeObserver !== 'undefined') {
+        const Original = window.ResizeObserver;
+        window.ResizeObserver = class extends Original {
+          constructor(cb) {
+            let raf = 0;
+            super((entries, observer) => {
+              cancelAnimationFrame(raf);
+              raf = requestAnimationFrame(() => {
+                try { cb(entries, observer); } catch(e) {}
+              });
+            });
+          }
+        };
+      }
+      const _MSG = 'ResizeObserver loop';
+      window.addEventListener('error', (e) => {
+        if (e && e.message && String(e.message).indexOf(_MSG) !== -1) {
+          e.stopImmediatePropagation(); e.preventDefault(); return false;
+        }
+      }, true);
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
