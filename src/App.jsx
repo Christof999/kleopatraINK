@@ -98,6 +98,20 @@ function Landing({ onNav, tweaks }) {
         </div>
       </div>
 
+      <nav className="mobile-nav" aria-label="Navigation">
+        {NAV.map((n) => (
+          <button
+            key={n.id}
+            className="mobile-nav-item"
+            onClick={() => onNav(n.id)}
+          >
+            <span className="mobile-nav-dot" />
+            <span className="mobile-nav-lbl">{n.label}</span>
+            <span className="mobile-nav-sub">{n.sub}</span>
+          </button>
+        ))}
+      </nav>
+
       <div className="corner bl">
         <div>Marktplatz 7</div>
         <div>91710 Gunzenhausen</div>

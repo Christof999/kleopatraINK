@@ -860,6 +860,75 @@ body {
     radial-gradient(circle at 90% 100%, rgba(212,165,55,0.04), transparent 40%);
 }
 
+/* ─── Mobile bottom nav (hidden on desktop) ──────────────────────────────── */
+
+.mobile-nav { display: none; }
+
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ivory-dim);
+  font-family: inherit;
+  touch-action: manipulation;
+  min-height: 52px;
+  transition: color 180ms;
+  position: relative;
+}
+
+.mobile-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 1px;
+  background: var(--gold);
+  opacity: 0;
+  transition: opacity 180ms;
+}
+
+.mobile-nav-item:active { color: var(--gold); }
+.mobile-nav-item:active::before { opacity: 1; }
+
+.mobile-nav-dot {
+  display: block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 165, 55, 0.45);
+  transition: background 180ms, border-color 180ms, box-shadow 180ms;
+}
+
+.mobile-nav-item:active .mobile-nav-dot {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(240, 200, 96, 0.5);
+}
+
+.mobile-nav-lbl {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mobile-nav-sub {
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 1100px) {
@@ -952,9 +1021,13 @@ body {
   .gal-chip { padding: 7px 11px; font-size: 9px; letter-spacing: 0.16em; }
   .page-title { font-size: clamp(38px, 11vw, 56px); }
   .page { padding-left: 16px; padding-right: 16px; padding-bottom: 48px; }
-  .chrome { padding: 14px 16px; }
+  .chrome {
+    padding: 16px 20px;
+    justify-content: center;
+  }
   .chrome-meta { display: none; }
-  .brand { font-size: 13px; }
+  .brand { font-size: 15px; letter-spacing: 0.2em; }
+  .brand-mark { width: 40px; height: 40px; font-size: 17px; }
   .testi { padding: 22px; }
   .testi-quote { font-size: 16px; }
   .soc-card { padding: 22px; }
@@ -962,13 +1035,27 @@ body {
   .field input, .field textarea { font-size: 16px; }
   .btn-primary { padding: 14px 24px; font-size: 11px; letter-spacing: 0.24em; }
 
-  .dial { width: min(52vmin, 340px) !important; }
-  .node {
-    padding: 5px 8px;
-    gap: 6px;
-    background: rgba(20, 16, 8, 0.85);
+  /* Landing: hide radial nodes, show bottom nav instead */
+  .node { display: none; }
+  .dial { width: min(78vw, 360px) !important; }
+  .stage { min-height: 0; padding-bottom: 80px; }
+  .tagline { bottom: 96px; }
+  .tagline-main { font-size: 16px; }
+  .tagline-kicker { font-size: 8px; letter-spacing: 0.36em; margin-bottom: 6px; }
+
+  /* Show mobile bottom navigation */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 20;
+    background: rgba(10, 8, 6, 0.94);
+    border-top: 1px solid rgba(212, 165, 55, 0.22);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 6px 0 max(12px, env(safe-area-inset-bottom));
+    justify-content: stretch;
   }
-  .node-lbl { font-size: 8px; letter-spacing: 0.12em; }
 }
 
 @media (max-width: 560px) {
