@@ -125,7 +125,7 @@ function Landing({ onNav, tweaks }) {
 
       <div className="tagline">
         <div className="tagline-kicker">SEIT 2018 · GUNZENHAUSEN</div>
-        <div className="tagline-main">Kein Motiv zweimal.</div>
+        <div className="tagline-main">Kunst auf deiner Haut.</div>
       </div>
     </div>
   );
