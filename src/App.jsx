@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
+import { GAL_ITEMS, GAL_FILTERS } from './gallery-items';
 import './styles.css';
 
 const NAV = [
@@ -150,18 +151,7 @@ function PageHead({ kicker, title, titleEm, meta, onBack }) {
 
 // ── Gallery ───────────────────────────────────────────────────────────────────
 
-const GAL_ITEMS = [
-  { style: 'Blackwork', piece: 'Sleeve, Unterarm' },
-  { style: 'Fineline',  piece: 'Skorpion, Klavikel' },
-  { style: 'Neo-Trad',  piece: 'Panther, Oberschenkel' },
-  { style: 'Script',    piece: 'Schriftzug, Rippe' },
-  { style: 'Dotwork',   piece: 'Mandala, Rücken' },
-  { style: 'Blackwork', piece: 'Full Sleeve, ornamental' },
-  { style: 'Fineline',  piece: 'Blume, Handgelenk' },
-  { style: 'Neo-Trad',  piece: 'Schlange, Wade' },
-  { style: 'Dotwork',   piece: 'Portrait, Brust' },
-];
-const GAL_FILTERS = ['Alle', 'Blackwork', 'Fineline', 'Neo-Trad', 'Script', 'Dotwork'];
+const galWithImages = GAL_ITEMS.filter((i) => i.src).length;
 
 function Gallery({ onBack }) {
   const [filter, setFilter] = useState('Alle');
@@ -172,7 +162,7 @@ function Gallery({ onBack }) {
         kicker="Portfolio · Kleopatra INK"
         title="Werke &" titleEm="Wunden"
         meta={<>
-          <b>{GAL_ITEMS.length} Arbeiten</b>
+          <b>{galWithImages > 0 ? `${galWithImages} Arbeiten` : 'Demnächst'}</b>
           <div>Nadia Reyhani</div>
           <div>2018 — 2026</div>
         </>}
@@ -188,10 +178,20 @@ function Gallery({ onBack }) {
       <div className="gal-grid">
         {items.map((it, i) => (
           <div key={i} className="gal-item">
-            <div className="placeholder">
-              <div className="ph-label">PHOTO · {it.style.toUpperCase()}</div>
-              <div className="ph-sub">{it.piece}</div>
-            </div>
+            {it.src ? (
+              <>
+                <img className="gal-img" src={it.src} alt={it.piece} loading="lazy" />
+                <div className="gal-caption">
+                  <div className="gal-caption-style">{it.style}</div>
+                  <div className="gal-caption-piece">{it.piece}</div>
+                </div>
+              </>
+            ) : (
+              <div className="placeholder">
+                <div className="ph-label">PHOTO · {it.style.toUpperCase()}</div>
+                <div className="ph-sub">{it.piece}</div>
+              </div>
+            )}
           </div>
         ))}
       </div>
