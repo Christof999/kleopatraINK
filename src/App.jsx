@@ -173,7 +173,6 @@ function Gallery({ onBack }) {
         title="Werke &" titleEm="Wunden"
         meta={<>
           <b>{GAL_ITEMS.length > 0 ? `${GAL_ITEMS.length} Arbeiten` : 'Demnächst'}</b>
-          <div>Nadia Reyhani</div>
           <div>2018 — 2026</div>
         </>}
         onBack={onBack}
