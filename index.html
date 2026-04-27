@@ -3,9 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kleopatra INK — Tattoo Studio Gunzenhausen</title>
+
+    <!-- ── Primäre Meta-Tags ──────────────────────────────────────────────── -->
+    <title>Kleopatra INK – Tattoostudio Gunzenhausen | Blackwork & Fineline</title>
+    <meta name="description" content="Tattoostudio in Gunzenhausen seit 2018. Individuelle Tattoos in Blackwork, Fineline, Neo-Trad, Script & Dotwork. Nadia Reyhani – Beratung & Termin: +49 9831 6 84 21." />
+    <meta name="keywords" content="Tattoo Gunzenhausen, Tattoostudio Gunzenhausen, Blackwork Tattoo, Fineline Tattoo, Tattoo Franken, Tattoo Bayern, Nadia Reyhani, Kleopatra INK, Tattoo Marktplatz Gunzenhausen" />
+    <meta name="author" content="Nadia Reyhani – Kleopatra INK" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kleopatraink.de/" />
+
+    <!-- ── Open Graph (Facebook, WhatsApp, LinkedIn) ─────────────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://kleopatraink.de/" />
+    <meta property="og:title" content="Kleopatra INK – Tattoostudio Gunzenhausen" />
+    <meta property="og:description" content="Individuelle Tattoos in Blackwork, Fineline & mehr. Kein Motiv zweimal. Dein Tattoo-Studio im Herzen von Gunzenhausen." />
+    <meta property="og:image" content="https://kleopatraink.de/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta property="og:image:alt" content="Kleopatra INK – Tattoostudio Gunzenhausen" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:site_name" content="Kleopatra INK" />
+
+    <!-- ── Twitter / X Card ──────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Kleopatra INK – Tattoostudio Gunzenhausen" />
+    <meta name="twitter:description" content="Individuelle Tattoos in Blackwork, Fineline & mehr. Kein Motiv zweimal." />
+    <meta name="twitter:image" content="https://kleopatraink.de/og-image.png" />
+
+    <!-- ── Structured Data: Local Business ───────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HealthAndBeautyBusiness",
+      "name": "Kleopatra INK",
+      "alternateName": "Kleopatra Ink Tattoostudio",
+      "description": "Tattoostudio in Gunzenhausen. Individuelle Tattoos in Blackwork, Fineline, Neo-Trad, Script und Dotwork. Kein Motiv wird zweimal gestochen.",
+      "url": "https://kleopatraink.de",
+      "telephone": "+49983168421",
+      "foundingDate": "2018",
+      "image": "https://kleopatraink.de/og-image.png",
+      "logo": "https://kleopatraink.de/og-image.png",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Marktplatz 7",
+        "addressLocality": "Gunzenhausen",
+        "postalCode": "91710",
+        "addressRegion": "Bayern",
+        "addressCountry": "DE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 49.1130,
+        "longitude": 10.7548
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "10:00",
+          "closes": "18:00"
+        }
+      ],
+      "employee": {
+        "@type": "Person",
+        "name": "Nadia Reyhani",
+        "jobTitle": "Tattoo-Künstlerin"
+      },
+      "hasMap": "https://maps.google.com/?q=Marktplatz+7,+91710+Gunzenhausen",
+      "priceRange": "€€",
+      "sameAs": []
+    }
+    </script>
+
+    <!-- ── Favicon ────────────────────────────────────────────────────────── -->
+    <link rel="icon" type="image/png" href="/og-image.png" />
+
+    <!-- ── Fonts (preconnect für schnelleres Laden) ───────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- ── ResizeObserver-Bugfix ──────────────────────────────────────────── -->
     <script>
-      // Suppress benign "ResizeObserver loop completed" warning.
       if (typeof window.ResizeObserver !== 'undefined') {
         const Original = window.ResizeObserver;
         window.ResizeObserver = class extends Original {
