@@ -1058,6 +1058,12 @@ body {
   max-width: 480px;
 }
 
+.ig-static-card .ig-profile-header {
+  padding: 24px 32px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+
 .ig-static-stats {
   display: flex;
   align-items: center;
