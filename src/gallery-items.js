@@ -1,21 +1,18 @@
 // ── Galerie — Auto-Discovery ──────────────────────────────────────────────────
 //
 // Bilder kommen nach:  src/assets/gallery/<stil>/dateiname.jpg
-//
-// Das war's. Kein weiterer Schritt nötig — Vite erkennt neue Bilder
-// beim nächsten Build automatisch.
+// Das war's — Vite erkennt neue Bilder beim nächsten Build automatisch.
 //
 // Unterordner / Stile:
-//   src/assets/gallery/blackwork/
 //   src/assets/gallery/fineline/
-//   src/assets/gallery/neo-trad/
-//   src/assets/gallery/script/
 //   src/assets/gallery/dotwork/
+//   src/assets/gallery/realism/
+//   src/assets/gallery/black-white/
+//   src/assets/gallery/neotraditional/
+//   src/assets/gallery/oldschool/
 //
 // Dateinamen-Tipp: sprechende Namen werden als Beschreibung angezeigt,
 // z. B.  blume-handgelenk.jpg  →  "Blume Handgelenk"
-//        skorpion_klavikel.jpg →  "Skorpion Klavikel"
-//        IMG_0208.jpeg         →  kein Label (wird ignoriert)
 
 const rawImages = import.meta.glob(
   './assets/gallery/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}',
@@ -23,11 +20,12 @@ const rawImages = import.meta.glob(
 );
 
 const STYLE_LABELS = {
-  blackwork:  'Blackwork',
-  fineline:   'Fineline',
-  'neo-trad': 'Neo-Trad',
-  script:     'Script',
-  dotwork:    'Dotwork',
+  fineline:       'Fineline',
+  dotwork:        'Dotwork',
+  realism:        'Realism',
+  'black-white':  'Black & White',
+  neotraditional: 'Neotraditional',
+  oldschool:      'Oldschool',
 };
 
 const CAMERA_PATTERN = /^(img|dsc|dscn|p\d|mgim|mvim)[-_]?\d/i;
@@ -41,7 +39,7 @@ function pieceFromFilename(filename) {
     .trim();
 }
 
-export const GAL_FILTERS = ['Alle', 'Blackwork', 'Fineline', 'Neo-Trad', 'Script', 'Dotwork'];
+export const GAL_FILTERS = ['Alle', 'Fineline', 'Dotwork', 'Realism', 'Black & White', 'Neotraditional', 'Oldschool'];
 
 export const GAL_ITEMS = Object.entries(rawImages)
   .map(([path, mod]) => {

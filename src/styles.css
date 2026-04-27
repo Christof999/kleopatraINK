@@ -1050,6 +1050,66 @@ body {
 }
 .ig-profile-btn:hover { border-color: var(--gold); }
 
+.ig-static-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--line);
+  max-width: 480px;
+}
+
+.ig-static-stats {
+  display: flex;
+  align-items: center;
+  padding: 32px 40px;
+  gap: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.ig-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ig-stat b {
+  font-family: 'Cinzel', serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.ig-stat span {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+}
+
+.ig-stat-divider {
+  width: 1px;
+  height: 48px;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+.ig-visit-link {
+  display: block;
+  padding: 18px 40px;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+  text-decoration: none;
+  transition: color 200ms;
+}
+.ig-visit-link:hover { color: var(--gold); }
+
 @media (max-width: 900px) {
   .ig-grid { grid-template-columns: repeat(3, 1fr); }
 }

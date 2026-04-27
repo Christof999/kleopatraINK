@@ -31,16 +31,39 @@ function PostGrid({ posts }) {
 
 function NotConfigured() {
   return (
-    <div className="ig-notice">
-      <div className="ig-notice-icon">◎</div>
-      <p>Instagram-Feed wird eingerichtet.</p>
+    <div className="ig-static-card">
       <a
         href="https://www.instagram.com/kleopatra.ink/"
         target="_blank"
         rel="noopener noreferrer"
-        className="ig-profile-btn"
+        className="ig-profile-header"
       >
-        @kleopatra.ink auf Instagram →
+        <div className="ig-profile-info">
+          <span className="ig-username">@kleopatra.ink</span>
+          <span className="ig-meta">Instagram</span>
+        </div>
+        <span className="ig-follow-btn">Folgen ↗</span>
+      </a>
+
+      <div className="ig-static-stats">
+        <div className="ig-stat">
+          <b>309</b>
+          <span>Beiträge</span>
+        </div>
+        <div className="ig-stat-divider" />
+        <div className="ig-stat">
+          <b>4.520</b>
+          <span>Follower</span>
+        </div>
+      </div>
+
+      <a
+        href="https://www.instagram.com/kleopatra.ink/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ig-visit-link"
+      >
+        Alle Beiträge auf Instagram ansehen →
       </a>
     </div>
   );

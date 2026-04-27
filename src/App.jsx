@@ -132,8 +132,8 @@ function Landing({ onNav, tweaks }) {
       </div>
       <div className="corner br">
         <div>Beratung · Termin</div>
-        <div>Blackwork · Fineline</div>
-        <div>Ornamental · Script</div>
+        <div>Fineline · Dotwork · Realism</div>
+        <div>Neotraditional · Oldschool</div>
       </div>
 
       <div className="tagline">
@@ -245,13 +245,14 @@ function About({ onBack }) {
           <div className="team-info">
             <h4 className="team-name">Kleopatra INK</h4>
             <div className="team-role">Tätowierer · Gründer</div>
-            <div className="team-bio">Seit 2018 in Gunzenhausen zuhause. Spezialisiert auf großflächiges Blackwork, präzises Fineline und ornamentale Cover-Ups. Jede Arbeit ein Einzelstück — nichts wird doppelt getätowiert.</div>
+            <div className="team-bio">Seit 2018 in Gunzenhausen zuhause. Spezialisiert auf präzises Fineline, Realism und Neotraditional. Jede Arbeit ein Einzelstück — nichts wird doppelt getätowiert.</div>
             <div className="team-specs">
-              <span className="spec">Blackwork</span>
               <span className="spec">Fineline</span>
-              <span className="spec">Ornamental</span>
-              <span className="spec">Cover-Up</span>
-              <span className="spec">Script</span>
+              <span className="spec">Dotwork</span>
+              <span className="spec">Realism</span>
+              <span className="spec">Black & White</span>
+              <span className="spec">Neotraditional</span>
+              <span className="spec">Oldschool</span>
             </div>
           </div>
         </div>
@@ -278,12 +279,13 @@ const SLOTS = ['10:00', '11:30', '13:00', '14:30', '16:00', '17:30', '19:00'];
 const DISABLED = new Set(['13:00', '17:30']);
 
 const INTERESTS = [
-  { id: 'blackwork',  name: 'Blackwork'     },
-  { id: 'fineline',   name: 'Fineline'      },
-  { id: 'script',     name: 'Script'        },
-  { id: 'ornamental', name: 'Ornamental'    },
-  { id: 'cover',      name: 'Cover-Up'      },
-  { id: 'unsure',     name: 'Noch unsicher' },
+  { id: 'fineline',       name: 'Fineline'       },
+  { id: 'dotwork',        name: 'Dotwork'        },
+  { id: 'realism',        name: 'Realism'        },
+  { id: 'blackandwhite',  name: 'Black & White'  },
+  { id: 'neotraditional', name: 'Neotraditional' },
+  { id: 'oldschool',      name: 'Oldschool'      },
+  { id: 'unsure',         name: 'Noch unsicher'  },
 ];
 
 function Booking({ onBack }) {
