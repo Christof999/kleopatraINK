@@ -1,0 +1,109 @@
+import { useState, useEffect } from 'react';
+
+function PostGrid({ posts }) {
+  return (
+    <div className="ig-grid">
+      {posts.map((post) => (
+        <a
+          key={post.id}
+          href={post.permalink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ig-post"
+          aria-label={post.caption ? post.caption.slice(0, 80) : 'Instagram-Post'}
+        >
+          <img src={post.src} alt="" loading="lazy" className="ig-img" />
+          <div className="ig-overlay">
+            {post.caption && (
+              <p className="ig-caption">
+                {post.caption.length > 120
+                  ? post.caption.slice(0, 120) + '…'
+                  : post.caption}
+              </p>
+            )}
+            <span className="ig-open">↗ öffnen</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function NotConfigured() {
+  return (
+    <div className="ig-notice">
+      <div className="ig-notice-icon">◎</div>
+      <p>Instagram-Feed wird eingerichtet.</p>
+      <a
+        href="https://www.instagram.com/kleopatra.ink/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ig-profile-btn"
+      >
+        @kleopatra.ink auf Instagram →
+      </a>
+    </div>
+  );
+}
+
+export default function InstagramFeed() {
+  const [state, setState] = useState({ status: 'loading', posts: [], profile: null });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/instagram')
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (!data.configured) {
+          setState({ status: 'not_configured', posts: [], profile: null });
+        } else if (data.error) {
+          setState({ status: 'error', error: data.error, posts: [], profile: null });
+        } else {
+          setState({ status: 'ok', posts: data.posts, profile: data.profile });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setState({ status: 'error', posts: [], profile: null });
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (state.status === 'loading') {
+    return (
+      <div className="ig-notice">
+        <div className="ig-spinner" />
+      </div>
+    );
+  }
+
+  if (state.status === 'not_configured' || state.status === 'error') {
+    return <NotConfigured />;
+  }
+
+  return (
+    <div className="ig-feed">
+      {/* Profil-Header */}
+      <a
+        href="https://www.instagram.com/kleopatra.ink/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ig-profile-header"
+      >
+        <div className="ig-profile-info">
+          <span className="ig-username">@{state.profile?.username ?? 'kleopatra.ink'}</span>
+          {state.profile?.mediaCount != null && (
+            <span className="ig-meta">{state.profile.mediaCount} Beiträge</span>
+          )}
+        </div>
+        <span className="ig-follow-btn">Folgen ↗</span>
+      </a>
+
+      {state.posts.length > 0 ? (
+        <PostGrid posts={state.posts} />
+      ) : (
+        <NotConfigured />
+      )}
+    </div>
+  );
+}

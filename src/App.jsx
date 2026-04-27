@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
+import InstagramFeed from './components/InstagramFeed';
 
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
@@ -454,42 +455,18 @@ function Testimonials({ onBack }) {
 // ── Socials ───────────────────────────────────────────────────────────────────
 
 function Socials({ onBack }) {
-  const socs = [
-    { platform: 'Instagram', handle: '@kleopatra.ink', desc: 'Tägliche Werke, Behind-the-Scenes, Studio-Einblicke. Hier verbringen wir die meiste Zeit.',           a: '18.4k', b: 'Follower',        c: '412',  d: 'Posts'           },
-    { platform: 'TikTok',    handle: '@kleopatraink',  desc: 'Timelapses, Nadelwechsel in 15 Sekunden, und ein Blick auf die Hand hinter der Arbeit.',               a: '42.1k', b: 'Follower',        c: '1.2M', d: 'Likes'            },
-    { platform: 'Pinterest', handle: '@KleopatraINK',  desc: 'Mood-Boards nach Stilen sortiert. Perfekt wenn du noch auf der Suche nach deinem Motiv bist.',        a: '6.8k',  b: 'Monthly Views',   c: '24',   d: 'Boards'           },
-    { platform: 'YouTube',   handle: '@KleopatraINK',  desc: 'Langformat: Studio-Touren, Cover-Up-Prozesse und ausführliche Heilungsverläufe.',                      a: '3.2k',  b: 'Abonnent*innen',  c: '38',   d: 'Videos'           },
-  ];
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Social · Follow us"
-        title="Unsere" titleEm="Sozials"
+        kicker="Instagram · @kleopatra.ink"
+        title="Unsere" titleEm="Arbeiten"
         meta={<>
-          <b>4 Plattformen</b>
           <div>Tägliche Posts</div>
           <div>DM offen</div>
         </>}
         onBack={onBack}
       />
-      <div className="soc-grid">
-        {socs.map((s, i) => (
-          <div key={i} className="soc-card">
-            <div className="soc-head">
-              <div className="soc-platform">{s.platform}</div>
-              <div className="soc-platform" style={{ color: 'var(--gold)' }}>↗</div>
-            </div>
-            <div>
-              <div className="soc-handle">{s.handle}</div>
-              <div className="soc-desc">{s.desc}</div>
-            </div>
-            <div className="soc-stats">
-              <div className="soc-stat"><b>{s.a}</b><span>{s.b}</span></div>
-              <div className="soc-stat"><b>{s.c}</b><span>{s.d}</span></div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <InstagramFeed />
     </div>
   );
 }
