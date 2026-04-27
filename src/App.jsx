@@ -151,8 +151,6 @@ function PageHead({ kicker, title, titleEm, meta, onBack }) {
 
 // ── Gallery ───────────────────────────────────────────────────────────────────
 
-const galWithImages = GAL_ITEMS.filter((i) => i.src).length;
-
 function Gallery({ onBack }) {
   const [filter, setFilter] = useState('Alle');
   const items = filter === 'Alle' ? GAL_ITEMS : GAL_ITEMS.filter((i) => i.style === filter);
@@ -162,7 +160,7 @@ function Gallery({ onBack }) {
         kicker="Portfolio · Kleopatra INK"
         title="Werke &" titleEm="Wunden"
         meta={<>
-          <b>{galWithImages > 0 ? `${galWithImages} Arbeiten` : 'Demnächst'}</b>
+          <b>{GAL_ITEMS.length > 0 ? `${GAL_ITEMS.length} Arbeiten` : 'Demnächst'}</b>
           <div>Nadia Reyhani</div>
           <div>2018 — 2026</div>
         </>}
@@ -175,26 +173,25 @@ function Gallery({ onBack }) {
             onClick={() => setFilter(f)}>{f}</button>
         ))}
       </div>
-      <div className="gal-grid">
-        {items.map((it, i) => (
-          <div key={i} className="gal-item">
-            {it.src ? (
-              <>
-                <img className="gal-img" src={it.src} alt={it.piece} loading="lazy" />
+      {items.length === 0 ? (
+        <p className="gal-empty">
+          {filter === 'Alle' ? 'Bilder folgen bald.' : `Noch keine ${filter}-Arbeiten vorhanden.`}
+        </p>
+      ) : (
+        <div className="gal-grid">
+          {items.map((it, i) => (
+            <div key={i} className="gal-item">
+              <img className="gal-img" src={it.src} alt={it.piece || it.style} loading="lazy" />
+              {(it.piece || it.style) && (
                 <div className="gal-caption">
                   <div className="gal-caption-style">{it.style}</div>
-                  <div className="gal-caption-piece">{it.piece}</div>
+                  {it.piece && <div className="gal-caption-piece">{it.piece}</div>}
                 </div>
-              </>
-            ) : (
-              <div className="placeholder">
-                <div className="ph-label">PHOTO · {it.style.toUpperCase()}</div>
-                <div className="ph-sub">{it.piece}</div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
