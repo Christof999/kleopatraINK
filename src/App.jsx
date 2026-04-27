@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
+
+const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
 import { GAL_ITEMS, GAL_FILTERS } from './gallery-items';
 import './styles.css';
@@ -15,9 +17,13 @@ const NAV = [
 
 // ── Landing ───────────────────────────────────────────────────────────────────
 
+// Prüfen ob ein .glb vorhanden ist (Feature-Flag)
+const HAS_3D_MODEL = false; // → auf true setzen sobald kleopatra-3d.glb hochgeladen ist
+
 function Landing({ onNav, tweaks }) {
   const dialRef = useRef(null);
   const [dialSize, setDialSize] = useState(600);
+  const [hoveredNav, setHoveredNav] = useState(null);
 
   useEffect(() => {
     const measure = () => {
@@ -70,9 +76,14 @@ function Landing({ onNav, tweaks }) {
             })}
           </svg>
 
-          <div className="head-halo" />
-          <div className="head-slot">
-            <KleopatraHead style={tweaks.headStyle} goldIntensity={tweaks.gold} />
+          {!HAS_3D_MODEL && <div className="head-halo" />}
+          <div className="head-slot" style={HAS_3D_MODEL ? { inset: '-8%', overflow: 'visible' } : {}}>
+            {HAS_3D_MODEL
+              ? <Suspense fallback={<KleopatraHead style={tweaks.headStyle} goldIntensity={tweaks.gold} />}>
+                  <KleopatraHead3D hoveredNav={hoveredNav} />
+                </Suspense>
+              : <KleopatraHead style={tweaks.headStyle} goldIntensity={tweaks.gold} />
+            }
           </div>
 
           {NAV.map((n) => {
@@ -85,8 +96,8 @@ function Landing({ onNav, tweaks }) {
                 className="node"
                 style={{ left: `${x}%`, top: `${y}%` }}
                 onClick={() => onNav(n.id)}
-                onMouseEnter={(e) => e.currentTarget.classList.add('is-hover')}
-                onMouseLeave={(e) => e.currentTarget.classList.remove('is-hover')}
+                onMouseEnter={(e) => { e.currentTarget.classList.add('is-hover'); setHoveredNav(n.id); }}
+                onMouseLeave={(e) => { e.currentTarget.classList.remove('is-hover'); setHoveredNav(null); }}
               >
                 <span className="node-dot" />
                 <span>
