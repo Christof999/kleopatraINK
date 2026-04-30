@@ -6,14 +6,16 @@ import InstagramFeed from './components/InstagramFeed';
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
 import { GAL_ITEMS, GAL_FILTERS } from './gallery-items';
+import { WANNADO_ITEMS } from './wannado-items';
 import './styles.css';
 
 const NAV = [
   { id: 'gallery',      label: 'Galerie',        sub: 'Werke',       angle: -90  },
-  { id: 'about',        label: 'Das sind wir',   sub: 'Studio',      angle: -18  },
-  { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:  54  },
-  { id: 'testimonials', label: 'Unsere Kunden',  sub: 'Stimmen',     angle: 126  },
-  { id: 'socials',      label: 'Unsere Sozials', sub: 'Follow',      angle: 198  },
+  { id: 'about',        label: 'Das sind wir',   sub: 'Studio',      angle: -30  },
+  { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:  30  },
+  { id: 'testimonials', label: 'Unsere Kunden',  sub: 'Stimmen',     angle:  90  },
+  { id: 'socials',      label: 'Instagram',      sub: 'Follow',      angle: 150  },
+  { id: 'wannados',     label: 'Wanna-dos',      sub: 'Flash',       angle: 210  },
 ];
 
 // ── Landing ───────────────────────────────────────────────────────────────────
@@ -287,7 +289,85 @@ const INTERESTS = [
   { id: 'unsure',         name: 'Noch unsicher'  },
 ];
 
-function Booking({ onBack }) {
+// ── Wanna-dos ─────────────────────────────────────────────────────────────────
+
+const HAS_3D_BODY = false; // → true sobald body-model.glb hochgeladen ist
+
+function WannaDos({ onBack, onBook }) {
+  const [filter, setFilter] = useState('Alle');
+  const available = WANNADO_ITEMS.filter((i) => i.available !== false);
+  const items = filter === 'Alle'
+    ? WANNADO_ITEMS
+    : WANNADO_ITEMS.filter((i) => i.target === filter || i.target === 'Alle');
+
+  return (
+    <div className="page with-bg">
+      <PageHead
+        kicker="Flash & Wanna-dos · Kleopatra INK"
+        title="Wanna-" titleEm="dos"
+        meta={<>
+          <b>{available.length > 0 ? `${available.length} verfügbar` : 'Demnächst'}</b>
+          <div>Flash & Unikate</div>
+        </>}
+        onBack={onBack}
+      />
+
+      <div className="gal-filters" style={{ marginBottom: 32 }}>
+        {['Alle', 'Frau', 'Mann'].map((f) => (
+          <button key={f}
+            className={`gal-chip ${filter === f ? 'active' : ''}`}
+            onClick={() => setFilter(f)}
+          >{f}</button>
+        ))}
+      </div>
+
+      {items.length === 0 ? (
+        <p className="gal-empty">
+          {filter === 'Alle' ? 'Neue Motive folgen bald.' : `Keine Motive für ${filter} verfügbar.`}
+        </p>
+      ) : (
+        <div className="wd-grid">
+          {items.map((item, i) => (
+            <div key={i} className={`wd-card${item.available === false ? ' wd-taken' : ''}`}>
+              <div className="wd-img-wrap">
+                <img src={item.src} alt={item.title} className="wd-img" loading="lazy" />
+                {item.available === false && (
+                  <div className="wd-overlay-taken">Vergeben</div>
+                )}
+              </div>
+              <div className="wd-info">
+                <div className="wd-badges">
+                  <span className="wd-badge">{item.style}</span>
+                  <span className="wd-badge wd-badge-target">{item.target}</span>
+                </div>
+                <h3 className="wd-title">{item.title}</h3>
+                <div className="wd-meta">{item.placement}</div>
+                {item.desc && <p className="wd-desc">{item.desc}</p>}
+                <button
+                  className="wd-btn"
+                  disabled={item.available === false}
+                  onClick={() => item.available !== false && onBook(item)}
+                >
+                  {item.available === false ? 'Vergeben' : 'Ich will das →'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {HAS_3D_BODY && (
+        <div className="wd-3d-section">
+          {/* 3D-Körper-Viewer kommt hier */}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Booking ───────────────────────────────────────────────────────────────────
+
+function Booking({ onBack, wannado }) {
   const [interest, setInterest] = useState('unsure');
   const [slot, setSlot] = useState(null);
   const [name, setName] = useState('');
@@ -323,6 +403,17 @@ function Booking({ onBack }) {
         </>}
         onBack={onBack}
       />
+      {wannado && (
+        <div className="wd-booking-banner">
+          <img src={wannado.src} alt={wannado.title} className="wd-booking-img" />
+          <div>
+            <div className="wd-booking-label">Ausgewähltes Motiv</div>
+            <div className="wd-booking-name">{wannado.title}</div>
+            <div className="wd-booking-meta">{wannado.style} · {wannado.placement}</div>
+          </div>
+        </div>
+      )}
+
       <div className="book-intro">
         <p className="cormorant">
           <b className="gold">Jedes Tattoo beginnt mit einem Gespräch.</b> Bevor die Nadel ansetzt, treffen wir uns für eine unverbindliche Beratung — im Studio oder per Video. Wir besprechen dein Motiv, schauen Referenzen an, ich skizziere, wir klären Platzierung, Aufwand und einen realistischen Preis. Erst danach vereinbaren wir den eigentlichen Tattoo-Termin.
@@ -482,22 +573,29 @@ const TWEAK_DEFAULTS = {
 
 export default function App() {
   const [page, setPage] = useState('home');
+  const [selectedWannado, setSelectedWannado] = useState(null);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [page]);
 
-  const onBack = () => setPage('home');
+  const onBack = () => { setPage('home'); setSelectedWannado(null); };
+
+  const onBookWannado = (item) => {
+    setSelectedWannado(item);
+    setPage('booking');
+  };
 
   return (
     <>
       {page === 'home'         && <Landing onNav={setPage} tweaks={t} />}
       {page === 'gallery'      && <Gallery onBack={onBack} />}
       {page === 'about'        && <About onBack={onBack} />}
-      {page === 'booking'      && <Booking onBack={onBack} />}
+      {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} />}
       {page === 'testimonials' && <Testimonials onBack={onBack} />}
       {page === 'socials'      && <Socials onBack={onBack} />}
+      {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
 
       <TweaksPanel title="Tweaks">
         <TweakSection label="Vibe" />
