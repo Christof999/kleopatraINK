@@ -4,6 +4,7 @@ import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
 
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
+const Body3DViewer    = lazy(() => import('./components/Body3DViewer'));
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
 import { GAL_ITEMS, GAL_FILTERS } from './gallery-items';
 import { WANNADO_ITEMS } from './wannado-items';
@@ -291,10 +292,12 @@ const INTERESTS = [
 
 // ── Wanna-dos ─────────────────────────────────────────────────────────────────
 
-const HAS_3D_BODY = false; // → true sobald body-model.glb hochgeladen ist
+const HAS_3D_BODY = true;
 
 function WannaDos({ onBack, onBook }) {
-  const [filter, setFilter] = useState('Alle');
+  const [filter,   setFilter]   = useState('Alle');
+  const [viewItem, setViewItem] = useState(null);
+
   const available = WANNADO_ITEMS.filter((i) => i.available !== false);
   const items = filter === 'Alle'
     ? WANNADO_ITEMS
@@ -328,7 +331,7 @@ function WannaDos({ onBack, onBook }) {
       ) : (
         <div className="wd-grid">
           {items.map((item, i) => (
-            <div key={i} className={`wd-card${item.available === false ? ' wd-taken' : ''}`}>
+            <div key={i} className={`wd-card${item.available === false ? ' wd-taken' : ''}${viewItem === item ? ' wd-viewing' : ''}`}>
               <div className="wd-img-wrap">
                 <img src={item.src} alt={item.title} className="wd-img" loading="lazy" />
                 {item.available === false && (
@@ -343,13 +346,23 @@ function WannaDos({ onBack, onBook }) {
                 <h3 className="wd-title">{item.title}</h3>
                 <div className="wd-meta">{item.placement}</div>
                 {item.desc && <p className="wd-desc">{item.desc}</p>}
-                <button
-                  className="wd-btn"
-                  disabled={item.available === false}
-                  onClick={() => item.available !== false && onBook(item)}
-                >
-                  {item.available === false ? 'Vergeben' : 'Ich will das →'}
-                </button>
+                <div className="wd-actions">
+                  {HAS_3D_BODY && item.available !== false && (
+                    <button
+                      className={`wd-btn-view${viewItem === item ? ' active' : ''}`}
+                      onClick={() => setViewItem(viewItem === item ? null : item)}
+                    >
+                      {viewItem === item ? '3D aktiv ✓' : 'Auf Körper zeigen'}
+                    </button>
+                  )}
+                  <button
+                    className="wd-btn"
+                    disabled={item.available === false}
+                    onClick={() => item.available !== false && onBook(item)}
+                  >
+                    {item.available === false ? 'Vergeben' : 'Ich will das →'}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -358,7 +371,17 @@ function WannaDos({ onBack, onBook }) {
 
       {HAS_3D_BODY && (
         <div className="wd-3d-section">
-          {/* 3D-Körper-Viewer kommt hier */}
+          <div className="wd-3d-header">
+            <h3 className="wd-3d-title">Tattoo visualisieren</h3>
+            <p className="wd-3d-sub">
+              {viewItem
+                ? `„${viewItem.title}" — klick auf den Körper um es zu platzieren`
+                : 'Wähle ein Motiv aus und klicke auf „Auf Körper zeigen"'}
+            </p>
+          </div>
+          <Suspense fallback={<div className="body3d-loading">3D-Modell wird geladen …</div>}>
+            <Body3DViewer tatSrc={viewItem?.src ?? null} />
+          </Suspense>
         </div>
       )}
     </div>

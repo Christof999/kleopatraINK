@@ -908,7 +908,6 @@ body {
 }
 
 .wd-btn {
-  margin-top: 6px;
   background: none;
   border: 1px solid var(--line);
   color: var(--gold);
@@ -931,6 +930,184 @@ body {
 .wd-btn:disabled {
   color: var(--muted);
   cursor: default;
+}
+
+/* Wanna-do card actions row */
+.wd-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.wd-btn-view {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ivory-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: border-color 200ms, color 200ms, background 200ms;
+  width: 100%;
+}
+
+.wd-btn-view:hover {
+  border-color: rgba(212, 165, 55, 0.5);
+  color: var(--gold);
+}
+
+.wd-btn-view.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(212, 165, 55, 0.08);
+}
+
+.wd-card.wd-viewing {
+  border-color: rgba(212, 165, 55, 0.55);
+}
+
+/* 3D section in Wanna-dos */
+.wd-3d-section {
+  margin-top: 72px;
+  border-top: 1px solid var(--line);
+  padding-top: 48px;
+}
+
+.wd-3d-header {
+  margin-bottom: 24px;
+}
+
+.wd-3d-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+
+.wd-3d-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  color: var(--ivory-dim);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Body3DViewer */
+.body3d-loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.body3d-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.body3d-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.body3d-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--line);
+}
+
+.body3d-btn {
+  background: none;
+  border: none;
+  color: var(--ivory-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 200ms, color 200ms;
+}
+
+.body3d-btn + .body3d-btn {
+  border-left: 1px solid var(--line);
+}
+
+.body3d-btn.active {
+  background: rgba(212, 165, 55, 0.1);
+  color: var(--gold);
+}
+
+.body3d-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.body3d-size-lbl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+  cursor: default;
+}
+
+.body3d-size-lbl input[type='range'] {
+  width: 100px;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.body3d-clear {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 200ms;
+}
+
+.body3d-clear:hover { color: var(--ivory); }
+
+.body3d-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ivory-dim);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.body3d-canvas {
+  width: 100% !important;
+  height: 600px !important;
+  border: 1px solid var(--line);
+  background: radial-gradient(ellipse at center, rgba(26, 20, 12, 0.9) 0%, rgba(10, 8, 6, 0.97) 100%);
+}
+
+@media (max-width: 900px) {
+  .body3d-canvas { height: 500px !important; }
+}
+
+@media (max-width: 560px) {
+  .body3d-canvas { height: 420px !important; }
+  .body3d-controls { gap: 14px; }
+  .body3d-size-lbl input { width: 80px; }
 }
 
 /* Wannado-Banner im Buchungsformular */
