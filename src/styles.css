@@ -1093,6 +1093,13 @@ body {
   line-height: 1.4;
 }
 
+.body3d-hint-error {
+  color: #c0392b;
+  font-style: normal;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
 .body3d-canvas {
   width: 100% !important;
   height: 600px !important;

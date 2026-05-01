@@ -112,25 +112,45 @@ function Scene({ gender, decals, texture, onPlace }) {
 
 // ── Public component ──────────────────────────────────────────────────────────
 
+// 'idle' | 'loading' | 'ready' | 'error'
+const TEX_HINTS = {
+  idle:    'Wähle oben ein Motiv aus — dann hier auf den Körper klicken',
+  loading: 'Motiv wird geladen …',
+  ready:   'Klick auf den Körper um das Motiv zu platzieren · Ziehen zum Drehen',
+  error:   'Bild konnte nicht geladen werden → Firebase Storage CORS konfigurieren',
+};
+
 export default function Body3DViewer({ tatSrc }) {
   const [gender,    setGender]    = useState('female');
   const [decals,    setDecals]    = useState([]);
   const [texture,   setTexture]   = useState(null);
+  const [texState,  setTexState]  = useState('idle');
   const [decalSize, setDecalSize] = useState(0.18);
   const texRef    = useRef(null);
   const sizeRef   = useRef(decalSize);
   sizeRef.current = decalSize;
 
   useEffect(() => {
-    if (!tatSrc) { setTexture(null); return; }
+    if (!tatSrc) { setTexture(null); setTexState('idle'); return; }
+    setTexState('loading');
     let alive = true;
-    new THREE.TextureLoader().load(tatSrc, (t) => {
-      if (!alive) { t.dispose(); return; }
-      t.colorSpace = THREE.SRGBColorSpace;
-      if (texRef.current) texRef.current.dispose();
-      texRef.current = t;
-      setTexture(t);
-    });
+    new THREE.TextureLoader().load(
+      tatSrc,
+      (t) => {
+        if (!alive) { t.dispose(); return; }
+        t.colorSpace = THREE.SRGBColorSpace;
+        if (texRef.current) texRef.current.dispose();
+        texRef.current = t;
+        setTexture(t);
+        setTexState('ready');
+      },
+      undefined,
+      (err) => {
+        if (!alive) return;
+        console.error('[Body3DViewer] Textur konnte nicht geladen werden (CORS?):', err);
+        setTexState('error');
+      },
+    );
     return () => { alive = false; };
   }, [tatSrc]);
 
@@ -170,17 +190,15 @@ export default function Body3DViewer({ tatSrc }) {
         )}
       </div>
 
-      <p className="body3d-hint">
-        {tatSrc
-          ? 'Klick auf den Körper um das Motiv zu platzieren · Ziehen zum Drehen'
-          : 'Wähle oben ein Motiv aus — dann hier auf den Körper klicken'}
+      <p className={`body3d-hint${texState === 'error' ? ' body3d-hint-error' : ''}`}>
+        {TEX_HINTS[texState]}
       </p>
 
       <Canvas
         className="body3d-canvas"
         camera={{ position: [0, 0, 3.2], fov: 55, near: 0.01, far: 100 }}
         gl={{ antialias: true, alpha: true }}
-        style={{ cursor: tatSrc ? 'crosshair' : 'grab' }}
+        style={{ cursor: texState === 'ready' ? 'crosshair' : 'grab' }}
       >
         <Scene
           gender={gender}
