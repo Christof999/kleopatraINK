@@ -1381,6 +1381,13 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Firebase loading state — gallery & wannados */
+.fb-loading {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
 .ig-profile-btn {
   font-family: 'Cinzel', serif;
   font-size: 10px;

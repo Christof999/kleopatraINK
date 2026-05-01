@@ -6,8 +6,9 @@ import InstagramFeed from './components/InstagramFeed';
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
 const Body3DViewer    = lazy(() => import('./components/Body3DViewer'));
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
-import { GAL_ITEMS, GAL_FILTERS } from './gallery-items';
-import { WANNADO_ITEMS } from './wannado-items';
+import { GAL_FILTERS } from './gallery-items';
+import { useGallery }  from './hooks/useGallery';
+import { useWannados } from './hooks/useWannados';
 import './styles.css';
 
 const NAV = [
@@ -168,14 +169,16 @@ function PageHead({ kicker, title, titleEm, meta, onBack }) {
 
 function Gallery({ onBack }) {
   const [filter, setFilter] = useState('Alle');
-  const items = filter === 'Alle' ? GAL_ITEMS : GAL_ITEMS.filter((i) => i.style === filter);
+  const { items: allItems, loading } = useGallery();
+  const items = filter === 'Alle' ? allItems : allItems.filter((i) => i.style === filter);
+
   return (
     <div className="page with-bg">
       <PageHead
         kicker="Portfolio · Kleopatra INK"
         title="Werke &" titleEm="Wunden"
         meta={<>
-          <b>{GAL_ITEMS.length > 0 ? `${GAL_ITEMS.length} Arbeiten` : 'Demnächst'}</b>
+          <b>{loading ? '…' : allItems.length > 0 ? `${allItems.length} Arbeiten` : 'Demnächst'}</b>
           <div>2018 — 2026</div>
         </>}
         onBack={onBack}
@@ -187,14 +190,16 @@ function Gallery({ onBack }) {
             onClick={() => setFilter(f)}>{f}</button>
         ))}
       </div>
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : items.length === 0 ? (
         <p className="gal-empty">
           {filter === 'Alle' ? 'Bilder folgen bald.' : `Noch keine ${filter}-Arbeiten vorhanden.`}
         </p>
       ) : (
         <div className="gal-grid">
-          {items.map((it, i) => (
-            <div key={i} className="gal-item">
+          {items.map((it) => (
+            <div key={it.id} className="gal-item">
               <img className="gal-img" src={it.src} alt={it.piece || it.style} loading="lazy" />
               {(it.piece || it.style) && (
                 <div className="gal-caption">
@@ -297,11 +302,12 @@ const HAS_3D_BODY = true;
 function WannaDos({ onBack, onBook }) {
   const [filter,   setFilter]   = useState('Alle');
   const [viewItem, setViewItem] = useState(null);
+  const { items: allItems, loading } = useWannados();
 
-  const available = WANNADO_ITEMS.filter((i) => i.available !== false);
+  const available = allItems.filter((i) => i.available !== false);
   const items = filter === 'Alle'
-    ? WANNADO_ITEMS
-    : WANNADO_ITEMS.filter((i) => i.target === filter || i.target === 'Alle');
+    ? allItems
+    : allItems.filter((i) => i.target === filter || i.target === 'Alle');
 
   return (
     <div className="page with-bg">
@@ -324,14 +330,16 @@ function WannaDos({ onBack, onBook }) {
         ))}
       </div>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : items.length === 0 ? (
         <p className="gal-empty">
           {filter === 'Alle' ? 'Neue Motive folgen bald.' : `Keine Motive für ${filter} verfügbar.`}
         </p>
       ) : (
         <div className="wd-grid">
-          {items.map((item, i) => (
-            <div key={i} className={`wd-card${item.available === false ? ' wd-taken' : ''}${viewItem === item ? ' wd-viewing' : ''}`}>
+          {items.map((item) => (
+            <div key={item.id} className={`wd-card${item.available === false ? ' wd-taken' : ''}${viewItem === item ? ' wd-viewing' : ''}`}>
               <div className="wd-img-wrap">
                 <img src={item.src} alt={item.title} className="wd-img" loading="lazy" />
                 {item.available === false && (

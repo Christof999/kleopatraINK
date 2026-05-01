@@ -1,29 +1,13 @@
-// ── Wanna-dos & Flash ─────────────────────────────────────────────────────────
+// Wanna-dos kommen jetzt aus Firebase Firestore/Storage.
+// Upload über die Admin-App — siehe src/hooks/useWannados.js
 //
-// Neues Motiv hinzufügen:
-//   1. Bild nach src/assets/wannados/ hochladen
-//   2. Hier importieren und Eintrag anlegen
-//
-// import motiv1 from './assets/wannados/rosenranke.jpg';
-//
-// Felder:
-//   src        — importiertes Bild (required)
-//   title      — Name des Motivs (required)
-//   style      — Tattoo-Stil (required)
-//   placement  — Körperstelle, z. B. "Unterarm", "Rippe", "Schulterblatt"
-//   target     — 'Alle' | 'Frau' | 'Mann'
-//   desc       — kurze Beschreibung (optional)
-//   available  — false wenn das Motiv bereits vergeben ist (default: true)
-
-export const WANNADO_ITEMS = [
-  // Beispiel (auskommentiert):
-  // {
-  //   src:       motiv1,
-  //   title:     'Rosenranke',
-  //   style:     'Fineline',
-  //   placement: 'Unterarm',
-  //   target:    'Alle',
-  //   desc:      'Ein filigranes Motiv das die natürliche Kontur des Arms betont.',
-  //   available: true,
-  // },
-];
+// Firestore-Collection: "wannados"
+// Felder pro Dokument:
+//   src        — Firebase Storage Download-URL
+//   title      — Name des Motivs
+//   style      — Tattoo-Stil
+//   placement  — Körperstelle, z. B. "Unterarm"
+//   target     — "Alle" | "Frau" | "Mann"
+//   desc       — optionale Beschreibung
+//   available  — false wenn das Motiv vergeben ist
+//   order      — Zahl für manuelle Sortierung (optional)
