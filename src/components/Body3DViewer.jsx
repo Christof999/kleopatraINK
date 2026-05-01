@@ -1,5 +1,5 @@
-import { Suspense, useState, useRef, useCallback, useMemo, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Suspense, useState, useRef, useMemo, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
@@ -12,51 +12,24 @@ const MODELS = {
 useGLTF.preload(MODELS.female);
 useGLTF.preload(MODELS.male);
 
-function makeOrientation(point, worldNormal) {
+// Firestore stores plain {x,y,z} — convert to THREE.Vector3
+function v3(o) {
+  return new THREE.Vector3(o?.x ?? 0, o?.y ?? 0, o?.z ?? 0);
+}
+
+function makeOrientation(point, normal) {
   const helper = new THREE.Object3D();
   helper.position.copy(point);
-  helper.lookAt(new THREE.Vector3().addVectors(point, worldNormal));
+  helper.lookAt(new THREE.Vector3().addVectors(point, normal));
   return helper.rotation.clone();
 }
 
-// ── Decal ─────────────────────────────────────────────────────────────────────
+// ── Body model: loads GLB, recreates saved decals, read-only ─────────────────
 
-function TattooDecal({ mesh, point, normal, size, texture }) {
-  const geom = useMemo(() => {
-    if (!mesh || !point || !normal) return null;
-    try {
-      return new DecalGeometry(
-        mesh,
-        point,
-        makeOrientation(point, normal),
-        new THREE.Vector3(size, size, size * 0.4),
-      );
-    } catch { return null; }
-  }, [mesh, point, normal, size]);
-
-  if (!geom || !texture) return null;
-  return (
-    <mesh geometry={geom} renderOrder={2}>
-      <meshBasicMaterial
-        map={texture}
-        transparent
-        depthTest
-        depthWrite={false}
-        polygonOffset
-        polygonOffsetFactor={-4}
-        polygonOffsetUnits={-4}
-      />
-    </mesh>
-  );
-}
-
-// ── Body model ────────────────────────────────────────────────────────────────
-
-function BodyModel({ gender, onPlace, canPlace }) {
+function BodyModel({ gender, placement3d, texture }) {
   const { scene } = useGLTF(MODELS[gender]);
 
-  // Clone + normalize to ~2.2 units tall, centered at origin
-  const { cloned, groupPos, groupScale } = useMemo(() => {
+  const { cloned, groupScale, groupPos } = useMemo(() => {
     const c = scene.clone(true);
     const box = new THREE.Box3().setFromObject(c, true);
     const h = box.max.y - box.min.y;
@@ -65,40 +38,88 @@ function BodyModel({ gender, onPlace, canPlace }) {
     return { cloned: c, groupScale: s, groupPos: [-mid.x, -mid.y, -mid.z] };
   }, [scene]);
 
-  const handlePointerDown = useCallback(
-    (e) => {
-      e.stopPropagation();
-      if (!canPlace || !e.face || !(e.object instanceof THREE.Mesh)) return;
-      const mesh = e.object;
-      const nm = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
-      const wn = e.face.normal.clone().applyMatrix3(nm).normalize();
-      onPlace({ mesh, point: e.point.clone(), normal: wn });
-    },
-    [canPlace, onPlace],
-  );
+  const groupRef   = useRef();
+  const [geoms, setGeoms] = useState([]);
+  const builtFor   = useRef(null); // tracks which placement3d we've built for
+
+  // Build DecalGeometry on the first frame after model mounts.
+  // useFrame ensures matrixWorld is up-to-date before we raycast.
+  useFrame(() => {
+    if (!groupRef.current || builtFor.current === placement3d) return;
+    builtFor.current = placement3d;
+
+    const decalList = placement3d?.decals;
+    if (!decalList?.length) { setGeoms([]); return; }
+
+    groupRef.current.updateMatrixWorld(true);
+
+    // Collect all meshes inside the model group
+    const meshes = [];
+    groupRef.current.traverse((obj) => { if (obj.isMesh) meshes.push(obj); });
+
+    const rc = new THREE.Raycaster();
+    const built = [];
+
+    for (const d of decalList) {
+      const pt  = v3(d.point);
+      const n   = v3(d.normal).normalize();
+      const sz  = d.size ?? placement3d.decalSize ?? 0.18;
+
+      // Shoot a ray from slightly outside the surface toward the saved point
+      rc.set(pt.clone().addScaledVector(n, 0.2), n.clone().negate());
+      const hits = rc.intersectObjects(meshes);
+      if (!hits.length) continue;
+
+      try {
+        built.push(
+          new DecalGeometry(
+            hits[0].object,
+            pt,
+            makeOrientation(pt, n),
+            new THREE.Vector3(sz, sz, sz * 0.4),
+          ),
+        );
+      } catch { /* skip if geometry fails */ }
+    }
+
+    setGeoms(built);
+  });
 
   return (
-    <group scale={groupScale} position={groupPos}>
-      <primitive object={cloned} onPointerDown={handlePointerDown} />
-    </group>
+    <>
+      <group ref={groupRef} scale={groupScale} position={groupPos}>
+        <primitive object={cloned} />
+      </group>
+
+      {/* Decals at scene root — DecalGeometry outputs world-space vertices */}
+      {texture && geoms.map((geom, i) => (
+        <mesh key={i} geometry={geom} renderOrder={2}>
+          <meshBasicMaterial
+            map={texture}
+            transparent
+            depthTest
+            depthWrite={false}
+            polygonOffset
+            polygonOffsetFactor={-4}
+            polygonOffsetUnits={-4}
+          />
+        </mesh>
+      ))}
+    </>
   );
 }
 
-// ── Three scene ───────────────────────────────────────────────────────────────
+// ── Scene ─────────────────────────────────────────────────────────────────────
 
-function Scene({ gender, decals, texture, onPlace }) {
+function Scene({ gender, placement3d, texture }) {
   return (
     <>
       <ambientLight intensity={0.65} />
-      <directionalLight position={[2, 4, 3]} intensity={1.3} castShadow={false} />
+      <directionalLight position={[2, 4, 3]} intensity={1.3} />
       <directionalLight position={[-2, 1, -2]} intensity={0.35} />
       <Suspense fallback={null}>
-        <BodyModel gender={gender} onPlace={onPlace} canPlace={!!texture} />
+        <BodyModel gender={gender} placement3d={placement3d} texture={texture} />
       </Suspense>
-      {/* Decals live at scene root — DecalGeometry outputs world-space vertices */}
-      {texture && decals.map((d, i) => (
-        <TattooDecal key={i} {...d} texture={texture} />
-      ))}
       <OrbitControls
         makeDefault
         enablePan={false}
@@ -112,23 +133,12 @@ function Scene({ gender, decals, texture, onPlace }) {
 
 // ── Public component ──────────────────────────────────────────────────────────
 
-// 'idle' | 'loading' | 'ready' | 'error'
-const TEX_HINTS = {
-  idle:    'Wähle oben ein Motiv aus — dann hier auf den Körper klicken',
-  loading: 'Motiv wird geladen …',
-  ready:   'Klick auf den Körper um das Motiv zu platzieren · Ziehen zum Drehen',
-  error:   'Bild konnte nicht geladen werden → Firebase Storage CORS konfigurieren',
-};
+export default function Body3DViewer({ tatSrc, placement3d }) {
+  const gender  = placement3d?.gender ?? 'female';
 
-export default function Body3DViewer({ tatSrc }) {
-  const [gender,    setGender]    = useState('female');
-  const [decals,    setDecals]    = useState([]);
-  const [texture,   setTexture]   = useState(null);
-  const [texState,  setTexState]  = useState('idle');
-  const [decalSize, setDecalSize] = useState(0.18);
-  const texRef    = useRef(null);
-  const sizeRef   = useRef(decalSize);
-  sizeRef.current = decalSize;
+  const [texture,  setTexture]  = useState(null);
+  const [texState, setTexState] = useState('idle');
+  const texRef = useRef(null);
 
   useEffect(() => {
     if (!tatSrc) { setTexture(null); setTexState('idle'); return; }
@@ -147,66 +157,40 @@ export default function Body3DViewer({ tatSrc }) {
       undefined,
       (err) => {
         if (!alive) return;
-        console.error('[Body3DViewer] Textur konnte nicht geladen werden (CORS?):', err);
+        console.error('[Body3DViewer] Textur konnte nicht geladen werden:', err);
         setTexState('error');
       },
     );
     return () => { alive = false; };
   }, [tatSrc]);
 
-  const changeGender = (g) => { setGender(g); setDecals([]); };
-  const handlePlace  = useCallback(
-    (d) => setDecals((p) => [...p, { ...d, size: sizeRef.current }]),
-    [],
-  );
-
   return (
     <div className="body3d-wrap">
-      <div className="body3d-controls">
-        <div className="body3d-toggle">
-          <button
-            className={`body3d-btn${gender === 'female' ? ' active' : ''}`}
-            onClick={() => changeGender('female')}
-          >Frau</button>
-          <button
-            className={`body3d-btn${gender === 'male' ? ' active' : ''}`}
-            onClick={() => changeGender('male')}
-          >Mann</button>
-        </div>
-
-        <label className="body3d-size-lbl">
-          <span>Größe</span>
-          <input
-            type="range" min={0.05} max={0.4} step={0.01}
-            value={decalSize}
-            onChange={(e) => setDecalSize(Number(e.target.value))}
-          />
-        </label>
-
-        {decals.length > 0 && (
-          <button className="body3d-clear" onClick={() => setDecals([])}>
-            × löschen
-          </button>
-        )}
-      </div>
-
-      <p className={`body3d-hint${texState === 'error' ? ' body3d-hint-error' : ''}`}>
-        {TEX_HINTS[texState]}
-      </p>
+      {texState === 'error' && (
+        <p className="body3d-hint body3d-hint-error">
+          Bild konnte nicht geladen werden — Firebase Storage CORS prüfen
+        </p>
+      )}
+      {texState === 'loading' && (
+        <p className="body3d-hint">Motiv wird geladen …</p>
+      )}
 
       <Canvas
         className="body3d-canvas"
         camera={{ position: [0, 0, 3.2], fov: 55, near: 0.01, far: 100 }}
         gl={{ antialias: true, alpha: true }}
-        style={{ cursor: texState === 'ready' ? 'crosshair' : 'grab' }}
+        style={{ cursor: 'grab' }}
       >
         <Scene
           gender={gender}
-          decals={decals}
+          placement3d={placement3d}
           texture={texture}
-          onPlace={handlePlace}
         />
       </Canvas>
+
+      <p className="body3d-hint" style={{ textAlign: 'center' }}>
+        Ziehen zum Drehen · Scrollen zum Zoomen
+      </p>
     </div>
   );
 }

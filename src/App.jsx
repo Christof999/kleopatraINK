@@ -388,7 +388,7 @@ function WannaDos({ onBack, onBook }) {
             </p>
           </div>
           <Suspense fallback={<div className="body3d-loading">3D-Modell wird geladen …</div>}>
-            <Body3DViewer tatSrc={viewItem?.src ?? null} />
+            <Body3DViewer tatSrc={viewItem?.src ?? null} placement3d={viewItem?.placement3d ?? null} />
           </Suspense>
         </div>
       )}
