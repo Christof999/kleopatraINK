@@ -134,11 +134,15 @@ function Scene({ gender, placement3d, texture }) {
 // ── Public component ──────────────────────────────────────────────────────────
 
 export default function Body3DViewer({ tatSrc, placement3d }) {
-  const gender  = placement3d?.gender ?? 'female';
-
+  const [gender,   setGender]   = useState(placement3d?.gender ?? 'female');
   const [texture,  setTexture]  = useState(null);
   const [texState, setTexState] = useState('idle');
   const texRef = useRef(null);
+
+  // Sync gender when a new wannado with a different gender is selected
+  useEffect(() => {
+    if (placement3d?.gender) setGender(placement3d.gender);
+  }, [placement3d]);
 
   useEffect(() => {
     if (!tatSrc) { setTexture(null); setTexState('idle'); return; }
@@ -166,6 +170,19 @@ export default function Body3DViewer({ tatSrc, placement3d }) {
 
   return (
     <div className="body3d-wrap">
+      <div className="body3d-controls">
+        <div className="body3d-toggle">
+          <button
+            className={`body3d-btn${gender === 'female' ? ' active' : ''}`}
+            onClick={() => setGender('female')}
+          >Frau</button>
+          <button
+            className={`body3d-btn${gender === 'male' ? ' active' : ''}`}
+            onClick={() => setGender('male')}
+          >Mann</button>
+        </div>
+      </div>
+
       {texState === 'error' && (
         <p className="body3d-hint body3d-hint-error">
           Bild konnte nicht geladen werden — Firebase Storage CORS prüfen
