@@ -54,36 +54,10 @@ function getAuthErrorMessage(error) {
   }
 }
 
-const ACCOUNT_PROFILE_CACHE_KEY = 'kleopatraAccountProfile';
-
 function getFirstName(profile) {
   if (profile?.firstName) return profile.firstName;
   if (profile?.fullName) return profile.fullName.trim().split(/\s+/)[0] || '';
   return '';
-}
-
-function readCachedProfile(uid) {
-  if (typeof window === 'undefined') return null;
-
-  try {
-    const cached = window.localStorage.getItem(ACCOUNT_PROFILE_CACHE_KEY);
-    if (!cached) return null;
-
-    const profile = JSON.parse(cached);
-    return profile?.uid === uid ? profile : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeCachedProfile(profile) {
-  if (typeof window === 'undefined') return;
-
-  try {
-    window.localStorage.setItem(ACCOUNT_PROFILE_CACHE_KEY, JSON.stringify(profile));
-  } catch {
-    // The Firestore document remains the source of truth; this cache is only for immediate display.
-  }
 }
 
 // ── Landing ───────────────────────────────────────────────────────────────────
@@ -739,14 +713,7 @@ function Account({ onBack }) {
     }
 
     let active = true;
-    const cachedProfile = readCachedProfile(user.uid);
-
-    if (cachedProfile) {
-      setProfile(cachedProfile);
-      setProfileLoading(false);
-    } else {
-      setProfileLoading(true);
-    }
+    setProfileLoading(true);
 
     getDoc(doc(db, 'users', user.uid))
       .then((snap) => {
@@ -754,15 +721,7 @@ function Account({ onBack }) {
         if (snap.exists()) {
           const firestoreProfile = { uid: user.uid, ...snap.data() };
           setProfile(firestoreProfile);
-          writeCachedProfile({
-            uid: firestoreProfile.uid,
-            email: firestoreProfile.email,
-            firstName: firestoreProfile.firstName,
-            lastName: firestoreProfile.lastName,
-            fullName: firestoreProfile.fullName,
-            phone: firestoreProfile.phone,
-          });
-        } else if (!cachedProfile) {
+        } else {
           setProfile(null);
         }
       })
@@ -857,10 +816,8 @@ function Account({ onBack }) {
         updatedAt: serverTimestamp(),
       };
 
+      await setDoc(doc(db, 'users', credential.user.uid), profileData, { merge: true });
       setProfile(displayProfile);
-      writeCachedProfile(displayProfile);
-
-      await setDoc(doc(db, 'users', credential.user.uid), profileData);
       setRegisterForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
       setNotice({ type: 'success', text: 'Dein Kunden-Account wurde erstellt.' });
     } catch (error) {
@@ -919,7 +876,6 @@ function Account({ onBack }) {
       };
 
       setProfile(displayProfile);
-      writeCachedProfile(displayProfile);
       setNotice({ type: 'success', text: 'Dein Profil wurde gespeichert.' });
     } catch (error) {
       console.error('[Account] User profile save failed:', error);
@@ -947,10 +903,10 @@ function Account({ onBack }) {
     }
   };
 
-  const firstName = getFirstName(profile) || profileForm.firstName || user?.displayName || '';
-  const lastName = profile?.lastName || profileForm.lastName || '';
-  const phone = profile?.phone || profileForm.phone || '';
-  const email = profile?.email || profileForm.email || user?.email || '';
+  const firstName = getFirstName(profile) || user?.displayName || '';
+  const lastName = profile?.lastName || '';
+  const phone = profile?.phone || '';
+  const email = profile?.email || user?.email || '';
   const displayName = firstName || 'Dein Account';
 
   return (
@@ -976,7 +932,7 @@ function Account({ onBack }) {
             <div className="account-kicker">Angemeldet als</div>
             <h2 className="account-title">{profileLoading && !firstName ? 'Profil wird geladen …' : displayName}</h2>
             <p className="account-copy">
-              Diese Daten werden in Firestore unter <span className="gold">users/{user.uid}</span> gespeichert und können im Admin-Portal angezeigt werden.
+              Ergänze hier deine Kontaktdaten. Nach dem Speichern stehen sie auch im Admin-Portal zur Verfügung.
             </p>
             {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
             <form className="account-form account-profile-form" onSubmit={handleProfileSave}>

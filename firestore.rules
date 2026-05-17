@@ -1,0 +1,34 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'info@soergel-design.de',
+          'info@kleopatra-ink.com'
+        ];
+    }
+
+    match /gallery/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /wannados/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /piercingPrices/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /users/{uid} {
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow read, update: if request.auth != null && request.auth.uid == uid;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
