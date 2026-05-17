@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
@@ -9,16 +11,48 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from '.
 import { GAL_FILTERS } from './gallery-items';
 import { useGallery }  from './hooks/useGallery';
 import { useWannados } from './hooks/useWannados';
+import { useAuth } from './hooks/useAuth';
+import { usePiercingPrices } from './hooks/usePiercingPrices';
+import { auth, db, firebaseConfigured } from './firebase';
 import './styles.css';
 
 const NAV = [
   { id: 'gallery',      label: 'Galerie',        sub: 'Werke',       angle: -90  },
-  { id: 'about',        label: 'Das sind wir',   sub: 'Studio',      angle: -30  },
-  { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:  30  },
+  { id: 'about',        label: 'Das sind wir',   sub: 'Studio',      angle: -45  },
+  { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:   0  },
+  { id: 'piercing',     label: 'Piercing',       sub: 'Preise',      angle:  45  },
   { id: 'testimonials', label: 'Unsere Kunden',  sub: 'Stimmen',     angle:  90  },
-  { id: 'socials',      label: 'Instagram',      sub: 'Follow',      angle: 150  },
-  { id: 'wannados',     label: 'Wanna-dos',      sub: 'Flash',       angle: 210  },
+  { id: 'socials',      label: 'Instagram',      sub: 'Follow',      angle: 135  },
+  { id: 'account',      label: 'Account',        sub: 'Login',       angle: 180  },
+  { id: 'wannados',     label: 'Wanna-dos',      sub: 'Flash',       angle: 225  },
 ];
+
+const EUR_FORMATTER = new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR',
+});
+
+function formatEuro(price) {
+  const value = Number(price);
+  return Number.isFinite(value) ? EUR_FORMATTER.format(value) : 'Preis auf Anfrage';
+}
+
+function getAuthErrorMessage(error) {
+  switch (error?.code) {
+    case 'auth/email-already-in-use':
+      return 'Diese E-Mail-Adresse ist bereits registriert.';
+    case 'auth/invalid-email':
+      return 'Bitte gib eine gültige E-Mail-Adresse ein.';
+    case 'auth/invalid-credential':
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+      return 'E-Mail oder Passwort ist nicht korrekt.';
+    case 'auth/weak-password':
+      return 'Bitte wähle ein stärkeres Passwort mit mindestens 6 Zeichen.';
+    default:
+      return 'Die Anmeldung ist gerade nicht möglich. Bitte versuche es erneut.';
+  }
+}
 
 // ── Landing ───────────────────────────────────────────────────────────────────
 
@@ -396,6 +430,53 @@ function WannaDos({ onBack, onBook }) {
   );
 }
 
+// ── Piercing prices ───────────────────────────────────────────────────────────
+
+function PiercingPrices({ onBack }) {
+  const { items, loading, error } = usePiercingPrices();
+
+  return (
+    <div className="page with-bg">
+      <PageHead
+        kicker="Piercings · Preise"
+        title="Piercing" titleEm="Preise"
+        meta={<>
+          <b>{loading ? '…' : items.length > 0 ? `${items.length} Einträge` : 'Bald'}</b>
+          <div>Aus Firestore</div>
+          <div>inkl. Erstschmuck</div>
+        </>}
+        onBack={onBack}
+      />
+
+      <div className="book-intro piercing-intro">
+        <p>
+          <b className="gold">Aktuelle Piercing-Preise direkt aus dem Studio.</b> Die Liste wird im Admin-Portal gepflegt und hier automatisch aus demselben Firebase-Projekt angezeigt.
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : error ? (
+        <p className="gal-empty">Preisliste konnte nicht geladen werden.</p>
+      ) : items.length === 0 ? (
+        <p className="gal-empty">Piercing-Preise folgen bald.</p>
+      ) : (
+        <div className="piercing-grid">
+          {items.map((item) => (
+            <article key={item.id} className="piercing-card">
+              <div>
+                <h3 className="piercing-title">{item.title}</h3>
+                {item.desc && <p className="piercing-desc">{item.desc}</p>}
+              </div>
+              <div className="piercing-price">{formatEuro(item.price)}</div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Booking ───────────────────────────────────────────────────────────────────
 
 function Booking({ onBack, wannado }) {
@@ -594,6 +675,311 @@ function Socials({ onBack }) {
   );
 }
 
+// ── Account ───────────────────────────────────────────────────────────────────
+
+function Account({ onBack }) {
+  const { user, loading: authLoading } = useAuth();
+  const [mode, setMode] = useState('login');
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    password: '',
+  });
+
+  useEffect(() => {
+    if (!user || !db) {
+      setProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+
+    let active = true;
+    setProfileLoading(true);
+
+    getDoc(doc(db, 'users', user.uid))
+      .then((snap) => {
+        if (!active) return;
+        setProfile(snap.exists() ? snap.data() : null);
+      })
+      .catch((err) => {
+        console.error('[Account] User profile fetch failed:', err);
+        if (active) setNotice({ type: 'error', text: 'Dein Profil konnte nicht geladen werden.' });
+      })
+      .finally(() => {
+        if (active) setProfileLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [user]);
+
+  const updateLoginForm = (field, value) => {
+    setLoginForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateRegisterForm = (field, value) => {
+    setRegisterForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    if (!auth) return;
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        loginForm.email.trim().toLowerCase(),
+        loginForm.password
+      );
+      setLoginForm({ email: '', password: '' });
+      setNotice({ type: 'success', text: 'Du bist eingeloggt.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: getAuthErrorMessage(error) });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRegister = async (event) => {
+    event.preventDefault();
+    if (!auth || !db) return;
+
+    const firstName = registerForm.firstName.trim();
+    const lastName = registerForm.lastName.trim();
+    const phone = registerForm.phone.trim();
+    const email = registerForm.email.trim().toLowerCase();
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, registerForm.password);
+      const profileData = {
+        uid: credential.user.uid,
+        email,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        phone,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await setDoc(doc(db, 'users', credential.user.uid), profileData);
+      setProfile({
+        uid: credential.user.uid,
+        email,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        phone,
+      });
+      setRegisterForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
+      setNotice({ type: 'success', text: 'Dein Kunden-Account wurde erstellt.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: getAuthErrorMessage(error) });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (!auth) return;
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      await signOut(auth);
+      setProfile(null);
+      setMode('login');
+      setNotice({ type: 'success', text: 'Du bist ausgeloggt.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: 'Logout konnte nicht ausgeführt werden.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const displayName = profile?.fullName || [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || user?.email;
+
+  return (
+    <div className="page with-bg">
+      <PageHead
+        kicker="Kundenbereich · Kleopatra INK"
+        title="Dein" titleEm="Account"
+        meta={<>
+          <b>{user ? 'Eingeloggt' : 'Login'}</b>
+          <div>Firebase Auth</div>
+          <div>Kundenprofil</div>
+        </>}
+        onBack={onBack}
+      />
+
+      {!firebaseConfigured ? (
+        <p className="gal-empty">Firebase ist für diese Umgebung nicht konfiguriert.</p>
+      ) : authLoading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : user ? (
+        <div className="account-layout">
+          <section className="account-panel">
+            <div className="account-kicker">Angemeldet als</div>
+            <h2 className="account-title">{profileLoading ? 'Profil wird geladen …' : displayName}</h2>
+            <p className="account-copy">
+              Dies ist dein Kunden-Account für die öffentliche Website. Admin-Funktionen werden hier nicht bereitgestellt.
+            </p>
+            {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
+            <button className="btn-primary account-logout" onClick={handleLogout} disabled={submitting}>
+              {submitting ? 'Bitte warten …' : 'Logout'}
+            </button>
+          </section>
+
+          <aside className="summary">
+            <h4>Profil</h4>
+            <div className="sum-row"><span className="sum-k">E-Mail</span><span className="sum-v">{profile?.email || user.email}</span></div>
+            <div className="sum-row"><span className="sum-k">Vorname</span><span className={`sum-v ${profile?.firstName ? '' : 'empty'}`}>{profile?.firstName || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">Nachname</span><span className={`sum-v ${profile?.lastName ? '' : 'empty'}`}>{profile?.lastName || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">Telefon</span><span className={`sum-v ${profile?.phone ? '' : 'empty'}`}>{profile?.phone || 'nicht gesetzt'}</span></div>
+          </aside>
+        </div>
+      ) : (
+        <div className="account-layout">
+          <section className="account-panel">
+            <div className="account-tabs" role="tablist" aria-label="Account Formular">
+              <button
+                className={`gal-chip ${mode === 'login' ? 'active' : ''}`}
+                type="button"
+                onClick={() => { setMode('login'); setNotice(null); }}
+              >
+                Login
+              </button>
+              <button
+                className={`gal-chip ${mode === 'register' ? 'active' : ''}`}
+                type="button"
+                onClick={() => { setMode('register'); setNotice(null); }}
+              >
+                Registrierung
+              </button>
+            </div>
+
+            {mode === 'login' ? (
+              <form className="account-form" onSubmit={handleLogin}>
+                <div className="field">
+                  <label>E-Mail</label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={loginForm.email}
+                    onChange={(event) => updateLoginForm('email', event.target.value)}
+                    placeholder="deine@email.de"
+                  />
+                </div>
+                <div className="field">
+                  <label>Passwort</label>
+                  <input
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={loginForm.password}
+                    onChange={(event) => updateLoginForm('password', event.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+                {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
+                <button className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Bitte warten …' : 'Einloggen'}
+                </button>
+              </form>
+            ) : (
+              <form className="account-form" onSubmit={handleRegister}>
+                <div className="account-form-grid">
+                  <div className="field">
+                    <label>Vorname</label>
+                    <input
+                      type="text"
+                      autoComplete="given-name"
+                      required
+                      value={registerForm.firstName}
+                      onChange={(event) => updateRegisterForm('firstName', event.target.value)}
+                      placeholder="Max"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Nachname</label>
+                    <input
+                      type="text"
+                      autoComplete="family-name"
+                      required
+                      value={registerForm.lastName}
+                      onChange={(event) => updateRegisterForm('lastName', event.target.value)}
+                      placeholder="Mustermann"
+                    />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Telefonnummer</label>
+                  <input
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    value={registerForm.phone}
+                    onChange={(event) => updateRegisterForm('phone', event.target.value)}
+                    placeholder="+49 170 1234567"
+                  />
+                </div>
+                <div className="field">
+                  <label>E-Mail</label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={registerForm.email}
+                    onChange={(event) => updateRegisterForm('email', event.target.value)}
+                    placeholder="deine@email.de"
+                  />
+                </div>
+                <div className="field">
+                  <label>Passwort</label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    value={registerForm.password}
+                    onChange={(event) => updateRegisterForm('password', event.target.value)}
+                    placeholder="Mindestens 6 Zeichen"
+                  />
+                </div>
+                {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
+                <button className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Bitte warten …' : 'Account erstellen'}
+                </button>
+              </form>
+            )}
+          </section>
+
+          <aside className="summary">
+            <h4>Hinweis</h4>
+            <div className="sum-row"><span className="sum-k">Auth</span><span className="sum-v">Firebase</span></div>
+            <div className="sum-row"><span className="sum-k">Profil</span><span className="sum-v">users/uid</span></div>
+            <div className="sum-row"><span className="sum-k">Passwort</span><span className="sum-v">nicht in Firestore</span></div>
+          </aside>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 const TWEAK_DEFAULTS = {
@@ -624,8 +1010,10 @@ export default function App() {
       {page === 'gallery'      && <Gallery onBack={onBack} />}
       {page === 'about'        && <About onBack={onBack} />}
       {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} />}
+      {page === 'piercing'     && <PiercingPrices onBack={onBack} />}
       {page === 'testimonials' && <Testimonials onBack={onBack} />}
       {page === 'socials'      && <Socials onBack={onBack} />}
+      {page === 'account'      && <Account onBack={onBack} />}
       {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
 
       <TweaksPanel title="Tweaks">
