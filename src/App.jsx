@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useId, lazy, Suspense } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
+import CookieBanner from './components/CookieBanner';
+import { Imprint, Privacy, SiteFooter } from './components/Legal';
 
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
 const Body3DViewer    = lazy(() => import('./components/Body3DViewer'));
@@ -15,6 +17,20 @@ import { useAuth } from './hooks/useAuth';
 import { usePiercingPrices } from './hooks/usePiercingPrices';
 import { auth, db, firebaseConfigured } from './firebase';
 import './styles.css';
+
+const PAGE_TITLES = {
+  home:         'Kleopatra INK – Tattoostudio Gunzenhausen | Blackwork & Fineline',
+  gallery:      'Galerie – Tattoo-Werke | Kleopatra INK Gunzenhausen',
+  about:        'Über uns – Studio &amp; Künstlerin | Kleopatra INK',
+  booking:      'Termin buchen – kostenlose Beratung | Kleopatra INK',
+  piercing:     'Piercing-Preise | Kleopatra INK Gunzenhausen',
+  testimonials: 'Kundenstimmen – 5,0★ auf Google | Kleopatra INK',
+  socials:      'Instagram @kleopatra.ink | Kleopatra INK',
+  account:      'Kundenbereich · Login | Kleopatra INK',
+  wannados:     'Wanna-dos – Flash-Motive | Kleopatra INK',
+  imprint:      'Impressum | Kleopatra INK',
+  privacy:      'Datenschutz | Kleopatra INK',
+};
 
 const NAV = [
   { id: 'gallery',      label: 'Galerie',        sub: 'Werke',       angle: -90  },
@@ -122,30 +138,31 @@ function Landing({ onNav, tweaks }) {
     <div className="stage">
       <Background mode={tweaks.bgMode} goldIntensity={tweaks.gold} />
 
-      <div className="chrome">
-        <div className="brand">
+      <header className="chrome">
+        <h1 className="brand">
           <img
             className="brand-logo-img"
             src="/IMG_0708.jpeg"
-            alt="Kleopatra INK Logo"
+            alt=""
+            aria-hidden="true"
             onError={(event) => { event.currentTarget.style.display = 'none'; }}
           />
-          <div className="brand-copy">
-            <div>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></div>
-            <div className="brand-sub">Tattoo &amp; Piercing</div>
-          </div>
-        </div>
+          <span className="brand-copy">
+            <span>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></span>
+            <span className="brand-sub">Tattoo &amp; Piercing · Gunzenhausen</span>
+          </span>
+        </h1>
         <div className="chrome-actions">
-          <div className="chrome-meta">
+          <div className="chrome-meta" aria-hidden="true">
             <span>EST 2018</span>
             <span>GUNZENHAUSEN</span>
             <span>DI — SA</span>
           </div>
           <AccountStatus onAccount={() => onNav('account')} />
         </div>
-      </div>
+      </header>
 
-      <div className="composition">
+      <div className="composition" role="navigation" aria-label="Hauptnavigation">
         <div className="dial" ref={dialRef}>
           <div className="dial-ring outer" />
           <div className="dial-ring" />
@@ -187,14 +204,17 @@ function Landing({ onNav, tweaks }) {
                 key={n.id}
                 className="node"
                 style={{ left: `${x}%`, top: `${y}%` }}
+                aria-label={`${n.label} – ${n.sub}`}
                 onClick={() => onNav(n.id)}
                 onMouseEnter={(e) => { e.currentTarget.classList.add('is-hover'); setHoveredNav(n.id); }}
                 onMouseLeave={(e) => { e.currentTarget.classList.remove('is-hover'); setHoveredNav(null); }}
+                onFocus={() => setHoveredNav(n.id)}
+                onBlur={() => setHoveredNav(null)}
               >
-                <span className="node-dot" />
+                <span className="node-dot" aria-hidden="true" />
                 <span>
-                  <div className="node-lbl">{n.label}</div>
-                  <div className="node-sub">{n.sub}</div>
+                  <span className="node-lbl">{n.label}</span>
+                  <span className="node-sub">{n.sub}</span>
                 </span>
               </button>
             );
@@ -202,26 +222,27 @@ function Landing({ onNav, tweaks }) {
         </div>
       </div>
 
-      <nav className="mobile-nav" aria-label="Navigation">
+      <nav className="mobile-nav" aria-label="Hauptnavigation Mobil">
         {NAV.map((n) => (
           <button
             key={n.id}
             className="mobile-nav-item"
+            aria-label={`${n.label} – ${n.sub}`}
             onClick={() => onNav(n.id)}
           >
-            <span className="mobile-nav-dot" />
+            <span className="mobile-nav-dot" aria-hidden="true" />
             <span className="mobile-nav-lbl">{n.label}</span>
             <span className="mobile-nav-sub">{n.sub}</span>
           </button>
         ))}
       </nav>
 
-      <div className="corner bl">
+      <address className="corner bl">
         <div>Marktplatz 7</div>
         <div>91710 Gunzenhausen</div>
-        <div><span className="gold">+49 9831 6 84 21</span></div>
-      </div>
-      <div className="corner br">
+        <div><a className="gold corner-tel" href="tel:+4998316842">+49 9831 6 84 21</a></div>
+      </address>
+      <div className="corner br" aria-hidden="true">
         <div>Beratung · Termin</div>
         <div>Fineline · Dotwork · Realism</div>
         <div>Neotraditional · Oldschool</div>
@@ -270,33 +291,38 @@ function Gallery({ onBack }) {
         </>}
         onBack={onBack}
       />
-      <div className="gal-filters">
+      <div className="gal-filters" role="group" aria-label="Filter nach Tattoo-Stil">
         {GAL_FILTERS.map((f) => (
           <button key={f}
+            type="button"
             className={`gal-chip ${filter === f ? 'active' : ''}`}
+            aria-pressed={filter === f}
             onClick={() => setFilter(f)}>{f}</button>
         ))}
       </div>
       {loading ? (
-        <div className="fb-loading"><div className="ig-spinner" /></div>
+        <div className="fb-loading" role="status" aria-live="polite">
+          <div className="ig-spinner" aria-hidden="true" />
+          <span className="visually-hidden">Galerie wird geladen …</span>
+        </div>
       ) : items.length === 0 ? (
         <p className="gal-empty">
           {filter === 'Alle' ? 'Bilder folgen bald.' : `Noch keine ${filter}-Arbeiten vorhanden.`}
         </p>
       ) : (
-        <div className="gal-grid">
+        <ul className="gal-grid" aria-label={`${items.length} Tattoo-Werke`}>
           {items.map((it) => (
-            <div key={it.id} className="gal-item">
-              <img className="gal-img" src={it.src} alt={it.piece || it.style} loading="lazy" />
+            <li key={it.id} className="gal-item">
+              <img className="gal-img" src={it.src} alt={it.piece ? `${it.style}-Tattoo: ${it.piece}` : `${it.style}-Tattoo`} loading="lazy" />
               {(it.piece || it.style) && (
                 <div className="gal-caption">
                   <div className="gal-caption-style">{it.style}</div>
                   {it.piece && <div className="gal-caption-piece">{it.piece}</div>}
                 </div>
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
@@ -547,6 +573,12 @@ function Booking({ onBack, wannado, piercing }) {
   const [desc, setDesc] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const isPiercingBooking = !!piercing;
+  const ids = {
+    name:  useId(),
+    email: useId(),
+    phone: useId(),
+    desc:  useId(),
+  };
 
   useEffect(() => {
     if (isPiercingBooking) {
@@ -655,23 +687,32 @@ function Booking({ onBack, wannado, piercing }) {
               {piercing.desc && <div className="booking-selected-desc">{piercing.desc}</div>}
             </div>
           ) : (
-            <div className="style-grid">
+            <div className="style-grid" role="radiogroup" aria-label="Interesse / Tattoo-Stil">
               {INTERESTS.map((s) => (
-                <div key={s.id}
+                <button
+                  key={s.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={interest === s.id}
                   className={`style-card ${interest === s.id ? 'selected' : ''}`}
-                  onClick={() => setInterest(s.id)}>
-                  <div className="style-name">{s.name}</div>
-                </div>
+                  onClick={() => setInterest(s.id)}
+                >
+                  <span className="style-name">{s.name}</span>
+                </button>
               ))}
             </div>
           )}
 
           <h3 style={{ marginTop: 36 }}>02 · Dein Wunsch-Slot — Di 12. Mai</h3>
-          <div className="slot-grid">
+          <div className="slot-grid" role="radiogroup" aria-label="Verfügbare Uhrzeiten">
             {SLOTS.map((s) => (
               <button key={s}
+                type="button"
+                role="radio"
+                aria-checked={slot === s}
                 className={`slot ${slot === s ? 'selected' : ''} ${DISABLED.has(s) ? 'disabled' : ''}`}
                 disabled={DISABLED.has(s)}
+                aria-disabled={DISABLED.has(s)}
                 onClick={() => setSlot(s)}>{s}</button>
             ))}
           </div>
@@ -681,20 +722,20 @@ function Booking({ onBack, wannado, piercing }) {
 
           <h3 style={{ marginTop: 12 }}>03 · Deine Details</h3>
           <div className="field">
-            <label>Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" />
+            <label htmlFor={ids.name}>Name</label>
+            <input id={ids.name} type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" />
           </div>
           <div className="field">
-            <label>E-Mail</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.de" />
+            <label htmlFor={ids.email}>E-Mail</label>
+            <input id={ids.email} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.de" />
           </div>
           <div className="field">
-            <label>Telefon <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 …" />
+            <label htmlFor={ids.phone}>Telefon <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
+            <input id={ids.phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 …" />
           </div>
           <div className="field">
-            <label>Kurz zu deiner Idee</label>
-            <textarea rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Motiv, Körperstelle, ungefähre Größe, Referenzen — alles was dir einfällt. Keine Angst, noch muss nichts feststehen." />
+            <label htmlFor={ids.desc}>Kurz zu deiner Idee</label>
+            <textarea id={ids.desc} rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Motiv, Körperstelle, ungefähre Größe, Referenzen — alles was dir einfällt. Keine Angst, noch muss nichts feststehen." />
           </div>
         </div>
 
@@ -707,15 +748,18 @@ function Booking({ onBack, wannado, piercing }) {
           <div className="sum-row"><span className="sum-k">Dauer</span><span className="sum-v">~45 Min</span></div>
           <div className="sum-row"><span className="sum-k">Kosten</span><span className="sum-v gold">{isPiercingBooking ? formatEuro(piercing.price) : 'Kostenfrei'}</span></div>
           <button
+            type="button"
             className="btn-primary"
             style={{ marginTop: 24, opacity: (slot && name && email) ? 1 : 0.4, cursor: (slot && name && email) ? 'pointer' : 'not-allowed' }}
             disabled={!(slot && name && email)}
+            aria-disabled={!(slot && name && email)}
             onClick={() => setSubmitted(true)}>
             {isPiercingBooking ? 'Piercing anfragen →' : 'Beratung anfragen →'}
           </button>
-          <div style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
-            Unverbindlich. Bestätigung per Mail binnen 48 Stunden. Der eigentliche Tattoo-Termin wird im Anschluss gemeinsam vereinbart.
-          </div>
+          <p style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
+            Unverbindlich. Bestätigung per Mail binnen 48 Stunden. Mit dem Absenden stimmst du der
+            Verarbeitung deiner Angaben gemäß unserer Datenschutz­erklärung zu.
+          </p>
         </div>
       </div>
     </div>
@@ -1260,9 +1304,11 @@ export default function App() {
   const [selectedWannado, setSelectedWannado] = useState(null);
   const [selectedPiercing, setSelectedPiercing] = useState(null);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = PAGE_TITLES[page] || PAGE_TITLES.home;
   }, [page]);
 
   const onBack = () => { setPage('home'); setSelectedWannado(null); setSelectedPiercing(null); };
@@ -1279,17 +1325,35 @@ export default function App() {
     setPage('booking');
   };
 
+  const goTo = (target) => {
+    setPage(target);
+    if (target !== 'booking') {
+      setSelectedWannado(null);
+      setSelectedPiercing(null);
+    }
+  };
+
   return (
     <>
-      {page === 'home'         && <Landing onNav={setPage} tweaks={t} />}
-      {page === 'gallery'      && <Gallery onBack={onBack} />}
-      {page === 'about'        && <About onBack={onBack} />}
-      {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} piercing={selectedPiercing} />}
-      {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
-      {page === 'testimonials' && <Testimonials onBack={onBack} />}
-      {page === 'socials'      && <Socials onBack={onBack} />}
-      {page === 'account'      && <Account onBack={onBack} />}
-      {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
+      <a href="#main-content" className="skip-link">Zum Inhalt springen</a>
+
+      <main id="main-content" ref={mainRef} tabIndex={-1}>
+        {page === 'home'         && <Landing onNav={goTo} tweaks={t} />}
+        {page === 'gallery'      && <Gallery onBack={onBack} />}
+        {page === 'about'        && <About onBack={onBack} />}
+        {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} piercing={selectedPiercing} />}
+        {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
+        {page === 'testimonials' && <Testimonials onBack={onBack} />}
+        {page === 'socials'      && <Socials onBack={onBack} />}
+        {page === 'account'      && <Account onBack={onBack} />}
+        {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
+        {page === 'imprint'      && <Imprint onBack={onBack} />}
+        {page === 'privacy'      && <Privacy onBack={onBack} />}
+      </main>
+
+      <SiteFooter onNav={goTo} />
+
+      <CookieBanner onOpenPrivacy={() => goTo('privacy')} />
 
       <TweaksPanel title="Tweaks">
         <TweakSection label="Vibe" />
