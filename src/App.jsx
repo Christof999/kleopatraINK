@@ -134,6 +134,15 @@ function Landing({ onNav, tweaks }) {
             <span>DI — SA</span>
           </div>
           <AccountStatus onAccount={() => onNav('account')} />
+          <div className="header-logo-block">
+            <img
+              className="header-logo-img"
+              src="/IMG_0708.jpeg"
+              alt="Kleopatra INK Logo"
+              onError={(event) => { event.currentTarget.style.display = 'none'; }}
+            />
+            <div className="header-logo-sub">Tattoo &amp; Piercing</div>
+          </div>
         </div>
       </div>
 
