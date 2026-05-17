@@ -1,7 +1,11 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useId, lazy, Suspense } from 'react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
+import CookieBanner from './components/CookieBanner';
+import { Imprint, Privacy, SiteFooter } from './components/Legal';
 
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
 const Body3DViewer    = lazy(() => import('./components/Body3DViewer'));
@@ -9,16 +13,104 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from '.
 import { GAL_FILTERS } from './gallery-items';
 import { useGallery }  from './hooks/useGallery';
 import { useWannados } from './hooks/useWannados';
+import { useAuth } from './hooks/useAuth';
+import { usePiercingPrices } from './hooks/usePiercingPrices';
+import { auth, db, firebaseConfigured } from './firebase';
 import './styles.css';
+
+const PAGE_TITLES = {
+  home:         'Kleopatra INK – Tattoostudio Gunzenhausen | Blackwork & Fineline',
+  gallery:      'Galerie – Tattoo-Werke | Kleopatra INK Gunzenhausen',
+  about:        'Über uns – Studio &amp; Künstlerin | Kleopatra INK',
+  booking:      'Termin buchen – kostenlose Beratung | Kleopatra INK',
+  piercing:     'Piercing-Preise | Kleopatra INK Gunzenhausen',
+  testimonials: 'Kundenstimmen – 5,0★ auf Google | Kleopatra INK',
+  socials:      'Instagram @kleopatra.ink | Kleopatra INK',
+  account:      'Kundenbereich · Login | Kleopatra INK',
+  wannados:     'Wanna-dos – Flash-Motive | Kleopatra INK',
+  imprint:      'Impressum | Kleopatra INK',
+  privacy:      'Datenschutz | Kleopatra INK',
+};
 
 const NAV = [
   { id: 'gallery',      label: 'Galerie',        sub: 'Werke',       angle: -90  },
-  { id: 'about',        label: 'Das sind wir',   sub: 'Studio',      angle: -30  },
-  { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:  30  },
+  { id: 'about',        label: 'Das sind wir',   sub: 'Studio',      angle: -45  },
+  { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:   0  },
+  { id: 'piercing',     label: 'Piercing',       sub: 'Preise',      angle:  45  },
   { id: 'testimonials', label: 'Unsere Kunden',  sub: 'Stimmen',     angle:  90  },
   { id: 'socials',      label: 'Instagram',      sub: 'Follow',      angle: 150  },
   { id: 'wannados',     label: 'Wanna-dos',      sub: 'Flash',       angle: 210  },
 ];
+
+const EUR_FORMATTER = new Intl.NumberFormat('de-DE', {
+  style: 'currency',
+  currency: 'EUR',
+});
+
+function formatEuro(price) {
+  const value = Number(price);
+  return Number.isFinite(value) ? EUR_FORMATTER.format(value) : 'Preis auf Anfrage';
+}
+
+function getAuthErrorMessage(error) {
+  switch (error?.code) {
+    case 'auth/email-already-in-use':
+      return 'Diese E-Mail-Adresse ist bereits registriert.';
+    case 'auth/invalid-email':
+      return 'Bitte gib eine gültige E-Mail-Adresse ein.';
+    case 'auth/invalid-credential':
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+      return 'E-Mail oder Passwort ist nicht korrekt.';
+    case 'auth/weak-password':
+      return 'Bitte wähle ein stärkeres Passwort mit mindestens 6 Zeichen.';
+    default:
+      return 'Die Anmeldung ist gerade nicht möglich. Bitte versuche es erneut.';
+  }
+}
+
+function getFirstName(profile) {
+  if (profile?.firstName) return profile.firstName;
+  if (profile?.fullName) return profile.fullName.trim().split(/\s+/)[0] || '';
+  return '';
+}
+
+function AccountStatus({ onAccount }) {
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState('');
+
+  useEffect(() => {
+    if (!user || !db) {
+      setFirstName('');
+      return;
+    }
+
+    let active = true;
+
+    getDoc(doc(db, 'users', user.uid))
+      .then((snap) => {
+        if (!active) return;
+        setFirstName(snap.exists() ? getFirstName(snap.data()) : '');
+      })
+      .catch((err) => {
+        console.warn('[AccountStatus] User profile fetch failed:', err);
+        if (active) setFirstName('');
+      });
+
+    return () => { active = false; };
+  }, [user]);
+
+  const label = user
+    ? `Eingeloggt als ${firstName || user.displayName || user.email || 'User'}`
+    : 'Account / Login';
+
+  return (
+    <button className={`account-top ${user ? 'is-logged-in' : ''}`} onClick={onAccount}>
+      <span className="account-top-dot" />
+      <span>{label}</span>
+    </button>
+  );
+}
 
 // ── Landing ───────────────────────────────────────────────────────────────────
 
@@ -46,19 +138,31 @@ function Landing({ onNav, tweaks }) {
     <div className="stage">
       <Background mode={tweaks.bgMode} goldIntensity={tweaks.gold} />
 
-      <div className="chrome">
-        <div className="brand">
-          <div className="brand-mark">K</div>
-          <div>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></div>
+      <header className="chrome">
+        <h1 className="brand">
+          <img
+            className="brand-logo-img"
+            src="/IMG_0708.jpeg"
+            alt=""
+            aria-hidden="true"
+            onError={(event) => { event.currentTarget.style.display = 'none'; }}
+          />
+          <span className="brand-copy">
+            <span>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></span>
+            <span className="brand-sub">Tattoo &amp; Piercing · Gunzenhausen</span>
+          </span>
+        </h1>
+        <div className="chrome-actions">
+          <div className="chrome-meta" aria-hidden="true">
+            <span>EST 2018</span>
+            <span>GUNZENHAUSEN</span>
+            <span>DI — SA</span>
+          </div>
+          <AccountStatus onAccount={() => onNav('account')} />
         </div>
-        <div className="chrome-meta">
-          <span>EST 2018</span>
-          <span>GUNZENHAUSEN</span>
-          <span>DI — SA</span>
-        </div>
-      </div>
+      </header>
 
-      <div className="composition">
+      <div className="composition" role="navigation" aria-label="Hauptnavigation">
         <div className="dial" ref={dialRef}>
           <div className="dial-ring outer" />
           <div className="dial-ring" />
@@ -100,14 +204,17 @@ function Landing({ onNav, tweaks }) {
                 key={n.id}
                 className="node"
                 style={{ left: `${x}%`, top: `${y}%` }}
+                aria-label={`${n.label} – ${n.sub}`}
                 onClick={() => onNav(n.id)}
                 onMouseEnter={(e) => { e.currentTarget.classList.add('is-hover'); setHoveredNav(n.id); }}
                 onMouseLeave={(e) => { e.currentTarget.classList.remove('is-hover'); setHoveredNav(null); }}
+                onFocus={() => setHoveredNav(n.id)}
+                onBlur={() => setHoveredNav(null)}
               >
-                <span className="node-dot" />
+                <span className="node-dot" aria-hidden="true" />
                 <span>
-                  <div className="node-lbl">{n.label}</div>
-                  <div className="node-sub">{n.sub}</div>
+                  <span className="node-lbl">{n.label}</span>
+                  <span className="node-sub">{n.sub}</span>
                 </span>
               </button>
             );
@@ -115,26 +222,27 @@ function Landing({ onNav, tweaks }) {
         </div>
       </div>
 
-      <nav className="mobile-nav" aria-label="Navigation">
+      <nav className="mobile-nav" aria-label="Hauptnavigation Mobil">
         {NAV.map((n) => (
           <button
             key={n.id}
             className="mobile-nav-item"
+            aria-label={`${n.label} – ${n.sub}`}
             onClick={() => onNav(n.id)}
           >
-            <span className="mobile-nav-dot" />
+            <span className="mobile-nav-dot" aria-hidden="true" />
             <span className="mobile-nav-lbl">{n.label}</span>
             <span className="mobile-nav-sub">{n.sub}</span>
           </button>
         ))}
       </nav>
 
-      <div className="corner bl">
+      <address className="corner bl">
         <div>Marktplatz 7</div>
         <div>91710 Gunzenhausen</div>
-        <div><span className="gold">+49 9831 6 84 21</span></div>
-      </div>
-      <div className="corner br">
+        <div><a className="gold corner-tel" href="tel:+4998316842">+49 9831 6 84 21</a></div>
+      </address>
+      <div className="corner br" aria-hidden="true">
         <div>Beratung · Termin</div>
         <div>Fineline · Dotwork · Realism</div>
         <div>Neotraditional · Oldschool</div>
@@ -183,33 +291,38 @@ function Gallery({ onBack }) {
         </>}
         onBack={onBack}
       />
-      <div className="gal-filters">
+      <div className="gal-filters" role="group" aria-label="Filter nach Tattoo-Stil">
         {GAL_FILTERS.map((f) => (
           <button key={f}
+            type="button"
             className={`gal-chip ${filter === f ? 'active' : ''}`}
+            aria-pressed={filter === f}
             onClick={() => setFilter(f)}>{f}</button>
         ))}
       </div>
       {loading ? (
-        <div className="fb-loading"><div className="ig-spinner" /></div>
+        <div className="fb-loading" role="status" aria-live="polite">
+          <div className="ig-spinner" aria-hidden="true" />
+          <span className="visually-hidden">Galerie wird geladen …</span>
+        </div>
       ) : items.length === 0 ? (
         <p className="gal-empty">
           {filter === 'Alle' ? 'Bilder folgen bald.' : `Noch keine ${filter}-Arbeiten vorhanden.`}
         </p>
       ) : (
-        <div className="gal-grid">
+        <ul className="gal-grid" aria-label={`${items.length} Tattoo-Werke`}>
           {items.map((it) => (
-            <div key={it.id} className="gal-item">
-              <img className="gal-img" src={it.src} alt={it.piece || it.style} loading="lazy" />
+            <li key={it.id} className="gal-item">
+              <img className="gal-img" src={it.src} alt={it.piece ? `${it.style}-Tattoo: ${it.piece}` : `${it.style}-Tattoo`} loading="lazy" />
               {(it.piece || it.style) && (
                 <div className="gal-caption">
                   <div className="gal-caption-style">{it.style}</div>
                   {it.piece && <div className="gal-caption-piece">{it.piece}</div>}
                 </div>
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
@@ -396,9 +509,62 @@ function WannaDos({ onBack, onBook }) {
   );
 }
 
+// ── Piercing prices ───────────────────────────────────────────────────────────
+
+function PiercingPrices({ onBack, onBook }) {
+  const { items, loading, error } = usePiercingPrices();
+
+  return (
+    <div className="page with-bg">
+      <PageHead
+        kicker="Piercings · Preise"
+        title="Piercing" titleEm="Preise"
+        meta={<>
+          <b>{loading ? '…' : items.length > 0 ? `${items.length} Einträge` : 'Bald'}</b>
+          <div>Aus Firestore</div>
+          <div>inkl. Erstschmuck</div>
+        </>}
+        onBack={onBack}
+      />
+
+      <div className="book-intro piercing-intro">
+        <p>
+          <b className="gold">Aktuelle Piercing-Preise direkt aus dem Studio.</b> Die Liste wird im Admin-Portal gepflegt und hier automatisch aus demselben Firebase-Projekt angezeigt.
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : error ? (
+        <p className="gal-empty">Preisliste konnte nicht geladen werden.</p>
+      ) : items.length === 0 ? (
+        <p className="gal-empty">Piercing-Preise folgen bald.</p>
+      ) : (
+        <div className="piercing-grid">
+          {items.map((item) => (
+            <article key={item.id} className="piercing-card">
+              <div>
+                <h3 className="piercing-title">{item.title}</h3>
+                {item.desc && <p className="piercing-desc">{item.desc}</p>}
+              </div>
+              <div className="piercing-card-side">
+                <div className="piercing-price">{formatEuro(item.price)}</div>
+                <button className="piercing-request" onClick={() => onBook(item)}>
+                  Termin anfragen
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Booking ───────────────────────────────────────────────────────────────────
 
-function Booking({ onBack, wannado }) {
+function Booking({ onBack, wannado, piercing }) {
+  const { user } = useAuth();
   const [interest, setInterest] = useState('unsure');
   const [slot, setSlot] = useState(null);
   const [name, setName] = useState('');
@@ -406,6 +572,48 @@ function Booking({ onBack, wannado }) {
   const [phone, setPhone] = useState('');
   const [desc, setDesc] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const isPiercingBooking = !!piercing;
+  const ids = {
+    name:  useId(),
+    email: useId(),
+    phone: useId(),
+    desc:  useId(),
+  };
+
+  useEffect(() => {
+    if (isPiercingBooking) {
+      setInterest('piercing');
+      setDesc((current) => current || `Piercing-Anfrage: ${piercing.title}${piercing.desc ? ` — ${piercing.desc}` : ''}`);
+    }
+  }, [isPiercingBooking, piercing]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (user.email) setEmail((current) => current || user.email);
+    if (user.displayName) setName((current) => current || user.displayName);
+
+    if (!db) return;
+
+    let active = true;
+
+    getDoc(doc(db, 'users', user.uid))
+      .then((snap) => {
+        if (!active || !snap.exists()) return;
+
+        const profile = snap.data();
+        const fullName = profile.fullName || [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+
+        if (fullName) setName((current) => current || fullName);
+        if (profile.email) setEmail((current) => current || profile.email);
+        if (profile.phone) setPhone((current) => current || profile.phone);
+      })
+      .catch((err) => {
+        console.warn('[Booking] User profile fetch failed:', err);
+      });
+
+    return () => { active = false; };
+  }, [user]);
 
   if (submitted) {
     return (
@@ -425,11 +633,11 @@ function Booking({ onBack, wannado }) {
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Beratungstermin · kostenlos"
-        title="Termin" titleEm="buchen"
+        kicker={isPiercingBooking ? 'Piercing-Anfrage · Kleopatra INK' : 'Beratungstermin · kostenlos'}
+        title={isPiercingBooking ? 'Piercing' : 'Termin'} titleEm={isPiercingBooking ? 'anfragen' : 'buchen'}
         meta={<>
-          <b>~45 min</b>
-          <div>Kostenfrei</div>
+          <b>{isPiercingBooking ? 'Anfrage' : '~45 min'}</b>
+          <div>{isPiercingBooking ? piercing.title : 'Kostenfrei'}</div>
           <div>Unverbindlich</div>
         </>}
         onBack={onBack}
@@ -444,31 +652,67 @@ function Booking({ onBack, wannado }) {
           </div>
         </div>
       )}
+      {piercing && (
+        <div className="wd-booking-banner piercing-booking-banner">
+          <div>
+            <div className="wd-booking-label">Ausgewähltes Piercing</div>
+            <div className="wd-booking-name">{piercing.title}</div>
+            <div className="wd-booking-meta">
+              {piercing.desc ? `${piercing.desc} · ` : ''}{formatEuro(piercing.price)}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="book-intro">
         <p className="cormorant">
-          <b className="gold">Jedes Tattoo beginnt mit einem Gespräch.</b> Bevor die Nadel ansetzt, treffen wir uns für eine unverbindliche Beratung — im Studio oder per Video. Wir besprechen dein Motiv, schauen Referenzen an, ich skizziere, wir klären Platzierung, Aufwand und einen realistischen Preis. Erst danach vereinbaren wir den eigentlichen Tattoo-Termin.
+          {isPiercingBooking ? (
+            <>
+              <b className="gold">Deine Piercing-Anfrage ist vorbereitet.</b> Name und Kontaktdaten werden aus deinem Account übernommen, wenn du eingeloggt bist. Wähle noch einen Wunsch-Slot und ergänze bei Bedarf Hinweise.
+            </>
+          ) : (
+            <>
+              <b className="gold">Jedes Tattoo beginnt mit einem Gespräch.</b> Bevor die Nadel ansetzt, treffen wir uns für eine unverbindliche Beratung — im Studio oder per Video. Wir besprechen dein Motiv, schauen Referenzen an, ich skizziere, wir klären Platzierung, Aufwand und einen realistischen Preis. Erst danach vereinbaren wir den eigentlichen Tattoo-Termin.
+            </>
+          )}
         </p>
       </div>
       <div className="booking-wrap">
         <div className="book-col">
           <h3>01 · Worum geht&apos;s ungefähr?</h3>
-          <div className="style-grid">
-            {INTERESTS.map((s) => (
-              <div key={s.id}
-                className={`style-card ${interest === s.id ? 'selected' : ''}`}
-                onClick={() => setInterest(s.id)}>
-                <div className="style-name">{s.name}</div>
-              </div>
-            ))}
-          </div>
+          {isPiercingBooking ? (
+            <div className="booking-selected-service">
+              <div className="booking-selected-label">Piercing</div>
+              <div className="booking-selected-title">{piercing.title}</div>
+              {piercing.desc && <div className="booking-selected-desc">{piercing.desc}</div>}
+            </div>
+          ) : (
+            <div className="style-grid" role="radiogroup" aria-label="Interesse / Tattoo-Stil">
+              {INTERESTS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={interest === s.id}
+                  className={`style-card ${interest === s.id ? 'selected' : ''}`}
+                  onClick={() => setInterest(s.id)}
+                >
+                  <span className="style-name">{s.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           <h3 style={{ marginTop: 36 }}>02 · Dein Wunsch-Slot — Di 12. Mai</h3>
-          <div className="slot-grid">
+          <div className="slot-grid" role="radiogroup" aria-label="Verfügbare Uhrzeiten">
             {SLOTS.map((s) => (
               <button key={s}
+                type="button"
+                role="radio"
+                aria-checked={slot === s}
                 className={`slot ${slot === s ? 'selected' : ''} ${DISABLED.has(s) ? 'disabled' : ''}`}
                 disabled={DISABLED.has(s)}
+                aria-disabled={DISABLED.has(s)}
                 onClick={() => setSlot(s)}>{s}</button>
             ))}
           </div>
@@ -478,40 +722,44 @@ function Booking({ onBack, wannado }) {
 
           <h3 style={{ marginTop: 12 }}>03 · Deine Details</h3>
           <div className="field">
-            <label>Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" />
+            <label htmlFor={ids.name}>Name</label>
+            <input id={ids.name} type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" />
           </div>
           <div className="field">
-            <label>E-Mail</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.de" />
+            <label htmlFor={ids.email}>E-Mail</label>
+            <input id={ids.email} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.de" />
           </div>
           <div className="field">
-            <label>Telefon <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-            <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 …" />
+            <label htmlFor={ids.phone}>Telefon <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
+            <input id={ids.phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 …" />
           </div>
           <div className="field">
-            <label>Kurz zu deiner Idee</label>
-            <textarea rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Motiv, Körperstelle, ungefähre Größe, Referenzen — alles was dir einfällt. Keine Angst, noch muss nichts feststehen." />
+            <label htmlFor={ids.desc}>Kurz zu deiner Idee</label>
+            <textarea id={ids.desc} rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Motiv, Körperstelle, ungefähre Größe, Referenzen — alles was dir einfällt. Keine Angst, noch muss nichts feststehen." />
           </div>
         </div>
 
         <div className="summary">
           <h4>Dein Beratungstermin</h4>
-          <div className="sum-row"><span className="sum-k">Art</span><span className="sum-v">Erstberatung</span></div>
-          <div className="sum-row"><span className="sum-k">Thema</span><span className="sum-v">{INTERESTS.find((s) => s.id === interest)?.name}</span></div>
+          <div className="sum-row"><span className="sum-k">Art</span><span className="sum-v">{isPiercingBooking ? 'Piercing-Anfrage' : 'Erstberatung'}</span></div>
+          <div className="sum-row"><span className="sum-k">Thema</span><span className="sum-v">{isPiercingBooking ? piercing.title : INTERESTS.find((s) => s.id === interest)?.name}</span></div>
+          {name && <div className="sum-row"><span className="sum-k">Name</span><span className="sum-v">{name}</span></div>}
           <div className="sum-row"><span className="sum-k">Termin</span><span className={`sum-v ${slot ? '' : 'empty'}`}>{slot ? `Di 12. Mai · ${slot}` : 'noch nicht gewählt'}</span></div>
           <div className="sum-row"><span className="sum-k">Dauer</span><span className="sum-v">~45 Min</span></div>
-          <div className="sum-row"><span className="sum-k">Kosten</span><span className="sum-v gold">Kostenfrei</span></div>
+          <div className="sum-row"><span className="sum-k">Kosten</span><span className="sum-v gold">{isPiercingBooking ? formatEuro(piercing.price) : 'Kostenfrei'}</span></div>
           <button
+            type="button"
             className="btn-primary"
             style={{ marginTop: 24, opacity: (slot && name && email) ? 1 : 0.4, cursor: (slot && name && email) ? 'pointer' : 'not-allowed' }}
             disabled={!(slot && name && email)}
+            aria-disabled={!(slot && name && email)}
             onClick={() => setSubmitted(true)}>
-            Beratung anfragen →
+            {isPiercingBooking ? 'Piercing anfragen →' : 'Beratung anfragen →'}
           </button>
-          <div style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
-            Unverbindlich. Bestätigung per Mail binnen 48 Stunden. Der eigentliche Tattoo-Termin wird im Anschluss gemeinsam vereinbart.
-          </div>
+          <p style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
+            Unverbindlich. Bestätigung per Mail binnen 48 Stunden. Mit dem Absenden stimmst du der
+            Verarbeitung deiner Angaben gemäß unserer Datenschutz­erklärung zu.
+          </p>
         </div>
       </div>
     </div>
@@ -594,6 +842,455 @@ function Socials({ onBack }) {
   );
 }
 
+// ── Account ───────────────────────────────────────────────────────────────────
+
+function Account({ onBack }) {
+  const { user, loading: authLoading } = useAuth();
+  const [mode, setMode] = useState('login');
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [notice, setNotice] = useState(null);
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    password: '',
+  });
+  const [profileForm, setProfileForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+  });
+
+  useEffect(() => {
+    if (!user || !db) {
+      setProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+
+    let active = true;
+    setProfileLoading(true);
+
+    getDoc(doc(db, 'users', user.uid))
+      .then((snap) => {
+        if (!active) return;
+        if (snap.exists()) {
+          const firestoreProfile = { uid: user.uid, ...snap.data() };
+          setProfile(firestoreProfile);
+        } else {
+          setProfile(null);
+        }
+      })
+      .catch((err) => {
+        console.warn('[Account] User profile fetch failed:', err);
+      })
+      .finally(() => {
+        if (active) setProfileLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [user]);
+
+  const updateLoginForm = (field, value) => {
+    setLoginForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateRegisterForm = (field, value) => {
+    setRegisterForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const updateProfileForm = (field, value) => {
+    setProfileForm((current) => ({ ...current, [field]: value }));
+  };
+
+  useEffect(() => {
+    if (!user) {
+      setProfileForm({ firstName: '', lastName: '', phone: '', email: '' });
+      return;
+    }
+
+    setProfileForm({
+      firstName: getFirstName(profile) || user.displayName || '',
+      lastName: profile?.lastName || '',
+      phone: profile?.phone || '',
+      email: profile?.email || user.email || '',
+    });
+  }, [profile, user]);
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    if (!auth) return;
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        loginForm.email.trim().toLowerCase(),
+        loginForm.password
+      );
+      setLoginForm({ email: '', password: '' });
+      setNotice({ type: 'success', text: 'Du bist eingeloggt.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: getAuthErrorMessage(error) });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRegister = async (event) => {
+    event.preventDefault();
+    if (!auth || !db) return;
+
+    const firstName = registerForm.firstName.trim();
+    const lastName = registerForm.lastName.trim();
+    const phone = registerForm.phone.trim();
+    const email = registerForm.email.trim().toLowerCase();
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, registerForm.password);
+      await updateProfile(credential.user, { displayName: firstName }).catch((err) => {
+        console.warn('[Account] Auth display name update failed:', err);
+      });
+
+      const displayProfile = {
+        uid: credential.user.uid,
+        email,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        phone,
+      };
+
+      const profileData = {
+        ...displayProfile,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      await setDoc(doc(db, 'users', credential.user.uid), profileData, { merge: true });
+      setProfile(displayProfile);
+      setRegisterForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
+      setNotice({ type: 'success', text: 'Dein Kunden-Account wurde erstellt.' });
+    } catch (error) {
+      const isLoggedInAfterRegister = auth.currentUser?.email?.toLowerCase() === email;
+      setNotice({
+        type: isLoggedInAfterRegister ? 'warning' : 'error',
+        text: isLoggedInAfterRegister
+          ? 'Dein Account wurde erstellt, aber das Profil konnte nicht in Firestore gespeichert werden.'
+          : getAuthErrorMessage(error),
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleProfileSave = async (event) => {
+    event.preventDefault();
+    if (!auth?.currentUser || !db) return;
+
+    const firstNameValue = profileForm.firstName.trim();
+    const lastNameValue = profileForm.lastName.trim();
+    const phoneValue = profileForm.phone.trim();
+    const emailValue = profileForm.email.trim().toLowerCase();
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      await updateProfile(auth.currentUser, { displayName: firstNameValue }).catch((err) => {
+        console.warn('[Account] Auth display name update failed:', err);
+      });
+
+      const profileData = {
+        uid: auth.currentUser.uid,
+        email: emailValue,
+        firstName: firstNameValue,
+        lastName: lastNameValue,
+        fullName: `${firstNameValue} ${lastNameValue}`,
+        phone: phoneValue,
+        updatedAt: serverTimestamp(),
+      };
+
+      if (!profile) {
+        profileData.createdAt = serverTimestamp();
+      }
+
+      await setDoc(doc(db, 'users', auth.currentUser.uid), profileData, { merge: true });
+
+      const displayProfile = {
+        uid: auth.currentUser.uid,
+        email: emailValue,
+        firstName: firstNameValue,
+        lastName: lastNameValue,
+        fullName: `${firstNameValue} ${lastNameValue}`,
+        phone: phoneValue,
+      };
+
+      setProfile(displayProfile);
+      setNotice({ type: 'success', text: 'Dein Profil wurde gespeichert.' });
+    } catch (error) {
+      console.error('[Account] User profile save failed:', error);
+      setNotice({ type: 'error', text: 'Dein Profil konnte nicht gespeichert werden.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (!auth) return;
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      await signOut(auth);
+      setProfile(null);
+      setMode('login');
+      setNotice({ type: 'success', text: 'Du bist ausgeloggt.' });
+    } catch (error) {
+      setNotice({ type: 'error', text: 'Logout konnte nicht ausgeführt werden.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const firstName = getFirstName(profile) || user?.displayName || '';
+  const lastName = profile?.lastName || '';
+  const phone = profile?.phone || '';
+  const email = profile?.email || user?.email || '';
+  const displayName = firstName || 'Dein Account';
+
+  return (
+    <div className="page with-bg">
+      <PageHead
+        kicker="Kundenbereich · Kleopatra INK"
+        title="Dein" titleEm="Account"
+        meta={<>
+          <b>{user ? 'Eingeloggt' : 'Login'}</b>
+          <div>Firebase Auth</div>
+          <div>Kundenprofil</div>
+        </>}
+        onBack={onBack}
+      />
+
+      {!firebaseConfigured ? (
+        <p className="gal-empty">Firebase ist für diese Umgebung nicht konfiguriert.</p>
+      ) : authLoading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : user ? (
+        <div className="account-layout">
+          <section className="account-panel">
+            <div className="account-kicker">Angemeldet als</div>
+            <h2 className="account-title">{profileLoading && !firstName ? 'Profil wird geladen …' : displayName}</h2>
+            <p className="account-copy">
+              Ergänze hier deine Kontaktdaten. Nach dem Speichern stehen sie auch im Admin-Portal zur Verfügung.
+            </p>
+            {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
+            <form className="account-form account-profile-form" onSubmit={handleProfileSave}>
+              <div className="account-form-grid">
+                <div className="field">
+                  <label>Vorname</label>
+                  <input
+                    type="text"
+                    autoComplete="given-name"
+                    required
+                    value={profileForm.firstName}
+                    onChange={(event) => updateProfileForm('firstName', event.target.value)}
+                    placeholder="Vorname"
+                  />
+                </div>
+                <div className="field">
+                  <label>Nachname</label>
+                  <input
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={profileForm.lastName}
+                    onChange={(event) => updateProfileForm('lastName', event.target.value)}
+                    placeholder="Nachname"
+                  />
+                </div>
+              </div>
+              <div className="field">
+                <label>Telefonnummer</label>
+                <input
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  value={profileForm.phone}
+                  onChange={(event) => updateProfileForm('phone', event.target.value)}
+                  placeholder="+49 …"
+                />
+              </div>
+              <div className="field">
+                <label>E-Mail im Profil</label>
+                <input
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={profileForm.email}
+                  onChange={(event) => updateProfileForm('email', event.target.value)}
+                  placeholder="deine@email.de"
+                />
+              </div>
+              <div className="account-actions">
+                <button className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Bitte warten …' : 'Profil speichern'}
+                </button>
+                <button className="account-secondary-btn" type="button" onClick={handleLogout} disabled={submitting}>
+                  Logout
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <aside className="summary">
+            <h4>Profil</h4>
+            <div className="sum-row"><span className="sum-k">E-Mail</span><span className="sum-v account-email-value">{email}</span></div>
+            <div className="sum-row"><span className="sum-k">Vorname</span><span className={`sum-v ${firstName ? '' : 'empty'}`}>{firstName || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">Nachname</span><span className={`sum-v ${lastName ? '' : 'empty'}`}>{lastName || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">Telefon</span><span className={`sum-v ${phone ? '' : 'empty'}`}>{phone || 'nicht gesetzt'}</span></div>
+          </aside>
+        </div>
+      ) : (
+        <div className="account-layout">
+          <section className="account-panel">
+            <div className="account-tabs" role="tablist" aria-label="Account Formular">
+              <button
+                className={`gal-chip ${mode === 'login' ? 'active' : ''}`}
+                type="button"
+                onClick={() => { setMode('login'); setNotice(null); }}
+              >
+                Login
+              </button>
+              <button
+                className={`gal-chip ${mode === 'register' ? 'active' : ''}`}
+                type="button"
+                onClick={() => { setMode('register'); setNotice(null); }}
+              >
+                Registrierung
+              </button>
+            </div>
+
+            {mode === 'login' ? (
+              <form className="account-form" onSubmit={handleLogin}>
+                <div className="field">
+                  <label>E-Mail</label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={loginForm.email}
+                    onChange={(event) => updateLoginForm('email', event.target.value)}
+                    placeholder="deine@email.de"
+                  />
+                </div>
+                <div className="field">
+                  <label>Passwort</label>
+                  <input
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={loginForm.password}
+                    onChange={(event) => updateLoginForm('password', event.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+                {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
+                <button className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Bitte warten …' : 'Einloggen'}
+                </button>
+              </form>
+            ) : (
+              <form className="account-form" onSubmit={handleRegister}>
+                <div className="account-form-grid">
+                  <div className="field">
+                    <label>Vorname</label>
+                    <input
+                      type="text"
+                      autoComplete="given-name"
+                      required
+                      value={registerForm.firstName}
+                      onChange={(event) => updateRegisterForm('firstName', event.target.value)}
+                      placeholder="Max"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Nachname</label>
+                    <input
+                      type="text"
+                      autoComplete="family-name"
+                      required
+                      value={registerForm.lastName}
+                      onChange={(event) => updateRegisterForm('lastName', event.target.value)}
+                      placeholder="Mustermann"
+                    />
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Telefonnummer</label>
+                  <input
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    value={registerForm.phone}
+                    onChange={(event) => updateRegisterForm('phone', event.target.value)}
+                    placeholder="+49 170 1234567"
+                  />
+                </div>
+                <div className="field">
+                  <label>E-Mail</label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={registerForm.email}
+                    onChange={(event) => updateRegisterForm('email', event.target.value)}
+                    placeholder="deine@email.de"
+                  />
+                </div>
+                <div className="field">
+                  <label>Passwort</label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    value={registerForm.password}
+                    onChange={(event) => updateRegisterForm('password', event.target.value)}
+                    placeholder="Mindestens 6 Zeichen"
+                  />
+                </div>
+                {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
+                <button className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Bitte warten …' : 'Account erstellen'}
+                </button>
+              </form>
+            )}
+          </section>
+
+          <aside className="summary">
+            <h4>Hinweis</h4>
+            <div className="sum-row"><span className="sum-k">Auth</span><span className="sum-v">Firebase</span></div>
+            <div className="sum-row"><span className="sum-k">Profil</span><span className="sum-v">users/uid</span></div>
+            <div className="sum-row"><span className="sum-k">Passwort</span><span className="sum-v">nicht in Firestore</span></div>
+          </aside>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 const TWEAK_DEFAULTS = {
@@ -605,28 +1302,58 @@ const TWEAK_DEFAULTS = {
 export default function App() {
   const [page, setPage] = useState('home');
   const [selectedWannado, setSelectedWannado] = useState(null);
+  const [selectedPiercing, setSelectedPiercing] = useState(null);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const mainRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = PAGE_TITLES[page] || PAGE_TITLES.home;
   }, [page]);
 
-  const onBack = () => { setPage('home'); setSelectedWannado(null); };
+  const onBack = () => { setPage('home'); setSelectedWannado(null); setSelectedPiercing(null); };
 
   const onBookWannado = (item) => {
     setSelectedWannado(item);
+    setSelectedPiercing(null);
     setPage('booking');
+  };
+
+  const onBookPiercing = (item) => {
+    setSelectedPiercing(item);
+    setSelectedWannado(null);
+    setPage('booking');
+  };
+
+  const goTo = (target) => {
+    setPage(target);
+    if (target !== 'booking') {
+      setSelectedWannado(null);
+      setSelectedPiercing(null);
+    }
   };
 
   return (
     <>
-      {page === 'home'         && <Landing onNav={setPage} tweaks={t} />}
-      {page === 'gallery'      && <Gallery onBack={onBack} />}
-      {page === 'about'        && <About onBack={onBack} />}
-      {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} />}
-      {page === 'testimonials' && <Testimonials onBack={onBack} />}
-      {page === 'socials'      && <Socials onBack={onBack} />}
-      {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
+      <a href="#main-content" className="skip-link">Zum Inhalt springen</a>
+
+      <main id="main-content" ref={mainRef} tabIndex={-1}>
+        {page === 'home'         && <Landing onNav={goTo} tweaks={t} />}
+        {page === 'gallery'      && <Gallery onBack={onBack} />}
+        {page === 'about'        && <About onBack={onBack} />}
+        {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} piercing={selectedPiercing} />}
+        {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
+        {page === 'testimonials' && <Testimonials onBack={onBack} />}
+        {page === 'socials'      && <Socials onBack={onBack} />}
+        {page === 'account'      && <Account onBack={onBack} />}
+        {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
+        {page === 'imprint'      && <Imprint onBack={onBack} />}
+        {page === 'privacy'      && <Privacy onBack={onBack} />}
+      </main>
+
+      <SiteFooter onNav={goTo} />
+
+      <CookieBanner onOpenPrivacy={() => goTo('privacy')} />
 
       <TweaksPanel title="Tweaks">
         <TweakSection label="Vibe" />

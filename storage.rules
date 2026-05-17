@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'info@soergel-design.de',
+          'info@kleopatra-ink.com'
+        ];
+    }
+
+    match /gallery/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
+    }
+
+    match /wannados/{fileName} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
