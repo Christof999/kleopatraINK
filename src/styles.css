@@ -852,6 +852,10 @@ body {
   max-width: 680px;
 }
 
+.account-profile-form {
+  margin-top: 24px;
+}
+
 .account-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -911,6 +915,38 @@ body {
 
 .account-logout {
   max-width: 260px;
+}
+
+.account-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.account-secondary-btn {
+  min-width: 150px;
+  padding: 14px 20px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 200ms, background 200ms;
+}
+
+.account-secondary-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(212, 165, 55, 0.07);
+}
+
+.account-secondary-btn:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 /* testimonials */
@@ -1825,6 +1861,8 @@ body {
   .gal-grid { grid-template-columns: 1fr; gap: 12px; }
   .account-panel { padding: 22px; }
   .account-form-grid { grid-template-columns: 1fr; gap: 0; }
+  .account-actions { grid-template-columns: 1fr; }
+  .account-secondary-btn { width: 100%; }
   .piercing-card { flex-direction: column; gap: 18px; padding: 22px; }
   .piercing-price { font-size: 18px; }
   .team-grid { grid-template-columns: 1fr; gap: 18px; }

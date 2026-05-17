@@ -724,6 +724,12 @@ function Account({ onBack }) {
     email: '',
     password: '',
   });
+  const [profileForm, setProfileForm] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+  });
 
   useEffect(() => {
     if (!user || !db) {
@@ -777,6 +783,24 @@ function Account({ onBack }) {
   const updateRegisterForm = (field, value) => {
     setRegisterForm((current) => ({ ...current, [field]: value }));
   };
+
+  const updateProfileForm = (field, value) => {
+    setProfileForm((current) => ({ ...current, [field]: value }));
+  };
+
+  useEffect(() => {
+    if (!user) {
+      setProfileForm({ firstName: '', lastName: '', phone: '', email: '' });
+      return;
+    }
+
+    setProfileForm({
+      firstName: getFirstName(profile) || user.displayName || '',
+      lastName: profile?.lastName || '',
+      phone: profile?.phone || '',
+      email: profile?.email || user.email || '',
+    });
+  }, [profile, user]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -852,6 +876,59 @@ function Account({ onBack }) {
     }
   };
 
+  const handleProfileSave = async (event) => {
+    event.preventDefault();
+    if (!auth?.currentUser || !db) return;
+
+    const firstNameValue = profileForm.firstName.trim();
+    const lastNameValue = profileForm.lastName.trim();
+    const phoneValue = profileForm.phone.trim();
+    const emailValue = profileForm.email.trim().toLowerCase();
+
+    setSubmitting(true);
+    setNotice(null);
+
+    try {
+      await updateProfile(auth.currentUser, { displayName: firstNameValue }).catch((err) => {
+        console.warn('[Account] Auth display name update failed:', err);
+      });
+
+      const profileData = {
+        uid: auth.currentUser.uid,
+        email: emailValue,
+        firstName: firstNameValue,
+        lastName: lastNameValue,
+        fullName: `${firstNameValue} ${lastNameValue}`,
+        phone: phoneValue,
+        updatedAt: serverTimestamp(),
+      };
+
+      if (!profile) {
+        profileData.createdAt = serverTimestamp();
+      }
+
+      await setDoc(doc(db, 'users', auth.currentUser.uid), profileData, { merge: true });
+
+      const displayProfile = {
+        uid: auth.currentUser.uid,
+        email: emailValue,
+        firstName: firstNameValue,
+        lastName: lastNameValue,
+        fullName: `${firstNameValue} ${lastNameValue}`,
+        phone: phoneValue,
+      };
+
+      setProfile(displayProfile);
+      writeCachedProfile(displayProfile);
+      setNotice({ type: 'success', text: 'Dein Profil wurde gespeichert.' });
+    } catch (error) {
+      console.error('[Account] User profile save failed:', error);
+      setNotice({ type: 'error', text: 'Dein Profil konnte nicht gespeichert werden.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleLogout = async () => {
     if (!auth) return;
 
@@ -870,10 +947,10 @@ function Account({ onBack }) {
     }
   };
 
-  const firstName = getFirstName(profile) || user?.displayName || '';
-  const lastName = profile?.lastName || '';
-  const phone = profile?.phone || '';
-  const email = profile?.email || user?.email || '';
+  const firstName = getFirstName(profile) || profileForm.firstName || user?.displayName || '';
+  const lastName = profile?.lastName || profileForm.lastName || '';
+  const phone = profile?.phone || profileForm.phone || '';
+  const email = profile?.email || profileForm.email || user?.email || '';
   const displayName = firstName || 'Dein Account';
 
   return (
@@ -899,12 +976,65 @@ function Account({ onBack }) {
             <div className="account-kicker">Angemeldet als</div>
             <h2 className="account-title">{profileLoading && !firstName ? 'Profil wird geladen …' : displayName}</h2>
             <p className="account-copy">
-              Dies ist dein Kunden-Account für die öffentliche Website. Admin-Funktionen werden hier nicht bereitgestellt.
+              Diese Daten werden in Firestore unter <span className="gold">users/{user.uid}</span> gespeichert und können im Admin-Portal angezeigt werden.
             </p>
             {notice && <div className={`account-notice ${notice.type}`}>{notice.text}</div>}
-            <button className="btn-primary account-logout" onClick={handleLogout} disabled={submitting}>
-              {submitting ? 'Bitte warten …' : 'Logout'}
-            </button>
+            <form className="account-form account-profile-form" onSubmit={handleProfileSave}>
+              <div className="account-form-grid">
+                <div className="field">
+                  <label>Vorname</label>
+                  <input
+                    type="text"
+                    autoComplete="given-name"
+                    required
+                    value={profileForm.firstName}
+                    onChange={(event) => updateProfileForm('firstName', event.target.value)}
+                    placeholder="Vorname"
+                  />
+                </div>
+                <div className="field">
+                  <label>Nachname</label>
+                  <input
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={profileForm.lastName}
+                    onChange={(event) => updateProfileForm('lastName', event.target.value)}
+                    placeholder="Nachname"
+                  />
+                </div>
+              </div>
+              <div className="field">
+                <label>Telefonnummer</label>
+                <input
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  value={profileForm.phone}
+                  onChange={(event) => updateProfileForm('phone', event.target.value)}
+                  placeholder="+49 …"
+                />
+              </div>
+              <div className="field">
+                <label>E-Mail im Profil</label>
+                <input
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={profileForm.email}
+                  onChange={(event) => updateProfileForm('email', event.target.value)}
+                  placeholder="deine@email.de"
+                />
+              </div>
+              <div className="account-actions">
+                <button className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Bitte warten …' : 'Profil speichern'}
+                </button>
+                <button className="account-secondary-btn" type="button" onClick={handleLogout} disabled={submitting}>
+                  Logout
+                </button>
+              </div>
+            </form>
           </section>
 
           <aside className="summary">
