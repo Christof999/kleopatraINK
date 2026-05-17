@@ -22,9 +22,8 @@ const NAV = [
   { id: 'booking',      label: 'Termin buchen',  sub: 'Appointment', angle:   0  },
   { id: 'piercing',     label: 'Piercing',       sub: 'Preise',      angle:  45  },
   { id: 'testimonials', label: 'Unsere Kunden',  sub: 'Stimmen',     angle:  90  },
-  { id: 'socials',      label: 'Instagram',      sub: 'Follow',      angle: 135  },
-  { id: 'account',      label: 'Account',        sub: 'Login',       angle: 180  },
-  { id: 'wannados',     label: 'Wanna-dos',      sub: 'Flash',       angle: 225  },
+  { id: 'socials',      label: 'Instagram',      sub: 'Follow',      angle: 150  },
+  { id: 'wannados',     label: 'Wanna-dos',      sub: 'Flash',       angle: 210  },
 ];
 
 const EUR_FORMATTER = new Intl.NumberFormat('de-DE', {
@@ -60,6 +59,43 @@ function getFirstName(profile) {
   return '';
 }
 
+function AccountStatus({ onAccount }) {
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState('');
+
+  useEffect(() => {
+    if (!user || !db) {
+      setFirstName('');
+      return;
+    }
+
+    let active = true;
+
+    getDoc(doc(db, 'users', user.uid))
+      .then((snap) => {
+        if (!active) return;
+        setFirstName(snap.exists() ? getFirstName(snap.data()) : '');
+      })
+      .catch((err) => {
+        console.warn('[AccountStatus] User profile fetch failed:', err);
+        if (active) setFirstName('');
+      });
+
+    return () => { active = false; };
+  }, [user]);
+
+  const label = user
+    ? `Eingeloggt als ${firstName || user.displayName || user.email || 'User'}`
+    : 'Account / Login';
+
+  return (
+    <button className={`account-top ${user ? 'is-logged-in' : ''}`} onClick={onAccount}>
+      <span className="account-top-dot" />
+      <span>{label}</span>
+    </button>
+  );
+}
+
 // ── Landing ───────────────────────────────────────────────────────────────────
 
 // Prüfen ob ein .glb vorhanden ist (Feature-Flag)
@@ -91,10 +127,13 @@ function Landing({ onNav, tweaks }) {
           <div className="brand-mark">K</div>
           <div>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></div>
         </div>
-        <div className="chrome-meta">
-          <span>EST 2018</span>
-          <span>GUNZENHAUSEN</span>
-          <span>DI — SA</span>
+        <div className="chrome-actions">
+          <div className="chrome-meta">
+            <span>EST 2018</span>
+            <span>GUNZENHAUSEN</span>
+            <span>DI — SA</span>
+          </div>
+          <AccountStatus onAccount={() => onNav('account')} />
         </div>
       </div>
 
@@ -438,7 +477,7 @@ function WannaDos({ onBack, onBook }) {
 
 // ── Piercing prices ───────────────────────────────────────────────────────────
 
-function PiercingPrices({ onBack }) {
+function PiercingPrices({ onBack, onBook }) {
   const { items, loading, error } = usePiercingPrices();
 
   return (
@@ -474,7 +513,12 @@ function PiercingPrices({ onBack }) {
                 <h3 className="piercing-title">{item.title}</h3>
                 {item.desc && <p className="piercing-desc">{item.desc}</p>}
               </div>
-              <div className="piercing-price">{formatEuro(item.price)}</div>
+              <div className="piercing-card-side">
+                <div className="piercing-price">{formatEuro(item.price)}</div>
+                <button className="piercing-request" onClick={() => onBook(item)}>
+                  Termin anfragen
+                </button>
+              </div>
             </article>
           ))}
         </div>
@@ -485,7 +529,8 @@ function PiercingPrices({ onBack }) {
 
 // ── Booking ───────────────────────────────────────────────────────────────────
 
-function Booking({ onBack, wannado }) {
+function Booking({ onBack, wannado, piercing }) {
+  const { user } = useAuth();
   const [interest, setInterest] = useState('unsure');
   const [slot, setSlot] = useState(null);
   const [name, setName] = useState('');
@@ -493,6 +538,42 @@ function Booking({ onBack, wannado }) {
   const [phone, setPhone] = useState('');
   const [desc, setDesc] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const isPiercingBooking = !!piercing;
+
+  useEffect(() => {
+    if (isPiercingBooking) {
+      setInterest('piercing');
+      setDesc((current) => current || `Piercing-Anfrage: ${piercing.title}${piercing.desc ? ` — ${piercing.desc}` : ''}`);
+    }
+  }, [isPiercingBooking, piercing]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (user.email) setEmail((current) => current || user.email);
+    if (user.displayName) setName((current) => current || user.displayName);
+
+    if (!db) return;
+
+    let active = true;
+
+    getDoc(doc(db, 'users', user.uid))
+      .then((snap) => {
+        if (!active || !snap.exists()) return;
+
+        const profile = snap.data();
+        const fullName = profile.fullName || [profile.firstName, profile.lastName].filter(Boolean).join(' ');
+
+        if (fullName) setName((current) => current || fullName);
+        if (profile.email) setEmail((current) => current || profile.email);
+        if (profile.phone) setPhone((current) => current || profile.phone);
+      })
+      .catch((err) => {
+        console.warn('[Booking] User profile fetch failed:', err);
+      });
+
+    return () => { active = false; };
+  }, [user]);
 
   if (submitted) {
     return (
@@ -512,11 +593,11 @@ function Booking({ onBack, wannado }) {
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Beratungstermin · kostenlos"
-        title="Termin" titleEm="buchen"
+        kicker={isPiercingBooking ? 'Piercing-Anfrage · Kleopatra INK' : 'Beratungstermin · kostenlos'}
+        title={isPiercingBooking ? 'Piercing' : 'Termin'} titleEm={isPiercingBooking ? 'anfragen' : 'buchen'}
         meta={<>
-          <b>~45 min</b>
-          <div>Kostenfrei</div>
+          <b>{isPiercingBooking ? 'Anfrage' : '~45 min'}</b>
+          <div>{isPiercingBooking ? piercing.title : 'Kostenfrei'}</div>
           <div>Unverbindlich</div>
         </>}
         onBack={onBack}
@@ -531,24 +612,51 @@ function Booking({ onBack, wannado }) {
           </div>
         </div>
       )}
+      {piercing && (
+        <div className="wd-booking-banner piercing-booking-banner">
+          <div>
+            <div className="wd-booking-label">Ausgewähltes Piercing</div>
+            <div className="wd-booking-name">{piercing.title}</div>
+            <div className="wd-booking-meta">
+              {piercing.desc ? `${piercing.desc} · ` : ''}{formatEuro(piercing.price)}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="book-intro">
         <p className="cormorant">
-          <b className="gold">Jedes Tattoo beginnt mit einem Gespräch.</b> Bevor die Nadel ansetzt, treffen wir uns für eine unverbindliche Beratung — im Studio oder per Video. Wir besprechen dein Motiv, schauen Referenzen an, ich skizziere, wir klären Platzierung, Aufwand und einen realistischen Preis. Erst danach vereinbaren wir den eigentlichen Tattoo-Termin.
+          {isPiercingBooking ? (
+            <>
+              <b className="gold">Deine Piercing-Anfrage ist vorbereitet.</b> Name und Kontaktdaten werden aus deinem Account übernommen, wenn du eingeloggt bist. Wähle noch einen Wunsch-Slot und ergänze bei Bedarf Hinweise.
+            </>
+          ) : (
+            <>
+              <b className="gold">Jedes Tattoo beginnt mit einem Gespräch.</b> Bevor die Nadel ansetzt, treffen wir uns für eine unverbindliche Beratung — im Studio oder per Video. Wir besprechen dein Motiv, schauen Referenzen an, ich skizziere, wir klären Platzierung, Aufwand und einen realistischen Preis. Erst danach vereinbaren wir den eigentlichen Tattoo-Termin.
+            </>
+          )}
         </p>
       </div>
       <div className="booking-wrap">
         <div className="book-col">
           <h3>01 · Worum geht&apos;s ungefähr?</h3>
-          <div className="style-grid">
-            {INTERESTS.map((s) => (
-              <div key={s.id}
-                className={`style-card ${interest === s.id ? 'selected' : ''}`}
-                onClick={() => setInterest(s.id)}>
-                <div className="style-name">{s.name}</div>
-              </div>
-            ))}
-          </div>
+          {isPiercingBooking ? (
+            <div className="booking-selected-service">
+              <div className="booking-selected-label">Piercing</div>
+              <div className="booking-selected-title">{piercing.title}</div>
+              {piercing.desc && <div className="booking-selected-desc">{piercing.desc}</div>}
+            </div>
+          ) : (
+            <div className="style-grid">
+              {INTERESTS.map((s) => (
+                <div key={s.id}
+                  className={`style-card ${interest === s.id ? 'selected' : ''}`}
+                  onClick={() => setInterest(s.id)}>
+                  <div className="style-name">{s.name}</div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <h3 style={{ marginTop: 36 }}>02 · Dein Wunsch-Slot — Di 12. Mai</h3>
           <div className="slot-grid">
@@ -584,17 +692,18 @@ function Booking({ onBack, wannado }) {
 
         <div className="summary">
           <h4>Dein Beratungstermin</h4>
-          <div className="sum-row"><span className="sum-k">Art</span><span className="sum-v">Erstberatung</span></div>
-          <div className="sum-row"><span className="sum-k">Thema</span><span className="sum-v">{INTERESTS.find((s) => s.id === interest)?.name}</span></div>
+          <div className="sum-row"><span className="sum-k">Art</span><span className="sum-v">{isPiercingBooking ? 'Piercing-Anfrage' : 'Erstberatung'}</span></div>
+          <div className="sum-row"><span className="sum-k">Thema</span><span className="sum-v">{isPiercingBooking ? piercing.title : INTERESTS.find((s) => s.id === interest)?.name}</span></div>
+          {name && <div className="sum-row"><span className="sum-k">Name</span><span className="sum-v">{name}</span></div>}
           <div className="sum-row"><span className="sum-k">Termin</span><span className={`sum-v ${slot ? '' : 'empty'}`}>{slot ? `Di 12. Mai · ${slot}` : 'noch nicht gewählt'}</span></div>
           <div className="sum-row"><span className="sum-k">Dauer</span><span className="sum-v">~45 Min</span></div>
-          <div className="sum-row"><span className="sum-k">Kosten</span><span className="sum-v gold">Kostenfrei</span></div>
+          <div className="sum-row"><span className="sum-k">Kosten</span><span className="sum-v gold">{isPiercingBooking ? formatEuro(piercing.price) : 'Kostenfrei'}</span></div>
           <button
             className="btn-primary"
             style={{ marginTop: 24, opacity: (slot && name && email) ? 1 : 0.4, cursor: (slot && name && email) ? 'pointer' : 'not-allowed' }}
             disabled={!(slot && name && email)}
             onClick={() => setSubmitted(true)}>
-            Beratung anfragen →
+            {isPiercingBooking ? 'Piercing anfragen →' : 'Beratung anfragen →'}
           </button>
           <div style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
             Unverbindlich. Bestätigung per Mail binnen 48 Stunden. Der eigentliche Tattoo-Termin wird im Anschluss gemeinsam vereinbart.
@@ -1141,16 +1250,24 @@ const TWEAK_DEFAULTS = {
 export default function App() {
   const [page, setPage] = useState('home');
   const [selectedWannado, setSelectedWannado] = useState(null);
+  const [selectedPiercing, setSelectedPiercing] = useState(null);
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [page]);
 
-  const onBack = () => { setPage('home'); setSelectedWannado(null); };
+  const onBack = () => { setPage('home'); setSelectedWannado(null); setSelectedPiercing(null); };
 
   const onBookWannado = (item) => {
     setSelectedWannado(item);
+    setSelectedPiercing(null);
+    setPage('booking');
+  };
+
+  const onBookPiercing = (item) => {
+    setSelectedPiercing(item);
+    setSelectedWannado(null);
     setPage('booking');
   };
 
@@ -1159,8 +1276,8 @@ export default function App() {
       {page === 'home'         && <Landing onNav={setPage} tweaks={t} />}
       {page === 'gallery'      && <Gallery onBack={onBack} />}
       {page === 'about'        && <About onBack={onBack} />}
-      {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} />}
-      {page === 'piercing'     && <PiercingPrices onBack={onBack} />}
+      {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} piercing={selectedPiercing} />}
+      {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
       {page === 'testimonials' && <Testimonials onBack={onBack} />}
       {page === 'socials'      && <Socials onBack={onBack} />}
       {page === 'account'      && <Account onBack={onBack} />}
