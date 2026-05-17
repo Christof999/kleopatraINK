@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
@@ -51,6 +51,38 @@ function getAuthErrorMessage(error) {
       return 'Bitte wähle ein stärkeres Passwort mit mindestens 6 Zeichen.';
     default:
       return 'Die Anmeldung ist gerade nicht möglich. Bitte versuche es erneut.';
+  }
+}
+
+const ACCOUNT_PROFILE_CACHE_KEY = 'kleopatraAccountProfile';
+
+function getFirstName(profile) {
+  if (profile?.firstName) return profile.firstName;
+  if (profile?.fullName) return profile.fullName.trim().split(/\s+/)[0] || '';
+  return '';
+}
+
+function readCachedProfile(uid) {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const cached = window.localStorage.getItem(ACCOUNT_PROFILE_CACHE_KEY);
+    if (!cached) return null;
+
+    const profile = JSON.parse(cached);
+    return profile?.uid === uid ? profile : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedProfile(profile) {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(ACCOUNT_PROFILE_CACHE_KEY, JSON.stringify(profile));
+  } catch {
+    // The Firestore document remains the source of truth; this cache is only for immediate display.
   }
 }
 
@@ -701,16 +733,35 @@ function Account({ onBack }) {
     }
 
     let active = true;
-    setProfileLoading(true);
+    const cachedProfile = readCachedProfile(user.uid);
+
+    if (cachedProfile) {
+      setProfile(cachedProfile);
+      setProfileLoading(false);
+    } else {
+      setProfileLoading(true);
+    }
 
     getDoc(doc(db, 'users', user.uid))
       .then((snap) => {
         if (!active) return;
-        setProfile(snap.exists() ? snap.data() : null);
+        if (snap.exists()) {
+          const firestoreProfile = { uid: user.uid, ...snap.data() };
+          setProfile(firestoreProfile);
+          writeCachedProfile({
+            uid: firestoreProfile.uid,
+            email: firestoreProfile.email,
+            firstName: firestoreProfile.firstName,
+            lastName: firestoreProfile.lastName,
+            fullName: firestoreProfile.fullName,
+            phone: firestoreProfile.phone,
+          });
+        } else if (!cachedProfile) {
+          setProfile(null);
+        }
       })
       .catch((err) => {
-        console.error('[Account] User profile fetch failed:', err);
-        if (active) setNotice({ type: 'error', text: 'Dein Profil konnte nicht geladen werden.' });
+        console.warn('[Account] User profile fetch failed:', err);
       })
       .finally(() => {
         if (active) setProfileLoading(false);
@@ -763,30 +814,39 @@ function Account({ onBack }) {
 
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, registerForm.password);
-      const profileData = {
+      await updateProfile(credential.user, { displayName: firstName }).catch((err) => {
+        console.warn('[Account] Auth display name update failed:', err);
+      });
+
+      const displayProfile = {
         uid: credential.user.uid,
         email,
         firstName,
         lastName,
         fullName: `${firstName} ${lastName}`,
         phone,
+      };
+
+      const profileData = {
+        ...displayProfile,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
 
+      setProfile(displayProfile);
+      writeCachedProfile(displayProfile);
+
       await setDoc(doc(db, 'users', credential.user.uid), profileData);
-      setProfile({
-        uid: credential.user.uid,
-        email,
-        firstName,
-        lastName,
-        fullName: `${firstName} ${lastName}`,
-        phone,
-      });
       setRegisterForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
       setNotice({ type: 'success', text: 'Dein Kunden-Account wurde erstellt.' });
     } catch (error) {
-      setNotice({ type: 'error', text: getAuthErrorMessage(error) });
+      const isLoggedInAfterRegister = auth.currentUser?.email?.toLowerCase() === email;
+      setNotice({
+        type: isLoggedInAfterRegister ? 'warning' : 'error',
+        text: isLoggedInAfterRegister
+          ? 'Dein Account wurde erstellt, aber das Profil konnte nicht in Firestore gespeichert werden.'
+          : getAuthErrorMessage(error),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -810,7 +870,11 @@ function Account({ onBack }) {
     }
   };
 
-  const displayName = profile?.fullName || [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || user?.email;
+  const firstName = getFirstName(profile) || user?.displayName || '';
+  const lastName = profile?.lastName || '';
+  const phone = profile?.phone || '';
+  const email = profile?.email || user?.email || '';
+  const displayName = firstName || 'Dein Account';
 
   return (
     <div className="page with-bg">
@@ -833,7 +897,7 @@ function Account({ onBack }) {
         <div className="account-layout">
           <section className="account-panel">
             <div className="account-kicker">Angemeldet als</div>
-            <h2 className="account-title">{profileLoading ? 'Profil wird geladen …' : displayName}</h2>
+            <h2 className="account-title">{profileLoading && !firstName ? 'Profil wird geladen …' : displayName}</h2>
             <p className="account-copy">
               Dies ist dein Kunden-Account für die öffentliche Website. Admin-Funktionen werden hier nicht bereitgestellt.
             </p>
@@ -845,10 +909,10 @@ function Account({ onBack }) {
 
           <aside className="summary">
             <h4>Profil</h4>
-            <div className="sum-row"><span className="sum-k">E-Mail</span><span className="sum-v">{profile?.email || user.email}</span></div>
-            <div className="sum-row"><span className="sum-k">Vorname</span><span className={`sum-v ${profile?.firstName ? '' : 'empty'}`}>{profile?.firstName || 'nicht gesetzt'}</span></div>
-            <div className="sum-row"><span className="sum-k">Nachname</span><span className={`sum-v ${profile?.lastName ? '' : 'empty'}`}>{profile?.lastName || 'nicht gesetzt'}</span></div>
-            <div className="sum-row"><span className="sum-k">Telefon</span><span className={`sum-v ${profile?.phone ? '' : 'empty'}`}>{profile?.phone || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">E-Mail</span><span className="sum-v account-email-value">{email}</span></div>
+            <div className="sum-row"><span className="sum-k">Vorname</span><span className={`sum-v ${firstName ? '' : 'empty'}`}>{firstName || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">Nachname</span><span className={`sum-v ${lastName ? '' : 'empty'}`}>{lastName || 'nicht gesetzt'}</span></div>
+            <div className="sum-row"><span className="sum-k">Telefon</span><span className={`sum-v ${phone ? '' : 'empty'}`}>{phone || 'nicht gesetzt'}</span></div>
           </aside>
         </div>
       ) : (
