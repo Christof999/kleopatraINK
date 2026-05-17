@@ -77,16 +77,29 @@ body {
   color: var(--gold);
 }
 
-.brand-mark {
-  width: 36px; height: 36px;
-  border: 1px solid var(--gold);
+.brand-logo-img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
   border-radius: 50%;
-  display: grid; place-items: center;
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  color: var(--gold-bright);
-  font-size: 15px;
-  background: radial-gradient(circle, rgba(212,165,55,0.15), transparent 70%);
+  filter: drop-shadow(0 0 14px rgba(212, 165, 55, 0.18));
+  flex-shrink: 0;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.brand-sub {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  line-height: 1;
 }
 
 .chrome-meta {
@@ -152,35 +165,6 @@ body {
 
 .account-top.is-logged-in .account-top-dot {
   background: var(--gold);
-}
-
-.header-logo-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  min-width: 92px;
-}
-
-.header-logo-img {
-  display: block;
-  width: 78px;
-  height: 78px;
-  object-fit: contain;
-  border-radius: 50%;
-  filter: drop-shadow(0 0 18px rgba(212, 165, 55, 0.18));
-}
-
-.header-logo-sub {
-  font-family: 'Cinzel', serif;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--gold);
-  text-align: center;
-  line-height: 1.25;
-  white-space: nowrap;
 }
 
 /* central composition */
@@ -1978,9 +1962,8 @@ body {
     letter-spacing: 0.18em;
   }
   .brand { font-size: 12px; letter-spacing: 0.18em; }
-  .brand-mark { width: 30px; height: 30px; font-size: 13px; }
-  .header-logo-img { width: 60px; height: 60px; }
-  .header-logo-sub { font-size: 8px; letter-spacing: 0.14em; }
+  .brand-logo-img { width: 42px; height: 42px; }
+  .brand-sub { font-size: 8px; letter-spacing: 0.16em; }
 
   .dial {
     width: min(62vmin, 420px) !important;
@@ -2027,11 +2010,6 @@ body {
   }
   .chrome-meta { display: none; }
   .chrome-actions { justify-content: center; }
-  .header-logo-block {
-    order: -1;
-    width: 100%;
-  }
-  .header-logo-img { width: 72px; height: 72px; }
   .account-top {
     max-width: calc(100vw - 32px);
     white-space: normal;
@@ -2040,7 +2018,8 @@ body {
     line-height: 1.4;
   }
   .brand { font-size: 15px; letter-spacing: 0.2em; }
-  .brand-mark { width: 40px; height: 40px; font-size: 17px; }
+  .brand-logo-img { width: 52px; height: 52px; }
+  .brand-sub { font-size: 8px; letter-spacing: 0.18em; }
   .testi { padding: 22px; }
   .testi-quote { font-size: 16px; }
   .soc-card { padding: 22px; }

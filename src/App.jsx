@@ -124,8 +124,16 @@ function Landing({ onNav, tweaks }) {
 
       <div className="chrome">
         <div className="brand">
-          <div className="brand-mark">K</div>
-          <div>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></div>
+          <img
+            className="brand-logo-img"
+            src="/IMG_0708.jpeg"
+            alt="Kleopatra INK Logo"
+            onError={(event) => { event.currentTarget.style.display = 'none'; }}
+          />
+          <div className="brand-copy">
+            <div>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></div>
+            <div className="brand-sub">Tattoo &amp; Piercing</div>
+          </div>
         </div>
         <div className="chrome-actions">
           <div className="chrome-meta">
@@ -134,15 +142,6 @@ function Landing({ onNav, tweaks }) {
             <span>DI — SA</span>
           </div>
           <AccountStatus onAccount={() => onNav('account')} />
-          <div className="header-logo-block">
-            <img
-              className="header-logo-img"
-              src="/IMG_0708.jpeg"
-              alt="Kleopatra INK Logo"
-              onError={(event) => { event.currentTarget.style.display = 'none'; }}
-            />
-            <div className="header-logo-sub">Tattoo &amp; Piercing</div>
-          </div>
         </div>
       </div>
 
