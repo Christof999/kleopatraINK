@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useId, lazy, Suspense } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { arrayUnion, doc, getDoc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
 import CookieBanner from './components/CookieBanner';
+import LuckyWheel, { formatSegment } from './components/LuckyWheel';
 import { Imprint, Privacy, SiteFooter } from './components/Legal';
 
 const KleopatraHead3D = lazy(() => import('./components/KleopatraHead3D'));
@@ -28,6 +29,7 @@ const PAGE_TITLES = {
   socials:      'Instagram @kleopatra.ink | Kleopatra INK',
   account:      'Kundenbereich · Login | Kleopatra INK',
   wannados:     'Wanna-dos – Flash-Motive | Kleopatra INK',
+  gluecksrad:   'Glücksrad – Dein Gewinn | Kleopatra INK',
   imprint:      'Impressum | Kleopatra INK',
   privacy:      'Datenschutz | Kleopatra INK',
 };
@@ -842,9 +844,189 @@ function Socials({ onBack }) {
   );
 }
 
+// ── Glücksrad ─────────────────────────────────────────────────────────────────
+
+function GluecksradInfo({ lastSpin }) {
+  return (
+    <div className="gluecksrad-info">
+      <h2 className="gluecksrad-info-title">Du hast schon gedreht!</h2>
+      {lastSpin ? (
+        <div className="gluecksrad-info-card">
+          <span className="gluecksrad-info-kicker">Dein letzter Gewinn</span>
+          <span className="gluecksrad-info-value">{formatSegment(lastSpin)}</span>
+          {lastSpin.label && lastSpin.type !== 'text' && (
+            <span className="gluecksrad-info-label">{lastSpin.label}</span>
+          )}
+          <div className={`gluecksrad-info-state ${lastSpin.redeemed ? 'redeemed' : 'open'}`}>
+            {lastSpin.redeemed ? 'Bereits eingelöst' : 'Noch offen — sprich uns beim nächsten Besuch an'}
+          </div>
+        </div>
+      ) : (
+        <p className="cormorant">
+          Dein letzter Dreh konnte nicht geladen werden — frag im Studio nach.
+        </p>
+      )}
+      <p className="cormorant gluecksrad-info-hint">
+        Möchtest du erneut drehen? Frag im Studio nach, ob ein neuer Dreh für dich freigeschaltet werden kann.
+      </p>
+    </div>
+  );
+}
+
+function Gluecksrad({ onBack, onNav }) {
+  const { user, loading: authLoading } = useAuth();
+  const [wheelConfig, setWheelConfig] = useState(null);
+  const [wheelLoading, setWheelLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [justWon, setJustWon] = useState(null);
+
+  useEffect(() => {
+    if (!db) {
+      setWheelLoading(false);
+      return undefined;
+    }
+    return onSnapshot(
+      doc(db, 'wheelConfig', 'main'),
+      (snap) => {
+        setWheelConfig(snap.exists() ? snap.data() : null);
+        setWheelLoading(false);
+      },
+      (err) => {
+        console.warn('[Gluecksrad] wheelConfig snapshot failed:', err);
+        setWheelLoading(false);
+      },
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!user || !db) {
+      setUserData(null);
+      setUserLoading(false);
+      return undefined;
+    }
+    setUserLoading(true);
+    return onSnapshot(
+      doc(db, 'users', user.uid),
+      (snap) => {
+        setUserData(snap.exists() ? snap.data() : null);
+        setUserLoading(false);
+      },
+      (err) => {
+        console.warn('[Gluecksrad] user snapshot failed:', err);
+        setUserLoading(false);
+      },
+    );
+  }, [user]);
+
+  const handleResult = async (segment) => {
+    if (saving || !user || !db) return;
+    if (userData?.wheelSpinAvailable === false) return;
+
+    setSaving(true);
+    setSaveError(null);
+
+    const rand = Math.random().toString(36).slice(2, 8);
+    const entry = {
+      id: `spin_${Date.now()}_${rand}`,
+      spunAt: new Date().toISOString(),
+      segmentId: segment.id,
+      label: segment.label || '',
+      type: segment.type || 'text',
+      ...(segment.value !== undefined && segment.value !== null
+        ? { value: Number(segment.value) }
+        : {}),
+      redeemed: false,
+      redeemedAt: null,
+    };
+
+    try {
+      await setDoc(
+        doc(db, 'users', user.uid),
+        {
+          wheelSpinHistory: arrayUnion(entry),
+          wheelSpinAvailable: false,
+          wheelUpdatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+      setJustWon(entry);
+    } catch (err) {
+      console.error('[Gluecksrad] Spin write failed:', err);
+      setSaveError('Dein Gewinn konnte nicht gespeichert werden. Bitte zeig den Bildschirm im Studio.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const history = userData?.wheelSpinHistory || [];
+  const lastSpin = history.length > 0 ? history[history.length - 1] : null;
+  const canSpin = !!user && userData?.wheelSpinAvailable !== false;
+  const wheelActive = !!wheelConfig && wheelConfig.active !== false && (wheelConfig.segments?.length || 0) > 0;
+
+  return (
+    <div className="page with-bg">
+      <PageHead
+        kicker="Glücksrad · Kleopatra INK"
+        title="Dein" titleEm="Glücksrad"
+        meta={<>
+          <b>Ein Dreh frei</b>
+          <div>Nur für Kunden</div>
+          <div>Im Studio einlösen</div>
+        </>}
+        onBack={onBack}
+      />
+
+      {!firebaseConfigured ? (
+        <p className="gal-empty">Firebase ist für diese Umgebung nicht konfiguriert.</p>
+      ) : authLoading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : !user ? (
+        <div className="gluecksrad-gate">
+          <p className="cormorant">
+            Bitte logge dich ein, um am Glücksrad zu drehen.
+          </p>
+          <button className="btn-primary" type="button" onClick={() => onNav('account')}>
+            Zum Login →
+          </button>
+        </div>
+      ) : wheelLoading || userLoading ? (
+        <div className="fb-loading"><div className="ig-spinner" /></div>
+      ) : !wheelActive ? (
+        <p className="gal-empty">Das Glücksrad ist derzeit nicht verfügbar.</p>
+      ) : !canSpin ? (
+        <GluecksradInfo lastSpin={lastSpin} />
+      ) : (
+        <div className="gluecksrad-stage">
+          <p className="cormorant gluecksrad-intro">
+            <b className="gold">Du hast einen Dreh frei.</b> Drehe das Rad und sichere dir deinen Vorteil — wir lösen ihn beim nächsten Studio-Besuch ein.
+          </p>
+          <LuckyWheel
+            segments={wheelConfig.segments}
+            onResult={handleResult}
+            size={420}
+            buttonLabel="Jetzt drehen"
+            disabled={saving}
+          />
+          {saveError && (
+            <div className="account-notice error" role="alert">{saveError}</div>
+          )}
+          {justWon && !saveError && (
+            <p className="gluecksrad-redeem-hint">
+              Zeig deinen Gewinn beim nächsten Studio-Besuch — wir lösen ihn dann für dich ein.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Account ───────────────────────────────────────────────────────────────────
 
-function Account({ onBack }) {
+function Account({ onBack, onNav }) {
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState('login');
   const [profile, setProfile] = useState(null);
@@ -980,7 +1162,10 @@ function Account({ onBack }) {
       await setDoc(doc(db, 'users', credential.user.uid), profileData, { merge: true });
       setProfile(displayProfile);
       setRegisterForm({ firstName: '', lastName: '', phone: '', email: '', password: '' });
-      setNotice({ type: 'success', text: 'Dein Kunden-Account wurde erstellt.' });
+      setNotice({ type: 'success', text: 'Dein Kunden-Account wurde erstellt. Du wirst zum Glücksrad weitergeleitet …' });
+      if (onNav) {
+        setTimeout(() => onNav('gluecksrad'), 700);
+      }
     } catch (error) {
       const isLoggedInAfterRegister = auth.currentUser?.email?.toLowerCase() === email;
       setNotice({
@@ -1152,6 +1337,18 @@ function Account({ onBack }) {
                 </button>
               </div>
             </form>
+
+            {onNav && (
+              <button
+                type="button"
+                className="account-gluecksrad-cta"
+                onClick={() => onNav('gluecksrad')}
+              >
+                <span className="account-gluecksrad-cta-kicker">Exklusiv für Kunden</span>
+                <span className="account-gluecksrad-cta-title">Zum Glücksrad →</span>
+                <span className="account-gluecksrad-cta-sub">Einmal drehen, Gewinn im Studio einlösen.</span>
+              </button>
+            )}
           </section>
 
           <aside className="summary">
@@ -1345,7 +1542,8 @@ export default function App() {
         {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
         {page === 'testimonials' && <Testimonials onBack={onBack} />}
         {page === 'socials'      && <Socials onBack={onBack} />}
-        {page === 'account'      && <Account onBack={onBack} />}
+        {page === 'account'      && <Account onBack={onBack} onNav={goTo} />}
+        {page === 'gluecksrad'   && <Gluecksrad onBack={onBack} onNav={goTo} />}
         {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
         {page === 'imprint'      && <Imprint onBack={onBack} />}
         {page === 'privacy'      && <Privacy onBack={onBack} />}
