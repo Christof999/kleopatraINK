@@ -2874,10 +2874,20 @@ ul.gal-grid {
   transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
 }
 
-.account-gluecksrad-cta:hover {
+.account-gluecksrad-cta:hover:not(:disabled) {
   border-color: var(--gold);
   transform: translateY(-1px);
   box-shadow: 0 12px 28px rgba(212, 165, 55, 0.18);
+}
+
+.account-gluecksrad-cta.is-pending {
+  cursor: default;
+  opacity: 0.72;
+  background: linear-gradient(135deg, rgba(212, 165, 55, 0.06), rgba(212, 165, 55, 0.02));
+}
+
+.account-gluecksrad-cta.is-pending .account-gluecksrad-cta-title {
+  color: var(--ivory);
 }
 
 .account-gluecksrad-cta-kicker {

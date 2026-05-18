@@ -857,7 +857,7 @@ function Socials({ onBack }) {
 
 // ── Account ───────────────────────────────────────────────────────────────────
 
-function Account({ onBack, onOpenWheel, wheelHistory = [] }) {
+function Account({ onBack, onOpenWheel, wheelEligible = false, wheelConfigReady = false, wheelHistory = [] }) {
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState('login');
   const [profile, setProfile] = useState(null);
@@ -1169,15 +1169,24 @@ function Account({ onBack, onOpenWheel, wheelHistory = [] }) {
               </div>
             </form>
 
-            {onOpenWheel && (
+            {wheelEligible && (
               <button
                 type="button"
-                className="account-gluecksrad-cta"
-                onClick={() => onOpenWheel()}
+                className={`account-gluecksrad-cta${wheelConfigReady ? '' : ' is-pending'}`}
+                onClick={() => { if (wheelConfigReady && onOpenWheel) onOpenWheel(); }}
+                disabled={!wheelConfigReady}
               >
-                <span className="account-gluecksrad-cta-kicker">Exklusiv für Kunden</span>
-                <span className="account-gluecksrad-cta-title">Glücksrad öffnen →</span>
-                <span className="account-gluecksrad-cta-sub">Einmal drehen, Gewinn im Studio einlösen.</span>
+                <span className="account-gluecksrad-cta-kicker">
+                  {wheelConfigReady ? 'Exklusiv für Kunden' : 'Bald verfügbar'}
+                </span>
+                <span className="account-gluecksrad-cta-title">
+                  {wheelConfigReady ? 'Glücksrad öffnen →' : 'Glücksrad wird vorbereitet'}
+                </span>
+                <span className="account-gluecksrad-cta-sub">
+                  {wheelConfigReady
+                    ? 'Du hast einen Dreh frei — Gewinn im Studio einlösen.'
+                    : 'Du bist für einen Dreh freigeschaltet. Das Rad ist gerade nicht aktiv — sobald es vom Studio aktiviert wird, kannst du hier drehen.'}
+                </span>
               </button>
             )}
 
@@ -1380,7 +1389,9 @@ export default function App() {
 
   const { user } = useAuth();
   const [wheelConfig, setWheelConfig] = useState(null);
+  const [wheelConfigLoaded, setWheelConfigLoaded] = useState(!db);
   const [wheelUserData, setWheelUserData] = useState(null);
+  const [wheelUserLoaded, setWheelUserLoaded] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [wheelOpen, setWheelOpen] = useState(false);
   const [wheelSaving, setWheelSaving] = useState(false);
@@ -1393,32 +1404,55 @@ export default function App() {
   }, [page]);
 
   useEffect(() => {
-    if (!db) return undefined;
+    if (!db) {
+      setWheelConfigLoaded(true);
+      return undefined;
+    }
     return onSnapshot(
       doc(db, 'wheelConfig', 'main'),
-      (snap) => setWheelConfig(snap.exists() ? snap.data() : null),
-      (err) => console.warn('[App] wheelConfig snapshot failed:', err),
+      (snap) => {
+        setWheelConfig(snap.exists() ? snap.data() : null);
+        setWheelConfigLoaded(true);
+      },
+      (err) => {
+        console.warn('[App] wheelConfig snapshot failed:', err);
+        setWheelConfigLoaded(true);
+      },
     );
   }, []);
 
   useEffect(() => {
     if (!user || !db) {
       setWheelUserData(null);
+      setWheelUserLoaded(!user);
       return undefined;
     }
+    setWheelUserLoaded(false);
     return onSnapshot(
       doc(db, 'users', user.uid),
-      (snap) => setWheelUserData(snap.exists() ? snap.data() : null),
-      (err) => console.warn('[App] user snapshot failed:', err),
+      (snap) => {
+        setWheelUserData(snap.exists() ? snap.data() : null);
+        setWheelUserLoaded(true);
+      },
+      (err) => {
+        console.warn('[App] user snapshot failed:', err);
+        setWheelUserLoaded(true);
+      },
     );
   }, [user]);
 
-  const wheelActive =
-    !!wheelConfig && wheelConfig.active !== false && (wheelConfig.segments?.length || 0) > 0;
   const wheelHistory = Array.isArray(wheelUserData?.wheelSpinHistory)
     ? wheelUserData.wheelSpinHistory
     : [];
-  const canSpin = !!user && wheelActive && wheelUserData?.wheelSpinAvailable !== false;
+  const wheelEligible =
+    !!user && wheelUserLoaded && wheelUserData?.wheelSpinAvailable !== false;
+  const wheelConfigReady =
+    wheelConfigLoaded
+    && !!wheelConfig
+    && wheelConfig.active !== false
+    && Array.isArray(wheelConfig.segments)
+    && wheelConfig.segments.length > 0;
+  const canSpin = wheelEligible && wheelConfigReady;
 
   useEffect(() => {
     if (!user) {
@@ -1537,7 +1571,15 @@ export default function App() {
         {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
         {page === 'testimonials' && <Testimonials onBack={onBack} />}
         {page === 'socials'      && <Socials onBack={onBack} />}
-        {page === 'account'      && <Account onBack={onBack} onOpenWheel={canSpin ? openWheelModal : null} wheelHistory={wheelHistory} />}
+        {page === 'account'      && (
+          <Account
+            onBack={onBack}
+            onOpenWheel={wheelEligible ? openWheelModal : null}
+            wheelEligible={wheelEligible}
+            wheelConfigReady={wheelConfigReady}
+            wheelHistory={wheelHistory}
+          />
+        )}
         {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
         {page === 'imprint'      && <Imprint onBack={onBack} />}
         {page === 'privacy'      && <Privacy onBack={onBack} />}
