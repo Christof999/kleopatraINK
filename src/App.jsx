@@ -5,6 +5,7 @@ import KleopatraHead from './components/KleopatraHead';
 import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
 import CookieBanner from './components/CookieBanner';
+import { formatSegment } from './components/LuckyWheel';
 import { WheelInviteModal, WheelModal } from './components/WheelModals';
 import { Imprint, Privacy, SiteFooter } from './components/Legal';
 
@@ -68,6 +69,17 @@ function getAuthErrorMessage(error) {
     default:
       return 'Die Anmeldung ist gerade nicht möglich. Bitte versuche es erneut.';
   }
+}
+
+const SPIN_DATE_FORMATTER = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit', month: 'long', year: 'numeric',
+});
+
+function formatSpinDate(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return SPIN_DATE_FORMATTER.format(date);
 }
 
 function getFirstName(profile) {
@@ -845,7 +857,7 @@ function Socials({ onBack }) {
 
 // ── Account ───────────────────────────────────────────────────────────────────
 
-function Account({ onBack, onOpenWheel }) {
+function Account({ onBack, onOpenWheel, wheelHistory = [] }) {
   const { user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState('login');
   const [profile, setProfile] = useState(null);
@@ -1168,6 +1180,46 @@ function Account({ onBack, onOpenWheel }) {
                 <span className="account-gluecksrad-cta-sub">Einmal drehen, Gewinn im Studio einlösen.</span>
               </button>
             )}
+
+            {wheelHistory.length > 0 && (
+              <div className="account-vouchers">
+                <div className="account-vouchers-head">
+                  <span className="account-vouchers-kicker">Deine Gewinne</span>
+                  <span className="account-vouchers-count">{wheelHistory.length} {wheelHistory.length === 1 ? 'Eintrag' : 'Einträge'}</span>
+                </div>
+                <ul className="account-vouchers-list">
+                  {[...wheelHistory].reverse().map((entry) => (
+                    <li key={entry.id} className={`account-voucher ${entry.redeemed ? 'is-redeemed' : 'is-open'}`}>
+                      <div className="account-voucher-main">
+                        <div className="account-voucher-value">{formatSegment(entry)}</div>
+                        {entry.label && entry.type !== 'text' && (
+                          <div className="account-voucher-label">{entry.label}</div>
+                        )}
+                        <div className="account-voucher-date">
+                          Gedreht am {formatSpinDate(entry.spunAt)}
+                        </div>
+                      </div>
+                      <div className="account-voucher-state">
+                        {entry.redeemed ? (
+                          <>
+                            <span className="account-voucher-state-dot" aria-hidden="true" />
+                            <span>Eingelöst{entry.redeemedAt ? ` · ${formatSpinDate(entry.redeemedAt)}` : ''}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="account-voucher-state-dot open" aria-hidden="true" />
+                            <span>Noch offen — im Studio einlösen</span>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <p className="account-vouchers-hint">
+                  Zeig deinen Eintrag beim nächsten Studio-Besuch — wir lösen ihn dann für dich ein.
+                </p>
+              </div>
+            )}
           </section>
 
           <aside className="summary">
@@ -1315,8 +1367,8 @@ const TWEAK_DEFAULTS = {
   headStyle: 'classic',
 };
 
-function getInviteStorageKey(uid) {
-  return `kleopatra:wheelInvite:${uid}`;
+function getInviteStorageKey(uid, opportunityIndex) {
+  return `kleopatra:wheelInvite:${uid}:${opportunityIndex}`;
 }
 
 export default function App() {
@@ -1363,6 +1415,9 @@ export default function App() {
 
   const wheelActive =
     !!wheelConfig && wheelConfig.active !== false && (wheelConfig.segments?.length || 0) > 0;
+  const wheelHistory = Array.isArray(wheelUserData?.wheelSpinHistory)
+    ? wheelUserData.wheelSpinHistory
+    : [];
   const canSpin = !!user && wheelActive && wheelUserData?.wheelSpinAvailable !== false;
 
   useEffect(() => {
@@ -1376,9 +1431,10 @@ export default function App() {
     if (!canSpin) return;
     if (wheelOpen || inviteOpen) return;
 
+    const storageKey = getInviteStorageKey(user.uid, wheelHistory.length);
     let alreadyShown = false;
     try {
-      alreadyShown = sessionStorage.getItem(getInviteStorageKey(user.uid)) === '1';
+      alreadyShown = sessionStorage.getItem(storageKey) === '1';
     } catch {
       alreadyShown = false;
     }
@@ -1386,11 +1442,11 @@ export default function App() {
 
     setInviteOpen(true);
     try {
-      sessionStorage.setItem(getInviteStorageKey(user.uid), '1');
+      sessionStorage.setItem(storageKey, '1');
     } catch {
       // ignore — sessionStorage might be blocked
     }
-  }, [user, canSpin, wheelOpen, inviteOpen]);
+  }, [user, canSpin, wheelOpen, inviteOpen, wheelHistory.length]);
 
   const openWheelModal = () => {
     setInviteOpen(false);
@@ -1481,7 +1537,7 @@ export default function App() {
         {page === 'piercing'     && <PiercingPrices onBack={onBack} onBook={onBookPiercing} />}
         {page === 'testimonials' && <Testimonials onBack={onBack} />}
         {page === 'socials'      && <Socials onBack={onBack} />}
-        {page === 'account'      && <Account onBack={onBack} onOpenWheel={canSpin ? openWheelModal : null} />}
+        {page === 'account'      && <Account onBack={onBack} onOpenWheel={canSpin ? openWheelModal : null} wheelHistory={wheelHistory} />}
         {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
         {page === 'imprint'      && <Imprint onBack={onBack} />}
         {page === 'privacy'      && <Privacy onBack={onBack} />}

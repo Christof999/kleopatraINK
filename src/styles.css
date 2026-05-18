@@ -2902,3 +2902,154 @@ ul.gal-grid {
   font-style: italic;
   color: var(--ivory-dim);
 }
+
+/* ── Account → Gewinne / Gutscheine ──────────────────────────────────────── */
+
+.account-vouchers {
+  margin-top: 28px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.account-vouchers-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.account-vouchers-kicker {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.account-vouchers-count {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+}
+
+.account-vouchers-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.account-voucher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: rgba(212, 165, 55, 0.04);
+  transition: border-color 160ms ease;
+}
+
+.account-voucher.is-open {
+  border-color: var(--line-strong);
+  background: rgba(212, 165, 55, 0.08);
+}
+
+.account-voucher.is-redeemed {
+  opacity: 0.72;
+}
+
+.account-voucher-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.account-voucher-value {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--gold-bright);
+}
+
+.account-voucher.is-redeemed .account-voucher-value {
+  color: var(--ivory-dim);
+  text-decoration: line-through;
+  text-decoration-color: rgba(185, 173, 146, 0.5);
+}
+
+.account-voucher-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ivory);
+}
+
+.account-voucher-date {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+  margin-top: 4px;
+}
+
+.account-voucher-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.account-voucher.is-open .account-voucher-state {
+  color: var(--gold);
+}
+
+.account-voucher-state-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ivory-dim);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.04);
+}
+
+.account-voucher-state-dot.open {
+  background: var(--gold-bright);
+  box-shadow: 0 0 10px var(--gold-bright);
+}
+
+.account-vouchers-hint {
+  margin: 14px 0 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ivory-dim);
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .account-voucher {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .account-voucher-state {
+    text-align: left;
+  }
+}
