@@ -2620,81 +2620,216 @@ ul.gal-grid {
   text-transform: uppercase;
 }
 
-/* ── Glücksrad-Seite ─────────────────────────────────────────────────────── */
+/* ── Glücksrad-Modals ────────────────────────────────────────────────────── */
 
-.gluecksrad-stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
-  padding: 12px 0 48px;
+@keyframes wheelModalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.gluecksrad-intro {
-  max-width: 540px;
-  text-align: center;
-  font-size: 18px;
+@keyframes wheelModalCardIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wheel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(6, 4, 2, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  animation: wheelModalFadeIn 220ms ease-out;
+}
+
+.wheel-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 36px 32px 28px;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(212, 165, 55, 0.18), transparent 60%),
+    linear-gradient(180deg, #16100a 0%, #0a0806 100%);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(212, 165, 55, 0.18);
   color: var(--ivory);
-  line-height: 1.5;
+  text-align: center;
+  animation: wheelModalCardIn 280ms cubic-bezier(0.18, 0.86, 0.22, 1);
 }
 
-.gluecksrad-redeem-hint {
-  max-width: 480px;
-  text-align: center;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
+.wheel-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
   color: var(--ivory-dim);
-  line-height: 1.5;
-  font-style: italic;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 160ms ease, background 160ms ease;
 }
 
-.gluecksrad-gate {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  padding: 32px 16px;
-  text-align: center;
+.wheel-modal-close:hover:not(:disabled) {
+  color: var(--gold-bright);
+  background: rgba(212, 165, 55, 0.08);
 }
 
-.gluecksrad-gate .cormorant {
-  font-size: 18px;
+.wheel-modal-close:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Invite-Modal */
+
+.wheel-invite-icon {
+  color: var(--gold);
+  margin: 0 auto 18px;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 0 12px rgba(240, 200, 96, 0.35));
+}
+
+.wheel-invite-kicker {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.wheel-invite-title {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  color: var(--gold-bright);
+  margin: 0 0 14px;
+  line-height: 1.25;
+}
+
+.wheel-invite-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
   color: var(--ivory);
-  max-width: 420px;
+  line-height: 1.55;
+  margin: 0 0 26px;
 }
 
-.gluecksrad-info {
-  max-width: 560px;
-  margin: 24px auto 48px;
+.wheel-invite-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
-  text-align: center;
+  gap: 10px;
 }
 
-.gluecksrad-info-title {
+.wheel-invite-cta {
+  min-width: 240px;
+  padding: 14px 30px;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-ink);
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(212, 165, 55, 0.28);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.wheel-invite-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(212, 165, 55, 0.4);
+}
+
+.wheel-invite-skip {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ivory-dim);
+  background: transparent;
+  border: none;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.wheel-invite-skip:hover {
+  color: var(--gold);
+}
+
+/* Spin-Modal */
+
+.wheel-spin-card {
+  max-width: 560px;
+  padding: 32px 28px 28px;
+}
+
+.wheel-spin-kicker {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.wheel-spin-title {
   font-family: 'Cinzel', serif;
   font-size: 22px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--gold-bright);
-  margin: 0;
+  margin: 0 0 8px;
 }
 
-.gluecksrad-info-card {
-  width: 100%;
+.wheel-spin-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ivory-dim);
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+.wheel-spin-stage {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  width: min(380px, 82vw);
+}
+
+.wheel-spin-error {
+  margin-top: 18px;
+}
+
+.wheel-spin-redeem {
+  margin-top: 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 22px 26px;
+  gap: 10px;
+  padding: 18px 22px;
   border: 1px solid var(--line-strong);
   border-radius: 4px;
-  background: rgba(212, 165, 55, 0.06);
+  background: rgba(212, 165, 55, 0.08);
 }
 
-.gluecksrad-info-kicker {
+.wheel-spin-redeem-kicker {
   font-family: 'Cinzel', serif;
   font-size: 9px;
   letter-spacing: 0.3em;
@@ -2702,46 +2837,24 @@ ul.gal-grid {
   color: var(--gold);
 }
 
-.gluecksrad-info-value {
+.wheel-spin-redeem-value {
   font-family: 'Cinzel', serif;
-  font-size: 26px;
+  font-size: 22px;
   letter-spacing: 0.06em;
   color: var(--gold-bright);
+  margin-bottom: 6px;
 }
 
-.gluecksrad-info-label {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
-  color: var(--ivory);
-  font-style: italic;
+@media (max-width: 480px) {
+  .wheel-modal-card { padding: 28px 20px 22px; }
+  .wheel-invite-title { font-size: 20px; }
+  .wheel-spin-title { font-size: 19px; }
+  .wheel-invite-cta { min-width: 200px; padding: 13px 24px; }
 }
 
-.gluecksrad-info-state {
-  margin-top: 6px;
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-}
-
-.gluecksrad-info-state.redeemed {
-  color: var(--ivory-dim);
-  border-color: var(--line);
-}
-
-.gluecksrad-info-state.open {
-  color: var(--gold);
-  border-color: var(--line-strong);
-  background: rgba(212, 165, 55, 0.08);
-}
-
-.gluecksrad-info-hint {
-  font-size: 16px;
-  color: var(--ivory-dim);
-  max-width: 460px;
+@media (prefers-reduced-motion: reduce) {
+  .wheel-modal-backdrop,
+  .wheel-modal-card { animation: none; }
 }
 
 /* ── Account → Glücksrad-CTA ─────────────────────────────────────────────── */
