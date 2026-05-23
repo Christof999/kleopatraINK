@@ -343,6 +343,12 @@ function Gallery({ onBack }) {
 
 // ── About ─────────────────────────────────────────────────────────────────────
 
+function AboutSectionTitle({ children, style, id }) {
+  return (
+    <h3 className="about-section-title serif" style={style} id={id}>{children}</h3>
+  );
+}
+
 function About({ onBack }) {
   return (
     <div className="page with-bg">
@@ -350,57 +356,67 @@ function About({ onBack }) {
         kicker="Über uns · Est. 2018"
         title="Das sind" titleEm="wir"
         meta={<>
-          <b>Seit 2018</b>
+          <b>Istanbul · Alanya</b>
+          <div>Deutschland seit 8 Jahren</div>
           <div>Gunzenhausen</div>
-          <div>Kleopatra INK</div>
         </>}
         onBack={onBack}
       />
+
+      <AboutSectionTitle>Über uns</AboutSectionTitle>
       <div className="about-hero">
         <div className="about-copy">
-          <p>Kleopatra INK ist ein Familienstudio in Gunzenhausen — gegründet 2018, gewachsen aus echter Leidenschaft für Tätowierkunst. Ein Künstler, eine Familie, eine Handschrift. Und der Glaube, dass jedes Tattoo ein Einzelstück sein muss.</p>
-          <p>Jede Arbeit beginnt mit einem persönlichen Gespräch. Wir hören zu, skizzieren, verwerfen und zeichnen wieder — bis das Motiv so scharf ist wie die Nadel, die es setzt. Kein Motiv verlässt unser Studio zweimal.</p>
-          <p>Hygiene nach DIN EN 17141. Pigmente nach EU-REACH. Kein Small-Talk, keine Kompromisse.</p>
+          <p>
+            Unsere Leidenschaft für die Tattoo-Kunst begann vor vielen Jahren als reine Faszination
+            in den lebendigen Straßen von Istanbul. Um diese Begeisterung in ein professionelles
+            Handwerk zu verwandeln, zog es uns nach Alanya, wo wir in einem renommierten Studio eine
+            fundierte, fast 6-jährige Ausbildung absolvierten. Diese intensive Zeit legte nicht nur
+            den Grundstein für unser heutiges Können, sondern brachte auch eine ganz besondere
+            persönliche Wendung mit sich: Hier lernte ich meine heutige Ehefrau kennen, mit der ich
+            diese Berufung seitdem teile.
+          </p>
+          <p>
+            Vor 8 Jahren haben wir diesen Weg gemeinsam nach Deutschland verlagert. Seitdem
+            konzentrieren wir uns voll und ganz auf diese eine Kunstform. In all den Jahren in
+            Deutschland stand die stetige Weiterentwicklung für uns im Vordergrund: Wir arbeiten
+            ausschließlich mit hochprofessionellem Equipment und setzen höchste Maßstäbe im Bereich
+            der Hygiene, die für uns an oberster Stelle steht.
+          </p>
+          <p>
+            Ein Tattoo ist für uns kein bloßes Motiv auf der Haut, sondern ein Kunstwerk für die
+            Ewigkeit.
+          </p>
         </div>
         <div className="placeholder about-img">
           <div className="ph-label">STUDIO SHOT</div>
-          <div className="ph-sub">Innenraum, warmes Licht, Arbeitsplatz</div>
+          <div className="ph-sub">Arbeitsplatz · Gunzenhausen</div>
         </div>
       </div>
 
-      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '0 0 24px' }}>Der Künstler</h3>
-      <div className="team-grid solo">
-        <div className="team-card">
-          <div className="placeholder">
-            <div className="ph-label">PORTRAIT</div>
-            <div className="ph-sub">Im Studio, bei der Arbeit</div>
-          </div>
-          <div className="team-info">
-            <h4 className="team-name">Kleopatra INK</h4>
-            <div className="team-role">Tätowierer · Gründer</div>
-            <div className="team-bio">Seit 2018 in Gunzenhausen zuhause. Spezialisiert auf präzises Fineline, Realism und Neotraditional. Jede Arbeit ein Einzelstück — nichts wird doppelt getätowiert.</div>
-            <div className="team-specs">
-              <span className="spec">Fineline</span>
-              <span className="spec">Dotwork</span>
-              <span className="spec">Realism</span>
-              <span className="spec">Black & White</span>
-              <span className="spec">Neotraditional</span>
-              <span className="spec">Oldschool</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '60px 0 24px' }}>Die Familie</h3>
-      <div className="family-section">
-        <div className="placeholder family-img">
-          <div className="ph-label">FAMILIENFOTO</div>
-          <div className="ph-sub">Familie · Kinder · Hund</div>
-        </div>
-        <div className="family-copy">
-          <p className="cormorant">Hinter Kleopatra INK steckt mehr als ein Studio — es ist ein Familienunternehmen. Termine, Organisation und das herzliche Empfangen der Kunden liegen in familiärer Hand. Wer herkommt, ist kein Laufkundschaft, sondern Gast.</p>
-          <p className="cormorant">Das spürt man vom ersten Anruf an.</p>
-        </div>
+      <div className="about-mv-grid">
+        <section className="about-mv-block" aria-labelledby="about-mission-heading">
+          <AboutSectionTitle style={{ marginBottom: 20 }} id="about-mission-heading">
+            Unsere Mission
+          </AboutSectionTitle>
+          <p>
+            Für uns steht die Perfektion des Handwerks und die Zufriedenheit unserer Kunden immer an
+            erster Stelle – weit vor dem finanziellen Aspekt. Unsere Mission ist es, jedem Kunden
+            unter strengsten Hygienestandards und mit handwerklicher Exzellenz ein einzigartiges
+            Tattoo zu erschaffen, das er ein Leben lang mit Stolz auf der Haut trägt.
+          </p>
+        </section>
+        <section className="about-mv-block" aria-labelledby="about-vision-heading">
+          <AboutSectionTitle style={{ marginBottom: 20 }} id="about-vision-heading">
+            Unsere Vision
+          </AboutSectionTitle>
+          <p>
+            Unsere Vision ist es, die in Deutschland etablierte Professionalität und unsere
+            langjährige Erfahrung an die nächste Generation weiterzugeben. Durch zukünftige Schulungen
+            und Ausbildungskurse für angehende Tattoo-Künstler möchten wir der Branche neue Impulse
+            geben und uns als ein Studio etablieren, das als Referenz für Qualität, Hygiene und
+            erstklassige Ausbildung steht.
+          </p>
+        </section>
       </div>
     </div>
   );
