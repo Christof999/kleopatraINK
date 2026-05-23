@@ -349,6 +349,21 @@ function AboutSectionTitle({ children, style, id }) {
   );
 }
 
+const ABOUT_PHOTOS = {
+  portrait: { src: '/Kleopatra.JPG', alt: 'Kleopatra INK im Tattoostudio Gunzenhausen' },
+  studio1:  { src: '/Studio_1.JPG',  alt: 'Arbeitsplatz im Studio Kleopatra INK' },
+  studio2:  { src: '/Studio_2.JPG',  alt: 'Studio-Innenraum Kleopatra INK Gunzenhausen' },
+  pigments: { src: '/Farben.JPG',    alt: 'Professionelle Tattoo-Farben im Studio' },
+};
+
+function AboutPhoto({ src, alt, className }) {
+  return (
+    <figure className={className}>
+      <img className="about-photo" src={src} alt={alt} loading="lazy" decoding="async" />
+    </figure>
+  );
+}
+
 function About({ onBack }) {
   return (
     <div className="page with-bg">
@@ -387,9 +402,39 @@ function About({ onBack }) {
             Ewigkeit.
           </p>
         </div>
-        <div className="placeholder about-img">
-          <div className="ph-label">STUDIO SHOT</div>
-          <div className="ph-sub">Arbeitsplatz · Gunzenhausen</div>
+        <AboutPhoto
+          className="about-hero-img"
+          src={ABOUT_PHOTOS.portrait.src}
+          alt={ABOUT_PHOTOS.portrait.alt}
+        />
+      </div>
+
+      <AboutSectionTitle>Unser Studio</AboutSectionTitle>
+      <div className="about-studio-grid">
+        <AboutPhoto
+          className="about-studio-img"
+          src={ABOUT_PHOTOS.studio1.src}
+          alt={ABOUT_PHOTOS.studio1.alt}
+        />
+        <AboutPhoto
+          className="about-studio-img"
+          src={ABOUT_PHOTOS.studio2.src}
+          alt={ABOUT_PHOTOS.studio2.alt}
+        />
+      </div>
+
+      <div className="about-material">
+        <AboutPhoto
+          className="about-material-img"
+          src={ABOUT_PHOTOS.pigments.src}
+          alt={ABOUT_PHOTOS.pigments.alt}
+        />
+        <div className="about-material-copy">
+          <AboutSectionTitle style={{ marginBottom: 16 }}>Material &amp; Hygiene</AboutSectionTitle>
+          <p>
+            Wir arbeiten ausschließlich mit hochprofessionellem Equipment — dazu gehören auch
+            sorgfältig ausgewählte Tattoo-Farben. Hygiene steht für uns an oberster Stelle.
+          </p>
         </div>
       </div>
 
