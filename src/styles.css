@@ -2117,36 +2117,166 @@ body {
   .field input, .field textarea { font-size: 16px; }
   .btn-primary { padding: 14px 24px; font-size: 11px; letter-spacing: 0.24em; }
 
-  /* Landing: hide radial nodes, show bottom nav instead */
-  .node { display: none; }
-  .dial { width: min(78vw, 360px) !important; }
-  .stage { min-height: 0; padding-bottom: 80px; }
-  .tagline { bottom: 132px; }
-  .tagline-main { font-size: 16px; }
-  .tagline-kicker { font-size: 8px; letter-spacing: 0.36em; margin-bottom: 6px; }
+  /* ── Landing-Übersicht: scrollbar, mit großzügigen Tap-Cards ────────── */
 
-  /* Show mobile bottom navigation */
-  .mobile-nav {
+  /* Stage darf jetzt fließen statt 100vh-Käfig */
+  .stage {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow: visible;
+    padding-bottom: 28px;
     display: flex;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 20;
-    background: rgba(10, 8, 6, 0.94);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    padding: 8px 0 max(14px, env(safe-area-inset-bottom));
-    overflow: hidden;
-    animation: nav-glow 2.8s ease-in-out infinite;
+    flex-direction: column;
   }
 
-  /* Staggered dot pulse — one wave sweeps left→right */
-  .mobile-nav-item:nth-child(1) .mobile-nav-dot { animation-delay: 0s; }
-  .mobile-nav-item:nth-child(2) .mobile-nav-dot { animation-delay: 0.55s; }
-  .mobile-nav-item:nth-child(3) .mobile-nav-dot { animation-delay: 1.1s; }
-  .mobile-nav-item:nth-child(4) .mobile-nav-dot { animation-delay: 1.65s; }
-  .mobile-nav-item:nth-child(5) .mobile-nav-dot { animation-delay: 2.2s; }
-  .mobile-nav-item:nth-child(6) .mobile-nav-dot { animation-delay: 2.75s; }
-  .mobile-nav-item:nth-child(7) .mobile-nav-dot { animation-delay: 3.3s; }
+  /* Reihenfolge: Header → Dial → Tagline → Nav-Cards → Adresse */
+  .stage > .chrome       { order: 0; }
+  .stage > .composition  { order: 1; }
+  .stage > .tagline      { order: 2; }
+  .stage > .mobile-nav   { order: 3; }
+  .stage > .corner.bl    { order: 4; }
+  .stage > .corner.br    { order: 5; }
+
+  /* Composition stapelt in den Flow statt absolut zu liegen */
+  .composition {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    padding: 16px 0 4px;
+    flex: 0 0 auto;
+  }
+
+  /* Dial bleibt als Brand-Kernstück, aber kleiner */
+  .dial { width: min(72vw, 340px) !important; }
+
+  /* Radial-Nodes (Desktop-Ringnavigation) bleiben ausgeblendet */
+  .node { display: none; }
+
+  /* Tagline direkt unter dem Dial */
+  .tagline {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 12px auto 22px;
+    padding: 0 24px;
+    pointer-events: auto;
+  }
+  .tagline-main { font-size: 18px; }
+  .tagline-kicker { font-size: 8px; letter-spacing: 0.36em; margin-bottom: 6px; }
+
+  /* Mobile-Nav: vom Fixed-Bar zum großzügigen 2-Spalten-Grid */
+  .mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    position: relative;
+    bottom: auto; left: auto; right: auto;
+    padding: 0 16px;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    animation: none;
+    z-index: auto;
+    overflow: visible;
+  }
+
+  /* Jeder Eintrag = große, lesbare Tap-Card */
+  .mobile-nav-item {
+    flex: initial;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 18px 18px;
+    min-height: 70px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(212, 165, 55, 0.05), rgba(212, 165, 55, 0.015));
+    text-align: left;
+    color: var(--ivory);
+    transition: border-color 180ms ease, background 180ms ease, transform 120ms ease;
+  }
+
+  .mobile-nav-item::before { display: none; }
+
+  .mobile-nav-item:active {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(212, 165, 55, 0.12), rgba(212, 165, 55, 0.04));
+    transform: scale(0.98);
+  }
+
+  .mobile-nav-dot {
+    width: 10px; height: 10px;
+    animation: none;
+    border-color: var(--gold);
+    background: rgba(212, 165, 55, 0.32);
+    flex-shrink: 0;
+  }
+
+  /* Inner span wrapt Label + Sub vertikal */
+  .mobile-nav-item > span:nth-of-type(2) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-nav-lbl {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    color: var(--ivory);
+    line-height: 1.15;
+  }
+
+  .mobile-nav-sub {
+    font-size: 8.5px;
+    letter-spacing: 0.22em;
+    color: var(--ivory-dim);
+    line-height: 1.1;
+  }
+
+  /* Piercing-Card bekommt Pink-Akzent — konsistent mit dem Desktop-Dial */
+  .mobile-nav-item[data-nav="piercing"] {
+    border-color: rgba(244, 114, 182, 0.4);
+    background: linear-gradient(135deg, rgba(244, 114, 182, 0.10), rgba(244, 114, 182, 0.02));
+  }
+  .mobile-nav-item[data-nav="piercing"]:active {
+    border-color: #ec4899;
+    background: linear-gradient(135deg, rgba(244, 114, 182, 0.18), rgba(244, 114, 182, 0.05));
+  }
+  .mobile-nav-item[data-nav="piercing"] .mobile-nav-dot {
+    background: #ec4899;
+    border-color: #f9a8d4;
+    box-shadow: 0 0 8px #f9a8d4;
+  }
+
+  /* Letztes Item (Wanna-dos = 7. von 7) füllt die volle Breite */
+  .mobile-nav-item:nth-last-child(1):nth-child(odd) {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  /* Adress-Block am Fuß wieder einblenden, zentriert */
+  .corner.bl {
+    display: block;
+    position: relative;
+    inset: auto;
+    margin: 28px auto 4px;
+    padding: 0 24px;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--ivory-dim);
+    line-height: 1.8;
+  }
+  .corner.bl .corner-tel { color: var(--gold); }
+  .corner.br { display: none; }
 }
 
 @media (max-width: 560px) {

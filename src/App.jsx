@@ -595,12 +595,11 @@ const GENERAL_PIERCING_REQUEST = {
 };
 
 const PIERCING_CATEGORIES = [
-  { id: 'ohr',        label: 'Ohr',         examples: 'Lobe · Helix · Tragus · Daith · Conch · Industrial' },
-  { id: 'nase',       label: 'Nase',        examples: 'Nostril · Septum · Bridge' },
-  { id: 'mund',       label: 'Mund & Lippe', examples: 'Lippenband · Medusa · Madonna · Ashley · Vertikal Labret' },
-  { id: 'gesicht',    label: 'Gesicht',     examples: 'Augenbraue · Anti-Eyebrow' },
-  { id: 'koerper',    label: 'Körper',      examples: 'Bauchnabel · Nippel · Microdermal' },
-  { id: 'intim',      label: 'Intim',       examples: 'Diskret &amp; auf Anfrage · separates Gespräch' },
+  { id: 'ohr',     label: 'Ohr',          examples: 'Lobe · Helix · Tragus · Daith · Conch · Industrial' },
+  { id: 'nase',    label: 'Nase',         examples: 'Nostril · Septum · Bridge' },
+  { id: 'mund',    label: 'Mund & Lippe', examples: 'Lippenband · Medusa · Madonna · Ashley · Vertikal Labret' },
+  { id: 'gesicht', label: 'Gesicht',      examples: 'Augenbraue · Anti-Eyebrow' },
+  { id: 'koerper', label: 'Körper',       examples: 'Bauchnabel · Nippel · Microdermal' },
 ];
 
 const PIERCING_GUIDES = [
