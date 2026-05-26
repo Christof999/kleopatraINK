@@ -215,7 +215,8 @@ function Landing({ onNav, tweaks }) {
             return (
               <button
                 key={n.id}
-                className="node"
+                className={`node node-${n.id}`}
+                data-nav={n.id}
                 style={{ left: `${x}%`, top: `${y}%` }}
                 aria-label={`${n.label} – ${n.sub}`}
                 onClick={() => onNav(n.id)}
@@ -239,7 +240,8 @@ function Landing({ onNav, tweaks }) {
         {NAV.map((n) => (
           <button
             key={n.id}
-            className="mobile-nav-item"
+            className={`mobile-nav-item mobile-nav-${n.id}`}
+            data-nav={n.id}
             aria-label={`${n.label} – ${n.sub}`}
             onClick={() => onNav(n.id)}
           >
@@ -343,6 +345,27 @@ function Gallery({ onBack }) {
 
 // ── About ─────────────────────────────────────────────────────────────────────
 
+function AboutSectionTitle({ children, style, id }) {
+  return (
+    <h3 className="about-section-title serif" style={style} id={id}>{children}</h3>
+  );
+}
+
+const ABOUT_PHOTOS = {
+  portrait: { src: '/Kleopatra.JPG', alt: 'Kleopatra INK im Tattoostudio Gunzenhausen' },
+  studio1:  { src: '/Studio_1.JPG',  alt: 'Arbeitsplatz im Studio Kleopatra INK' },
+  studio2:  { src: '/Studio_2.JPG',  alt: 'Studio-Innenraum Kleopatra INK Gunzenhausen' },
+  pigments: { src: '/Farben.JPG',    alt: 'Professionelle Tattoo-Farben im Studio' },
+};
+
+function AboutPhoto({ src, alt, className }) {
+  return (
+    <figure className={className}>
+      <img className="about-photo" src={src} alt={alt} loading="lazy" decoding="async" />
+    </figure>
+  );
+}
+
 function About({ onBack }) {
   return (
     <div className="page with-bg">
@@ -350,57 +373,97 @@ function About({ onBack }) {
         kicker="Über uns · Est. 2018"
         title="Das sind" titleEm="wir"
         meta={<>
-          <b>Seit 2018</b>
+          <b>Istanbul · Alanya</b>
+          <div>Deutschland seit 8 Jahren</div>
           <div>Gunzenhausen</div>
-          <div>Kleopatra INK</div>
         </>}
         onBack={onBack}
       />
+
+      <AboutSectionTitle>Über uns</AboutSectionTitle>
       <div className="about-hero">
         <div className="about-copy">
-          <p>Kleopatra INK ist ein Familienstudio in Gunzenhausen — gegründet 2018, gewachsen aus echter Leidenschaft für Tätowierkunst. Ein Künstler, eine Familie, eine Handschrift. Und der Glaube, dass jedes Tattoo ein Einzelstück sein muss.</p>
-          <p>Jede Arbeit beginnt mit einem persönlichen Gespräch. Wir hören zu, skizzieren, verwerfen und zeichnen wieder — bis das Motiv so scharf ist wie die Nadel, die es setzt. Kein Motiv verlässt unser Studio zweimal.</p>
-          <p>Hygiene nach DIN EN 17141. Pigmente nach EU-REACH. Kein Small-Talk, keine Kompromisse.</p>
+          <p>
+            Unsere Leidenschaft für die Tattoo-Kunst begann vor vielen Jahren als reine Faszination
+            in den lebendigen Straßen von Istanbul. Um diese Begeisterung in ein professionelles
+            Handwerk zu verwandeln, zog es uns nach Alanya, wo wir in einem renommierten Studio eine
+            fundierte, fast 6-jährige Ausbildung absolvierten. Diese intensive Zeit legte nicht nur
+            den Grundstein für unser heutiges Können, sondern brachte auch eine ganz besondere
+            persönliche Wendung mit sich: Hier lernte ich meine heutige Ehefrau kennen, mit der ich
+            diese Berufung seitdem teile.
+          </p>
+          <p>
+            Vor 8 Jahren haben wir diesen Weg gemeinsam nach Deutschland verlagert. Seitdem
+            konzentrieren wir uns voll und ganz auf diese eine Kunstform. In all den Jahren in
+            Deutschland stand die stetige Weiterentwicklung für uns im Vordergrund: Wir arbeiten
+            ausschließlich mit hochprofessionellem Equipment und setzen höchste Maßstäbe im Bereich
+            der Hygiene, die für uns an oberster Stelle steht.
+          </p>
+          <p>
+            Ein Tattoo ist für uns kein bloßes Motiv auf der Haut, sondern ein Kunstwerk für die
+            Ewigkeit.
+          </p>
         </div>
-        <div className="placeholder about-img">
-          <div className="ph-label">STUDIO SHOT</div>
-          <div className="ph-sub">Innenraum, warmes Licht, Arbeitsplatz</div>
+        <AboutPhoto
+          className="about-hero-img"
+          src={ABOUT_PHOTOS.portrait.src}
+          alt={ABOUT_PHOTOS.portrait.alt}
+        />
+      </div>
+
+      <AboutSectionTitle>Unser Studio</AboutSectionTitle>
+      <div className="about-studio-grid">
+        <AboutPhoto
+          className="about-studio-img"
+          src={ABOUT_PHOTOS.studio1.src}
+          alt={ABOUT_PHOTOS.studio1.alt}
+        />
+        <AboutPhoto
+          className="about-studio-img"
+          src={ABOUT_PHOTOS.studio2.src}
+          alt={ABOUT_PHOTOS.studio2.alt}
+        />
+      </div>
+
+      <div className="about-material">
+        <AboutPhoto
+          className="about-material-img"
+          src={ABOUT_PHOTOS.pigments.src}
+          alt={ABOUT_PHOTOS.pigments.alt}
+        />
+        <div className="about-material-copy">
+          <AboutSectionTitle style={{ marginBottom: 16 }}>Material &amp; Hygiene</AboutSectionTitle>
+          <p>
+            Wir arbeiten ausschließlich mit hochprofessionellem Equipment — dazu gehören auch
+            sorgfältig ausgewählte Tattoo-Farben. Hygiene steht für uns an oberster Stelle.
+          </p>
         </div>
       </div>
 
-      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '0 0 24px' }}>Der Künstler</h3>
-      <div className="team-grid solo">
-        <div className="team-card">
-          <div className="placeholder">
-            <div className="ph-label">PORTRAIT</div>
-            <div className="ph-sub">Im Studio, bei der Arbeit</div>
-          </div>
-          <div className="team-info">
-            <h4 className="team-name">Kleopatra INK</h4>
-            <div className="team-role">Tätowierer · Gründer</div>
-            <div className="team-bio">Seit 2018 in Gunzenhausen zuhause. Spezialisiert auf präzises Fineline, Realism und Neotraditional. Jede Arbeit ein Einzelstück — nichts wird doppelt getätowiert.</div>
-            <div className="team-specs">
-              <span className="spec">Fineline</span>
-              <span className="spec">Dotwork</span>
-              <span className="spec">Realism</span>
-              <span className="spec">Black & White</span>
-              <span className="spec">Neotraditional</span>
-              <span className="spec">Oldschool</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3 className="serif" style={{ fontSize: 12, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--gold)', margin: '60px 0 24px' }}>Die Familie</h3>
-      <div className="family-section">
-        <div className="placeholder family-img">
-          <div className="ph-label">FAMILIENFOTO</div>
-          <div className="ph-sub">Familie · Kinder · Hund</div>
-        </div>
-        <div className="family-copy">
-          <p className="cormorant">Hinter Kleopatra INK steckt mehr als ein Studio — es ist ein Familienunternehmen. Termine, Organisation und das herzliche Empfangen der Kunden liegen in familiärer Hand. Wer herkommt, ist kein Laufkundschaft, sondern Gast.</p>
-          <p className="cormorant">Das spürt man vom ersten Anruf an.</p>
-        </div>
+      <div className="about-mv-grid">
+        <section className="about-mv-block" aria-labelledby="about-mission-heading">
+          <AboutSectionTitle style={{ marginBottom: 20 }} id="about-mission-heading">
+            Unsere Mission
+          </AboutSectionTitle>
+          <p>
+            Für uns steht die Perfektion des Handwerks und die Zufriedenheit unserer Kunden immer an
+            erster Stelle – weit vor dem finanziellen Aspekt. Unsere Mission ist es, jedem Kunden
+            unter strengsten Hygienestandards und mit handwerklicher Exzellenz ein einzigartiges
+            Tattoo zu erschaffen, das er ein Leben lang mit Stolz auf der Haut trägt.
+          </p>
+        </section>
+        <section className="about-mv-block" aria-labelledby="about-vision-heading">
+          <AboutSectionTitle style={{ marginBottom: 20 }} id="about-vision-heading">
+            Unsere Vision
+          </AboutSectionTitle>
+          <p>
+            Unsere Vision ist es, die in Deutschland etablierte Professionalität und unsere
+            langjährige Erfahrung an die nächste Generation weiterzugeben. Durch zukünftige Schulungen
+            und Ausbildungskurse für angehende Tattoo-Künstler möchten wir der Branche neue Impulse
+            geben und uns als ein Studio etablieren, das als Referenz für Qualität, Hygiene und
+            erstklassige Ausbildung steht.
+          </p>
+        </section>
       </div>
     </div>
   );
@@ -522,27 +585,183 @@ function WannaDos({ onBack, onBook }) {
   );
 }
 
-// ── Piercing prices ───────────────────────────────────────────────────────────
+// ── Piercing world ────────────────────────────────────────────────────────────
 
-function PiercingPrices({ onBack, onBook }) {
-  const { items, loading, error } = usePiercingPrices();
+const GENERAL_PIERCING_REQUEST = {
+  id: '__piercing_general__',
+  title: 'Piercing-Anfrage',
+  desc: 'Ich möchte ein Piercing — Wunschplatzierung bespreche ich gern mit euch.',
+  price: null,
+};
 
+const PIERCING_CATEGORIES = [
+  { id: 'ohr',     label: 'Ohr',          examples: 'Lobe · Helix · Tragus · Daith · Conch · Industrial' },
+  { id: 'nase',    label: 'Nase',         examples: 'Nostril · Septum · Bridge' },
+  { id: 'mund',    label: 'Mund & Lippe', examples: 'Lippenband · Medusa · Madonna · Ashley · Vertikal Labret' },
+  { id: 'gesicht', label: 'Gesicht',      examples: 'Augenbraue · Anti-Eyebrow' },
+  { id: 'koerper', label: 'Körper',       examples: 'Bauchnabel · Nippel · Microdermal' },
+];
+
+const PIERCING_GUIDES = [
+  {
+    id: 'face',
+    src: '/piercing-guide-face.jpg',
+    alt: 'Piercing-Guide: Gesicht, Nase, Lippe und Ohr — Übersicht aller Platzierungen bei Kleopatra INK',
+    aspect: '1 / 1',
+    kicker: 'Guide · Gesicht & Mund',
+    title: 'Wo welches Piercing sitzt',
+    copy: 'Augenbraue, Nostril, Septum, Medusa, Madonna, Ashley, Lippenband, Vertikal Labret — die Übersicht zeigt dir auf einen Blick, welche Platzierung sich wo befindet. Wir beraten dich gerne, was zu deiner Anatomie und deinem Look passt.',
+    spots: [
+      'Augenbraue · vertikal über dem Auge',
+      'Nostril · seitlich durchs Nasenflügel',
+      'Septum · durch die Nasenscheidewand',
+      'Medusa · mittig unter der Oberlippe',
+      'Madonna / Monroe · seitlich über der Lippe',
+      'Ashley · mittig unter der Unterlippe',
+      'Vertikal Labret · vertikal durch die Unterlippe',
+      'Lippenband · hinter der Oberlippe',
+    ],
+  },
+  {
+    id: 'ear',
+    src: '/piercing-guide-ear.jpg',
+    alt: 'Piercing-Guide: Ohr — Helix, Tragus, Daith, Conch und alle gängigen Ohr-Platzierungen',
+    aspect: '3 / 4',
+    kicker: 'Guide · Ohr',
+    title: 'Die Sprache des Ohrs',
+    copy: 'Vom klassischen Lobe-Piercing über Helix und Tragus bis zum spektakulären Industrial — das Ohr bietet unzählige Möglichkeiten. Wir kombinieren mehrere Stiche zu einem stimmigen Curated Ear, das deine Persönlichkeit unterstreicht.',
+    spots: [
+      'Lobe · Ohrläppchen, der Klassiker',
+      'Helix · äußerer Knorpelrand',
+      'Forward Helix · vorderer Knorpel',
+      'Tragus · kleiner Knorpel vor dem Gehörgang',
+      'Daith · innerer Knorpelbogen',
+      'Rook · obere Knorpelfalte',
+      'Conch · Ohrmuschel',
+      'Industrial · zwei Stiche verbunden durch einen Stab',
+    ],
+  },
+];
+
+function PiercingHero({ onBook }) {
   return (
-    <div className="page with-bg">
-      <PageHead
-        kicker="Piercings · Preise"
-        title="Piercing" titleEm="Preise"
-        meta={<>
-          <b>{loading ? '…' : items.length > 0 ? `${items.length} Einträge` : 'Bald'}</b>
-          <div>Aus Firestore</div>
-          <div>inkl. Erstschmuck</div>
-        </>}
-        onBack={onBack}
-      />
+    <section className="piercing-hero">
+      <div className="piercing-hero-logo-wrap">
+        <img
+          className="piercing-hero-logo"
+          src="/LOGO_piercing.jpg"
+          alt="Kleopatra INK · Piercing Studio Gunzenhausen"
+        />
+      </div>
+      <div className="piercing-hero-copy">
+        <div className="piercing-hero-kicker">Kleopatra INK · Piercing Studio</div>
+        <h1 className="piercing-hero-title">Jedes Piercing<br/><em>unterstreicht dich.</em></h1>
+        <p className="piercing-hero-lead">
+          Vom feinen Lobe bis zum kuratierten Ohrlauf — unser Piercing-Studio in Gunzenhausen
+          arbeitet ausschließlich mit hochwertigem Implant-Grade-Schmuck, sauberer
+          Nadel-Technik und ausführlicher Beratung.
+        </p>
+        <div className="piercing-hero-actions">
+          <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
+            Termin anfragen →
+          </button>
+          <a className="piercing-hero-tel" href="tel:+4917660957400">
+            <span className="piercing-hero-tel-kicker">Direkt anrufen</span>
+            <span className="piercing-hero-tel-num">0176 60957400</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-      <div className="book-intro piercing-intro">
-        <p>
-          <b className="gold">Aktuelle Piercing-Preise direkt aus dem Studio.</b> Die Liste wird im Admin-Portal gepflegt und hier automatisch aus demselben Firebase-Projekt angezeigt.
+function PiercingCategories() {
+  return (
+    <section className="piercing-section piercing-cat-section">
+      <div className="piercing-section-head">
+        <span className="piercing-section-kicker">Unser Angebot</span>
+        <h2 className="piercing-section-title">Was wir stechen</h2>
+      </div>
+      <dl className="piercing-cat-list">
+        {PIERCING_CATEGORIES.map((cat, i) => (
+          <div key={cat.id} className="piercing-cat-row">
+            <dt className="piercing-cat-row-label">
+              <span className="piercing-cat-row-num">{String(i + 1).padStart(2, '0')}</span>
+              {cat.label}
+            </dt>
+            <dd className="piercing-cat-row-examples" dangerouslySetInnerHTML={{ __html: cat.examples }} />
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function PiercingGuide({ guide, index }) {
+  const flipped = index % 2 === 1;
+  return (
+    <section className={`piercing-guide ${flipped ? 'is-flipped' : ''}`}>
+      <figure className="piercing-guide-figure" style={{ aspectRatio: guide.aspect || '1 / 1' }}>
+        <img
+          src={guide.src}
+          alt={guide.alt}
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+      <div className="piercing-guide-copy">
+        <span className="piercing-section-kicker">{guide.kicker}</span>
+        <h2 className="piercing-section-title">{guide.title}</h2>
+        <p className="piercing-section-lead">{guide.copy}</p>
+        <ul className="piercing-guide-spots">
+          {guide.spots.map((s, i) => (
+            <li key={i}>
+              <span className="piercing-guide-dot" aria-hidden="true" />
+              <span>{s}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+const PIERCING_QUALITY = [
+  { num: '01', title: 'Implant-Grade-Schmuck', text: 'Titan G23 & Niob — biokompatibel, nickelfrei, ideal für die Erstheilung. Glas und 14k-Gold auf Wunsch.' },
+  { num: '02', title: 'Nadel-Technik',          text: 'Wir stechen ausschließlich mit Einweg-Nadeln. Keine Pistole. Saubere Punktion, präzise Winkel, schnellere Heilung.' },
+  { num: '03', title: 'Hygiene',                text: 'Sterilisation nach DIN-Standard, autoklavierte Werkzeuge, Einmal-Handschuhe, frisches Field-Setup für jeden Stich.' },
+  { num: '04', title: 'Beratung & Nachsorge',   text: 'Ausführliches Vorgespräch zu Anatomie und Schmuck. Schriftliche Pflegeanleitung, kostenloser Kontroll-Termin.' },
+];
+
+function PiercingHygiene() {
+  return (
+    <section className="piercing-section piercing-quality">
+      <div className="piercing-section-head">
+        <span className="piercing-section-kicker">Sicherheit &amp; Qualität</span>
+        <h2 className="piercing-section-title">Worauf wir bestehen</h2>
+      </div>
+      <div className="piercing-quality-grid">
+        {PIERCING_QUALITY.map((q) => (
+          <article key={q.num} className="piercing-quality-item">
+            <div className="piercing-quality-num">{q.num}</div>
+            <h3 className="piercing-quality-title">{q.title}</h3>
+            <p className="piercing-quality-text">{q.text}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PiercingPricesList({ items, loading, error, onBook }) {
+  return (
+    <section className="piercing-section piercing-pricelist">
+      <div className="piercing-section-head">
+        <span className="piercing-section-kicker">Preise · Inkl. Erstschmuck</span>
+        <h2 className="piercing-section-title">Preisliste</h2>
+        <p className="piercing-section-lead">
+          Erstschmuck (Implant-Grade-Titan) ist im Preis enthalten.
+          Premium-Schmuck (14k Gold, Edelsteine) gegen Aufpreis.
         </p>
       </div>
 
@@ -553,23 +772,65 @@ function PiercingPrices({ onBack, onBook }) {
       ) : items.length === 0 ? (
         <p className="gal-empty">Piercing-Preise folgen bald.</p>
       ) : (
-        <div className="piercing-grid">
+        <ul className="piercing-menu">
           {items.map((item) => (
-            <article key={item.id} className="piercing-card">
-              <div>
-                <h3 className="piercing-title">{item.title}</h3>
-                {item.desc && <p className="piercing-desc">{item.desc}</p>}
+            <li key={item.id} className="piercing-menu-item">
+              <div className="piercing-menu-row">
+                <h3 className="piercing-menu-title">{item.title}</h3>
+                <span className="piercing-menu-dots" aria-hidden="true" />
+                <span className="piercing-menu-price">{formatEuro(item.price)}</span>
               </div>
-              <div className="piercing-card-side">
-                <div className="piercing-price">{formatEuro(item.price)}</div>
-                <button className="piercing-request" onClick={() => onBook(item)}>
-                  Termin anfragen
-                </button>
-              </div>
-            </article>
+              {item.desc && <p className="piercing-menu-desc">{item.desc}</p>}
+              <button
+                type="button"
+                className="piercing-menu-link"
+                onClick={() => onBook(item)}
+              >
+                Termin anfragen →
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
+    </section>
+  );
+}
+
+function PiercingPrices({ onBack, onBook }) {
+  const { items, loading, error } = usePiercingPrices();
+
+  return (
+    <div className="page with-bg theme-piercing">
+      <PageHead
+        kicker="Piercing Studio · Kleopatra INK"
+        title="Piercing" titleEm="Welt"
+        meta={<>
+          <b>{loading ? '…' : items.length > 0 ? `${items.length} Preise` : 'Bald'}</b>
+          <div>Implant-Grade</div>
+          <div>Gunzenhausen</div>
+        </>}
+        onBack={onBack}
+      />
+
+      <PiercingHero onBook={onBook} />
+      <PiercingCategories />
+
+      {PIERCING_GUIDES.map((g, i) => (
+        <PiercingGuide key={g.id} guide={g} index={i} />
+      ))}
+
+      <PiercingHygiene />
+      <PiercingPricesList items={items} loading={loading} error={error} onBook={onBook} />
+
+      <section className="piercing-final-cta">
+        <h2 className="piercing-section-title">Bereit für deinen Termin?</h2>
+        <p className="piercing-section-lead">
+          Schreib uns dein Wunsch-Piercing — wir melden uns binnen 48 Stunden mit einem Vorschlag.
+        </p>
+        <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
+          Termin anfragen →
+        </button>
+      </section>
     </div>
   );
 }
@@ -630,9 +891,9 @@ function Booking({ onBack, wannado, piercing }) {
 
   if (submitted) {
     return (
-      <div className="page with-bg" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+      <div className={`page with-bg${isPiercingBooking ? ' theme-piercing' : ''}`} style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
         <div style={{ maxWidth: 540, textAlign: 'center', padding: '20px' }}>
-          <div className="page-kicker">Beratungstermin angefragt</div>
+          <div className="page-kicker">{isPiercingBooking ? 'Piercing-Anfrage gesendet' : 'Beratungstermin angefragt'}</div>
           <h1 className="page-title" style={{ marginBottom: 24 }}>Bis <em>bald</em></h1>
           <p className="cormorant" style={{ fontSize: 20, color: 'var(--ivory)', opacity: 0.9, lineHeight: 1.5 }}>
             Ich bestätige deinen Beratungstermin innerhalb von 48 Stunden per Mail an <b style={{ color: 'var(--gold)' }}>{email || 'dich'}</b>. Bring gerne Referenzen mit — und viel Zeit für Fragen.
@@ -644,7 +905,7 @@ function Booking({ onBack, wannado, piercing }) {
   }
 
   return (
-    <div className="page with-bg">
+    <div className={`page with-bg${isPiercingBooking ? ' theme-piercing' : ''}`}>
       <PageHead
         kicker={isPiercingBooking ? 'Piercing-Anfrage · Kleopatra INK' : 'Beratungstermin · kostenlos'}
         title={isPiercingBooking ? 'Piercing' : 'Termin'} titleEm={isPiercingBooking ? 'anfragen' : 'buchen'}
