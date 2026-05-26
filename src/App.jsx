@@ -608,7 +608,8 @@ const PIERCING_GUIDES = [
     id: 'face',
     src: '/piercing-guide-face.jpg',
     alt: 'Piercing-Guide: Gesicht, Nase, Lippe und Ohr — Übersicht aller Platzierungen bei Kleopatra INK',
-    kicker: 'Guide · Gesicht &amp; Mund',
+    aspect: '1 / 1',
+    kicker: 'Guide · Gesicht & Mund',
     title: 'Wo welches Piercing sitzt',
     copy: 'Augenbraue, Nostril, Septum, Medusa, Madonna, Ashley, Lippenband, Vertikal Labret — die Übersicht zeigt dir auf einen Blick, welche Platzierung sich wo befindet. Wir beraten dich gerne, was zu deiner Anatomie und deinem Look passt.',
     spots: [
@@ -626,6 +627,7 @@ const PIERCING_GUIDES = [
     id: 'ear',
     src: '/piercing-guide-ear.jpg',
     alt: 'Piercing-Guide: Ohr — Helix, Tragus, Daith, Conch und alle gängigen Ohr-Platzierungen',
+    aspect: '3 / 4',
     kicker: 'Guide · Ohr',
     title: 'Die Sprache des Ohrs',
     copy: 'Vom klassischen Lobe-Piercing über Helix und Tragus bis zum spektakulären Industrial — das Ohr bietet unzählige Möglichkeiten. Wir kombinieren mehrere Stiche zu einem stimmigen Curated Ear, das deine Persönlichkeit unterstreicht.',
@@ -648,11 +650,9 @@ function PiercingHero({ onBook }) {
       <div className="piercing-hero-logo-wrap">
         <img
           className="piercing-hero-logo"
-          src="/piercing-logo.png"
+          src="/LOGO_piercing.jpg"
           alt="Kleopatra INK · Piercing Studio Gunzenhausen"
-          onError={(event) => { event.currentTarget.style.opacity = '0'; }}
         />
-        <div className="piercing-hero-logo-fallback" aria-hidden="true">PIERCING</div>
       </div>
       <div className="piercing-hero-copy">
         <div className="piercing-hero-kicker">Kleopatra INK · Piercing Studio</div>
@@ -660,8 +660,7 @@ function PiercingHero({ onBook }) {
         <p className="piercing-hero-lead">
           Vom feinen Lobe bis zum kuratierten Ohrlauf — unser Piercing-Studio in Gunzenhausen
           arbeitet ausschließlich mit hochwertigem Implant-Grade-Schmuck, sauberer
-          Nadel-Technik und ausführlicher Beratung. Hygiene, Anatomie und dein
-          persönlicher Stil stehen im Mittelpunkt.
+          Nadel-Technik und ausführlicher Beratung.
         </p>
         <div className="piercing-hero-actions">
           <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
@@ -679,22 +678,22 @@ function PiercingHero({ onBook }) {
 
 function PiercingCategories() {
   return (
-    <section className="piercing-section">
+    <section className="piercing-section piercing-cat-section">
       <div className="piercing-section-head">
-        <span className="piercing-section-kicker">Was wir stechen</span>
-        <h2 className="piercing-section-title">Unsere Bereiche</h2>
-        <p className="piercing-section-lead">
-          Von Ohr bis Bauchnabel — frag uns gerne nach Platzierungen, die hier nicht aufgeführt sind.
-        </p>
+        <span className="piercing-section-kicker">Unser Angebot</span>
+        <h2 className="piercing-section-title">Was wir stechen</h2>
       </div>
-      <div className="piercing-cat-grid">
-        {PIERCING_CATEGORIES.map((cat) => (
-          <article key={cat.id} className="piercing-cat-card">
-            <h3 className="piercing-cat-title">{cat.label}</h3>
-            <p className="piercing-cat-examples" dangerouslySetInnerHTML={{ __html: cat.examples }} />
-          </article>
+      <dl className="piercing-cat-list">
+        {PIERCING_CATEGORIES.map((cat, i) => (
+          <div key={cat.id} className="piercing-cat-row">
+            <dt className="piercing-cat-row-label">
+              <span className="piercing-cat-row-num">{String(i + 1).padStart(2, '0')}</span>
+              {cat.label}
+            </dt>
+            <dd className="piercing-cat-row-examples" dangerouslySetInnerHTML={{ __html: cat.examples }} />
+          </div>
         ))}
-      </div>
+      </dl>
     </section>
   );
 }
@@ -703,25 +702,16 @@ function PiercingGuide({ guide, index }) {
   const flipped = index % 2 === 1;
   return (
     <section className={`piercing-guide ${flipped ? 'is-flipped' : ''}`}>
-      <figure className="piercing-guide-figure">
+      <figure className="piercing-guide-figure" style={{ aspectRatio: guide.aspect || '1 / 1' }}>
         <img
           src={guide.src}
           alt={guide.alt}
           loading="lazy"
           decoding="async"
-          onError={(event) => {
-            event.currentTarget.style.display = 'none';
-            const placeholder = event.currentTarget.nextElementSibling;
-            if (placeholder) placeholder.style.display = 'flex';
-          }}
         />
-        <div className="piercing-guide-placeholder" aria-hidden="true">
-          <div className="piercing-guide-placeholder-label">Bild folgt</div>
-          <div className="piercing-guide-placeholder-sub">{guide.src}</div>
-        </div>
       </figure>
       <div className="piercing-guide-copy">
-        <span className="piercing-section-kicker" dangerouslySetInnerHTML={{ __html: guide.kicker }} />
+        <span className="piercing-section-kicker">{guide.kicker}</span>
         <h2 className="piercing-section-title">{guide.title}</h2>
         <p className="piercing-section-lead">{guide.copy}</p>
         <ul className="piercing-guide-spots">
@@ -737,6 +727,13 @@ function PiercingGuide({ guide, index }) {
   );
 }
 
+const PIERCING_QUALITY = [
+  { num: '01', title: 'Implant-Grade-Schmuck', text: 'Titan G23 & Niob — biokompatibel, nickelfrei, ideal für die Erstheilung. Glas und 14k-Gold auf Wunsch.' },
+  { num: '02', title: 'Nadel-Technik',          text: 'Wir stechen ausschließlich mit Einweg-Nadeln. Keine Pistole. Saubere Punktion, präzise Winkel, schnellere Heilung.' },
+  { num: '03', title: 'Hygiene',                text: 'Sterilisation nach DIN-Standard, autoklavierte Werkzeuge, Einmal-Handschuhe, frisches Field-Setup für jeden Stich.' },
+  { num: '04', title: 'Beratung & Nachsorge',   text: 'Ausführliches Vorgespräch zu Anatomie und Schmuck. Schriftliche Pflegeanleitung, kostenloser Kontroll-Termin.' },
+];
+
 function PiercingHygiene() {
   return (
     <section className="piercing-section piercing-quality">
@@ -745,22 +742,13 @@ function PiercingHygiene() {
         <h2 className="piercing-section-title">Worauf wir bestehen</h2>
       </div>
       <div className="piercing-quality-grid">
-        <article className="piercing-quality-card">
-          <h3 className="piercing-quality-title">Implant-Grade-Schmuck</h3>
-          <p>Titan G23 &amp; Niob — biokompatibel, nickelfrei, ideal für die Erstheilung. Glas und 14k-Gold auf Wunsch.</p>
-        </article>
-        <article className="piercing-quality-card">
-          <h3 className="piercing-quality-title">Nadel-Technik</h3>
-          <p>Wir stechen ausschließlich mit Einweg-Nadeln. Keine Pistole. Saubere Punktion, präzise Winkel, schnellere Heilung.</p>
-        </article>
-        <article className="piercing-quality-card">
-          <h3 className="piercing-quality-title">Hygiene</h3>
-          <p>Sterilisation nach DIN-Standard, autoklavierte Werkzeuge, Einmal-Handschuhe, frisches Field-Setup für jeden Stich.</p>
-        </article>
-        <article className="piercing-quality-card">
-          <h3 className="piercing-quality-title">Beratung &amp; Nachsorge</h3>
-          <p>Ausführliches Vorgespräch zu Anatomie und Schmuck. Schriftliche Pflegeanleitung, kostenloser Kontroll-Termin.</p>
-        </article>
+        {PIERCING_QUALITY.map((q) => (
+          <article key={q.num} className="piercing-quality-item">
+            <div className="piercing-quality-num">{q.num}</div>
+            <h3 className="piercing-quality-title">{q.title}</h3>
+            <p className="piercing-quality-text">{q.text}</p>
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -771,9 +759,9 @@ function PiercingPricesList({ items, loading, error, onBook }) {
     <section className="piercing-section piercing-pricelist">
       <div className="piercing-section-head">
         <span className="piercing-section-kicker">Preise · Inkl. Erstschmuck</span>
-        <h2 className="piercing-section-title">Was es kostet</h2>
+        <h2 className="piercing-section-title">Preisliste</h2>
         <p className="piercing-section-lead">
-          Aktuelle Preise direkt aus dem Studio. Erstschmuck (Implant-Grade-Titan) ist im Preis enthalten.
+          Erstschmuck (Implant-Grade-Titan) ist im Preis enthalten.
           Premium-Schmuck (14k Gold, Edelsteine) gegen Aufpreis.
         </p>
       </div>
@@ -785,22 +773,25 @@ function PiercingPricesList({ items, loading, error, onBook }) {
       ) : items.length === 0 ? (
         <p className="gal-empty">Piercing-Preise folgen bald.</p>
       ) : (
-        <div className="piercing-grid">
+        <ul className="piercing-menu">
           {items.map((item) => (
-            <article key={item.id} className="piercing-card">
-              <div>
-                <h3 className="piercing-title">{item.title}</h3>
-                {item.desc && <p className="piercing-desc">{item.desc}</p>}
+            <li key={item.id} className="piercing-menu-item">
+              <div className="piercing-menu-row">
+                <h3 className="piercing-menu-title">{item.title}</h3>
+                <span className="piercing-menu-dots" aria-hidden="true" />
+                <span className="piercing-menu-price">{formatEuro(item.price)}</span>
               </div>
-              <div className="piercing-card-side">
-                <div className="piercing-price">{formatEuro(item.price)}</div>
-                <button className="piercing-request" onClick={() => onBook(item)}>
-                  Termin anfragen
-                </button>
-              </div>
-            </article>
+              {item.desc && <p className="piercing-menu-desc">{item.desc}</p>}
+              <button
+                type="button"
+                className="piercing-menu-link"
+                onClick={() => onBook(item)}
+              >
+                Termin anfragen →
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );
