@@ -215,7 +215,8 @@ function Landing({ onNav, tweaks }) {
             return (
               <button
                 key={n.id}
-                className="node"
+                className={`node node-${n.id}`}
+                data-nav={n.id}
                 style={{ left: `${x}%`, top: `${y}%` }}
                 aria-label={`${n.label} – ${n.sub}`}
                 onClick={() => onNav(n.id)}
@@ -239,7 +240,8 @@ function Landing({ onNav, tweaks }) {
         {NAV.map((n) => (
           <button
             key={n.id}
-            className="mobile-nav-item"
+            className={`mobile-nav-item mobile-nav-${n.id}`}
+            data-nav={n.id}
             aria-label={`${n.label} – ${n.sub}`}
             onClick={() => onNav(n.id)}
           >
@@ -583,27 +585,196 @@ function WannaDos({ onBack, onBook }) {
   );
 }
 
-// ── Piercing prices ───────────────────────────────────────────────────────────
+// ── Piercing world ────────────────────────────────────────────────────────────
 
-function PiercingPrices({ onBack, onBook }) {
-  const { items, loading, error } = usePiercingPrices();
+const GENERAL_PIERCING_REQUEST = {
+  id: '__piercing_general__',
+  title: 'Piercing-Anfrage',
+  desc: 'Ich möchte ein Piercing — Wunschplatzierung bespreche ich gern mit euch.',
+  price: null,
+};
 
+const PIERCING_CATEGORIES = [
+  { id: 'ohr',        label: 'Ohr',         examples: 'Lobe · Helix · Tragus · Daith · Conch · Industrial' },
+  { id: 'nase',       label: 'Nase',        examples: 'Nostril · Septum · Bridge' },
+  { id: 'mund',       label: 'Mund & Lippe', examples: 'Lippenband · Medusa · Madonna · Ashley · Vertikal Labret' },
+  { id: 'gesicht',    label: 'Gesicht',     examples: 'Augenbraue · Anti-Eyebrow' },
+  { id: 'koerper',    label: 'Körper',      examples: 'Bauchnabel · Nippel · Microdermal' },
+  { id: 'intim',      label: 'Intim',       examples: 'Diskret &amp; auf Anfrage · separates Gespräch' },
+];
+
+const PIERCING_GUIDES = [
+  {
+    id: 'face',
+    src: '/piercing-guide-face.jpg',
+    alt: 'Piercing-Guide: Gesicht, Nase, Lippe und Ohr — Übersicht aller Platzierungen bei Kleopatra INK',
+    kicker: 'Guide · Gesicht &amp; Mund',
+    title: 'Wo welches Piercing sitzt',
+    copy: 'Augenbraue, Nostril, Septum, Medusa, Madonna, Ashley, Lippenband, Vertikal Labret — die Übersicht zeigt dir auf einen Blick, welche Platzierung sich wo befindet. Wir beraten dich gerne, was zu deiner Anatomie und deinem Look passt.',
+    spots: [
+      'Augenbraue · vertikal über dem Auge',
+      'Nostril · seitlich durchs Nasenflügel',
+      'Septum · durch die Nasenscheidewand',
+      'Medusa · mittig unter der Oberlippe',
+      'Madonna / Monroe · seitlich über der Lippe',
+      'Ashley · mittig unter der Unterlippe',
+      'Vertikal Labret · vertikal durch die Unterlippe',
+      'Lippenband · hinter der Oberlippe',
+    ],
+  },
+  {
+    id: 'ear',
+    src: '/piercing-guide-ear.jpg',
+    alt: 'Piercing-Guide: Ohr — Helix, Tragus, Daith, Conch und alle gängigen Ohr-Platzierungen',
+    kicker: 'Guide · Ohr',
+    title: 'Die Sprache des Ohrs',
+    copy: 'Vom klassischen Lobe-Piercing über Helix und Tragus bis zum spektakulären Industrial — das Ohr bietet unzählige Möglichkeiten. Wir kombinieren mehrere Stiche zu einem stimmigen Curated Ear, das deine Persönlichkeit unterstreicht.',
+    spots: [
+      'Lobe · Ohrläppchen, der Klassiker',
+      'Helix · äußerer Knorpelrand',
+      'Forward Helix · vorderer Knorpel',
+      'Tragus · kleiner Knorpel vor dem Gehörgang',
+      'Daith · innerer Knorpelbogen',
+      'Rook · obere Knorpelfalte',
+      'Conch · Ohrmuschel',
+      'Industrial · zwei Stiche verbunden durch einen Stab',
+    ],
+  },
+];
+
+function PiercingHero({ onBook }) {
   return (
-    <div className="page with-bg">
-      <PageHead
-        kicker="Piercings · Preise"
-        title="Piercing" titleEm="Preise"
-        meta={<>
-          <b>{loading ? '…' : items.length > 0 ? `${items.length} Einträge` : 'Bald'}</b>
-          <div>Aus Firestore</div>
-          <div>inkl. Erstschmuck</div>
-        </>}
-        onBack={onBack}
-      />
+    <section className="piercing-hero">
+      <div className="piercing-hero-logo-wrap">
+        <img
+          className="piercing-hero-logo"
+          src="/piercing-logo.png"
+          alt="Kleopatra INK · Piercing Studio Gunzenhausen"
+          onError={(event) => { event.currentTarget.style.opacity = '0'; }}
+        />
+        <div className="piercing-hero-logo-fallback" aria-hidden="true">PIERCING</div>
+      </div>
+      <div className="piercing-hero-copy">
+        <div className="piercing-hero-kicker">Kleopatra INK · Piercing Studio</div>
+        <h1 className="piercing-hero-title">Jedes Piercing<br/><em>unterstreicht dich.</em></h1>
+        <p className="piercing-hero-lead">
+          Vom feinen Lobe bis zum kuratierten Ohrlauf — unser Piercing-Studio in Gunzenhausen
+          arbeitet ausschließlich mit hochwertigem Implant-Grade-Schmuck, sauberer
+          Nadel-Technik und ausführlicher Beratung. Hygiene, Anatomie und dein
+          persönlicher Stil stehen im Mittelpunkt.
+        </p>
+        <div className="piercing-hero-actions">
+          <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
+            Termin anfragen →
+          </button>
+          <a className="piercing-hero-tel" href="tel:+4917660957400">
+            <span className="piercing-hero-tel-kicker">Direkt anrufen</span>
+            <span className="piercing-hero-tel-num">0176 60957400</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-      <div className="book-intro piercing-intro">
-        <p>
-          <b className="gold">Aktuelle Piercing-Preise direkt aus dem Studio.</b> Die Liste wird im Admin-Portal gepflegt und hier automatisch aus demselben Firebase-Projekt angezeigt.
+function PiercingCategories() {
+  return (
+    <section className="piercing-section">
+      <div className="piercing-section-head">
+        <span className="piercing-section-kicker">Was wir stechen</span>
+        <h2 className="piercing-section-title">Unsere Bereiche</h2>
+        <p className="piercing-section-lead">
+          Von Ohr bis Bauchnabel — frag uns gerne nach Platzierungen, die hier nicht aufgeführt sind.
+        </p>
+      </div>
+      <div className="piercing-cat-grid">
+        {PIERCING_CATEGORIES.map((cat) => (
+          <article key={cat.id} className="piercing-cat-card">
+            <h3 className="piercing-cat-title">{cat.label}</h3>
+            <p className="piercing-cat-examples" dangerouslySetInnerHTML={{ __html: cat.examples }} />
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PiercingGuide({ guide, index }) {
+  const flipped = index % 2 === 1;
+  return (
+    <section className={`piercing-guide ${flipped ? 'is-flipped' : ''}`}>
+      <figure className="piercing-guide-figure">
+        <img
+          src={guide.src}
+          alt={guide.alt}
+          loading="lazy"
+          decoding="async"
+          onError={(event) => {
+            event.currentTarget.style.display = 'none';
+            const placeholder = event.currentTarget.nextElementSibling;
+            if (placeholder) placeholder.style.display = 'flex';
+          }}
+        />
+        <div className="piercing-guide-placeholder" aria-hidden="true">
+          <div className="piercing-guide-placeholder-label">Bild folgt</div>
+          <div className="piercing-guide-placeholder-sub">{guide.src}</div>
+        </div>
+      </figure>
+      <div className="piercing-guide-copy">
+        <span className="piercing-section-kicker" dangerouslySetInnerHTML={{ __html: guide.kicker }} />
+        <h2 className="piercing-section-title">{guide.title}</h2>
+        <p className="piercing-section-lead">{guide.copy}</p>
+        <ul className="piercing-guide-spots">
+          {guide.spots.map((s, i) => (
+            <li key={i}>
+              <span className="piercing-guide-dot" aria-hidden="true" />
+              <span>{s}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function PiercingHygiene() {
+  return (
+    <section className="piercing-section piercing-quality">
+      <div className="piercing-section-head">
+        <span className="piercing-section-kicker">Sicherheit &amp; Qualität</span>
+        <h2 className="piercing-section-title">Worauf wir bestehen</h2>
+      </div>
+      <div className="piercing-quality-grid">
+        <article className="piercing-quality-card">
+          <h3 className="piercing-quality-title">Implant-Grade-Schmuck</h3>
+          <p>Titan G23 &amp; Niob — biokompatibel, nickelfrei, ideal für die Erstheilung. Glas und 14k-Gold auf Wunsch.</p>
+        </article>
+        <article className="piercing-quality-card">
+          <h3 className="piercing-quality-title">Nadel-Technik</h3>
+          <p>Wir stechen ausschließlich mit Einweg-Nadeln. Keine Pistole. Saubere Punktion, präzise Winkel, schnellere Heilung.</p>
+        </article>
+        <article className="piercing-quality-card">
+          <h3 className="piercing-quality-title">Hygiene</h3>
+          <p>Sterilisation nach DIN-Standard, autoklavierte Werkzeuge, Einmal-Handschuhe, frisches Field-Setup für jeden Stich.</p>
+        </article>
+        <article className="piercing-quality-card">
+          <h3 className="piercing-quality-title">Beratung &amp; Nachsorge</h3>
+          <p>Ausführliches Vorgespräch zu Anatomie und Schmuck. Schriftliche Pflegeanleitung, kostenloser Kontroll-Termin.</p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function PiercingPricesList({ items, loading, error, onBook }) {
+  return (
+    <section className="piercing-section piercing-pricelist">
+      <div className="piercing-section-head">
+        <span className="piercing-section-kicker">Preise · Inkl. Erstschmuck</span>
+        <h2 className="piercing-section-title">Was es kostet</h2>
+        <p className="piercing-section-lead">
+          Aktuelle Preise direkt aus dem Studio. Erstschmuck (Implant-Grade-Titan) ist im Preis enthalten.
+          Premium-Schmuck (14k Gold, Edelsteine) gegen Aufpreis.
         </p>
       </div>
 
@@ -631,6 +802,45 @@ function PiercingPrices({ onBack, onBook }) {
           ))}
         </div>
       )}
+    </section>
+  );
+}
+
+function PiercingPrices({ onBack, onBook }) {
+  const { items, loading, error } = usePiercingPrices();
+
+  return (
+    <div className="page with-bg theme-piercing">
+      <PageHead
+        kicker="Piercing Studio · Kleopatra INK"
+        title="Piercing" titleEm="Welt"
+        meta={<>
+          <b>{loading ? '…' : items.length > 0 ? `${items.length} Preise` : 'Bald'}</b>
+          <div>Implant-Grade</div>
+          <div>Gunzenhausen</div>
+        </>}
+        onBack={onBack}
+      />
+
+      <PiercingHero onBook={onBook} />
+      <PiercingCategories />
+
+      {PIERCING_GUIDES.map((g, i) => (
+        <PiercingGuide key={g.id} guide={g} index={i} />
+      ))}
+
+      <PiercingHygiene />
+      <PiercingPricesList items={items} loading={loading} error={error} onBook={onBook} />
+
+      <section className="piercing-final-cta">
+        <h2 className="piercing-section-title">Bereit für deinen Termin?</h2>
+        <p className="piercing-section-lead">
+          Schreib uns dein Wunsch-Piercing — wir melden uns binnen 48 Stunden mit einem Vorschlag.
+        </p>
+        <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
+          Termin anfragen →
+        </button>
+      </section>
     </div>
   );
 }
@@ -691,9 +901,9 @@ function Booking({ onBack, wannado, piercing }) {
 
   if (submitted) {
     return (
-      <div className="page with-bg" style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+      <div className={`page with-bg${isPiercingBooking ? ' theme-piercing' : ''}`} style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
         <div style={{ maxWidth: 540, textAlign: 'center', padding: '20px' }}>
-          <div className="page-kicker">Beratungstermin angefragt</div>
+          <div className="page-kicker">{isPiercingBooking ? 'Piercing-Anfrage gesendet' : 'Beratungstermin angefragt'}</div>
           <h1 className="page-title" style={{ marginBottom: 24 }}>Bis <em>bald</em></h1>
           <p className="cormorant" style={{ fontSize: 20, color: 'var(--ivory)', opacity: 0.9, lineHeight: 1.5 }}>
             Ich bestätige deinen Beratungstermin innerhalb von 48 Stunden per Mail an <b style={{ color: 'var(--gold)' }}>{email || 'dich'}</b>. Bring gerne Referenzen mit — und viel Zeit für Fragen.
@@ -705,7 +915,7 @@ function Booking({ onBack, wannado, piercing }) {
   }
 
   return (
-    <div className="page with-bg">
+    <div className={`page with-bg${isPiercingBooking ? ' theme-piercing' : ''}`}>
       <PageHead
         kicker={isPiercingBooking ? 'Piercing-Anfrage · Kleopatra INK' : 'Beratungstermin · kostenlos'}
         title={isPiercingBooking ? 'Piercing' : 'Termin'} titleEm={isPiercingBooking ? 'anfragen' : 'buchen'}
