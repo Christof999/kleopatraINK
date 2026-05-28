@@ -804,11 +804,6 @@ function PiercingPrices({ onBack, onBook }) {
       <PageHead
         kicker="Piercing Studio · Kleopatra INK"
         title="Piercing" titleEm="Welt"
-        meta={<>
-          <b>{loading ? '…' : items.length > 0 ? `${items.length} Preise` : 'Bald'}</b>
-          <div>Implant-Grade</div>
-          <div>Gunzenhausen</div>
-        </>}
         onBack={onBack}
       />
 
