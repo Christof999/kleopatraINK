@@ -1,17 +1,4 @@
-function PageHead({ kicker, title, titleEm, meta, onBack }) {
-  return (
-    <>
-      <button className="page-back" onClick={onBack}>← Zurück</button>
-      <div className="page-head">
-        <div>
-          <div className="page-kicker">{kicker}</div>
-          <h1 className="page-title">{title}{titleEm && <> <em>{titleEm}</em></>}</h1>
-        </div>
-        {meta && <div className="page-meta">{meta}</div>}
-      </div>
-    </>
-  );
-}
+import PageHead from './PageHead';
 
 export function Imprint({ onBack }) {
   return (
@@ -42,7 +29,7 @@ export function Imprint({ onBack }) {
         <section>
           <h2 className="legal-h2">Kontakt</h2>
           <p>
-            Telefon: <a className="legal-link" href="tel:+4998316842">+49 9831 6 84 21</a><br />
+            Telefon: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a><br />
             E-Mail: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a>
           </p>
         </section>
@@ -135,7 +122,7 @@ export function Privacy({ onBack }) {
             Nadia Reyhani — Kleopatra INK<br />
             Marktplatz 7, 91710 Gunzenhausen<br />
             E-Mail: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a><br />
-            Telefon: <a className="legal-link" href="tel:+4998316842">+49 9831 6 84 21</a>
+            Telefon: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a>
           </p>
         </section>
 

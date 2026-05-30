@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import kleopatraImg from '../assets/kleopatra.png';
 
 export default function KleopatraHead({ style = 'classic', goldIntensity = 70 }) {

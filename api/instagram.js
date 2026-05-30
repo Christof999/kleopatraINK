@@ -15,9 +15,18 @@ const MEDIA_FIELDS = 'id,caption,media_type,media_url,thumbnail_url,permalink,ti
 const PROFILE_FIELDS = 'id,username,media_count';
 
 export default async function handler(req, res) {
-  // CORS für den eigenen Frontend-Origin erlauben
+  // Public, read-only endpoint — same-origin in practice, so a permissive
+  // origin is fine, but only GET is ever valid here.
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, OPTIONS');
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
 
   const token = process.env.IG_ACCESS_TOKEN;
 
