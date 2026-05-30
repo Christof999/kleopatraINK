@@ -1,14 +1,16 @@
 import PageHead from '../components/PageHead';
+import { useI18n } from '../i18n';
 import { formatEuro } from '../lib/format';
 import { usePiercingPrices } from '../hooks/usePiercingPrices';
 import {
-  GENERAL_PIERCING_REQUEST,
-  PIERCING_CATEGORIES,
-  PIERCING_GUIDES,
-  PIERCING_QUALITY,
+  buildGeneralPiercingRequest,
+  PIERCING_CATEGORY_IDS,
+  PIERCING_GUIDE_LAYOUT,
 } from '../data/piercing';
 
 function PiercingHero({ onBook }) {
+  const { t } = useI18n();
+  const h = t.piercing.hero;
   return (
     <section className="piercing-hero">
       <div className="piercing-hero-logo-wrap">
@@ -19,19 +21,15 @@ function PiercingHero({ onBook }) {
         />
       </div>
       <div className="piercing-hero-copy">
-        <div className="piercing-hero-kicker">Kleopatra INK · Piercing Studio</div>
-        <h1 className="piercing-hero-title">Jedes Piercing<br/><em>unterstreicht dich.</em></h1>
-        <p className="piercing-hero-lead">
-          Vom feinen Lobe bis zum kuratierten Ohrlauf — unser Piercing-Studio in Gunzenhausen
-          arbeitet ausschließlich mit hochwertigem Implant-Grade-Schmuck, sauberer
-          Nadel-Technik und ausführlicher Beratung.
-        </p>
+        <div className="piercing-hero-kicker">{h.kicker}</div>
+        <h1 className="piercing-hero-title">{h.title[0]}<br/><em>{h.title[1]}</em></h1>
+        <p className="piercing-hero-lead">{h.lead}</p>
         <div className="piercing-hero-actions">
-          <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
-            Termin anfragen →
+          <button type="button" className="pink-cta" onClick={() => onBook(buildGeneralPiercingRequest(t))}>
+            {h.cta}
           </button>
           <a className="piercing-hero-tel" href="tel:+4917660957400">
-            <span className="piercing-hero-tel-kicker">Direkt anrufen</span>
+            <span className="piercing-hero-tel-kicker">{h.callKicker}</span>
             <span className="piercing-hero-tel-num">0176 60957400</span>
           </a>
         </div>
@@ -41,34 +39,41 @@ function PiercingHero({ onBook }) {
 }
 
 function PiercingCategories() {
+  const { t } = useI18n();
+  const c = t.piercing.categories;
   return (
     <section className="piercing-section piercing-cat-section">
       <div className="piercing-section-head">
-        <span className="piercing-section-kicker">Unser Angebot</span>
-        <h2 className="piercing-section-title">Was wir stechen</h2>
+        <span className="piercing-section-kicker">{c.kicker}</span>
+        <h2 className="piercing-section-title">{c.title}</h2>
       </div>
       <dl className="piercing-cat-list">
-        {PIERCING_CATEGORIES.map((cat, i) => (
-          <div key={cat.id} className="piercing-cat-row">
-            <dt className="piercing-cat-row-label">
-              <span className="piercing-cat-row-num">{String(i + 1).padStart(2, '0')}</span>
-              {cat.label}
-            </dt>
-            <dd className="piercing-cat-row-examples">{cat.examples}</dd>
-          </div>
-        ))}
+        {PIERCING_CATEGORY_IDS.map((id, i) => {
+          const cat = c.items[id];
+          return (
+            <div key={id} className="piercing-cat-row">
+              <dt className="piercing-cat-row-label">
+                <span className="piercing-cat-row-num">{String(i + 1).padStart(2, '0')}</span>
+                {cat.label}
+              </dt>
+              <dd className="piercing-cat-row-examples">{cat.examples}</dd>
+            </div>
+          );
+        })}
       </dl>
     </section>
   );
 }
 
-function PiercingGuide({ guide, index }) {
+function PiercingGuide({ layout, index }) {
+  const { t } = useI18n();
+  const guide = t.piercing.guides[layout.id];
   const flipped = index % 2 === 1;
   return (
     <section className={`piercing-guide ${flipped ? 'is-flipped' : ''}`}>
-      <figure className="piercing-guide-figure" style={{ aspectRatio: guide.aspect || '1 / 1' }}>
+      <figure className="piercing-guide-figure" style={{ aspectRatio: layout.aspect || '1 / 1' }}>
         <img
-          src={guide.src}
+          src={layout.src}
           alt={guide.alt}
           loading="lazy"
           decoding="async"
@@ -92,43 +97,47 @@ function PiercingGuide({ guide, index }) {
 }
 
 function PiercingHygiene() {
+  const { t } = useI18n();
+  const q = t.piercing.quality;
   return (
     <section className="piercing-section piercing-quality">
       <div className="piercing-section-head">
-        <span className="piercing-section-kicker">Sicherheit &amp; Qualität</span>
-        <h2 className="piercing-section-title">Worauf wir bestehen</h2>
+        <span className="piercing-section-kicker">{q.kicker}</span>
+        <h2 className="piercing-section-title">{q.title}</h2>
       </div>
       <div className="piercing-quality-grid">
-        {PIERCING_QUALITY.map((q) => (
-          <article key={q.num} className="piercing-quality-item">
-            <div className="piercing-quality-num">{q.num}</div>
-            <h3 className="piercing-quality-title">{q.title}</h3>
-            <p className="piercing-quality-text">{q.text}</p>
-          </article>
-        ))}
+        {q.items.map((item, i) => {
+          const num = String(i + 1).padStart(2, '0');
+          return (
+            <article key={num} className="piercing-quality-item">
+              <div className="piercing-quality-num">{num}</div>
+              <h3 className="piercing-quality-title">{item.title}</h3>
+              <p className="piercing-quality-text">{item.text}</p>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
 }
 
 function PiercingPricesList({ items, loading, error, onBook }) {
+  const { t, lang } = useI18n();
+  const p = t.piercing.pricelist;
   return (
     <section className="piercing-section piercing-pricelist">
       <div className="piercing-section-head">
-        <span className="piercing-section-kicker">Preise · Inkl. Erstschmuck</span>
-        <h2 className="piercing-section-title">Preisliste</h2>
-        <p className="piercing-section-lead">
-          Erstschmuck (Implant-Grade-Titan) ist im Preis enthalten.
-          Premium-Schmuck (14k Gold, Edelsteine) gegen Aufpreis.
-        </p>
+        <span className="piercing-section-kicker">{p.kicker}</span>
+        <h2 className="piercing-section-title">{p.title}</h2>
+        <p className="piercing-section-lead">{p.lead}</p>
       </div>
 
       {loading ? (
         <div className="fb-loading"><div className="ig-spinner" /></div>
       ) : error ? (
-        <p className="gal-empty">Preisliste konnte nicht geladen werden.</p>
+        <p className="gal-empty">{p.loadError}</p>
       ) : items.length === 0 ? (
-        <p className="gal-empty">Piercing-Preise folgen bald.</p>
+        <p className="gal-empty">{p.empty}</p>
       ) : (
         <ul className="piercing-menu">
           {items.map((item) => (
@@ -136,7 +145,7 @@ function PiercingPricesList({ items, loading, error, onBook }) {
               <div className="piercing-menu-row">
                 <h3 className="piercing-menu-title">{item.title}</h3>
                 <span className="piercing-menu-dots" aria-hidden="true" />
-                <span className="piercing-menu-price">{formatEuro(item.price)}</span>
+                <span className="piercing-menu-price">{formatEuro(item.price, lang, t.piercing.priceOnRequest)}</span>
               </div>
               {item.desc && <p className="piercing-menu-desc">{item.desc}</p>}
               <button
@@ -144,7 +153,7 @@ function PiercingPricesList({ items, loading, error, onBook }) {
                 className="piercing-menu-link"
                 onClick={() => onBook(item)}
               >
-                Termin anfragen →
+                {p.request}
               </button>
             </li>
           ))}
@@ -155,33 +164,33 @@ function PiercingPricesList({ items, loading, error, onBook }) {
 }
 
 export default function PiercingPrices({ onBack, onBook }) {
+  const { t } = useI18n();
   const { items, loading, error } = usePiercingPrices();
+  const f = t.piercing.finalCta;
 
   return (
     <div className="page with-bg theme-piercing">
       <PageHead
-        kicker="Piercing Studio · Kleopatra INK"
-        title="Piercing" titleEm="Welt"
+        kicker={t.piercing.pageKicker}
+        title={t.piercing.pageTitle} titleEm={t.piercing.pageTitleEm}
         onBack={onBack}
       />
 
       <PiercingHero onBook={onBook} />
       <PiercingCategories />
 
-      {PIERCING_GUIDES.map((g, i) => (
-        <PiercingGuide key={g.id} guide={g} index={i} />
+      {PIERCING_GUIDE_LAYOUT.map((g, i) => (
+        <PiercingGuide key={g.id} layout={g} index={i} />
       ))}
 
       <PiercingHygiene />
       <PiercingPricesList items={items} loading={loading} error={error} onBook={onBook} />
 
       <section className="piercing-final-cta">
-        <h2 className="piercing-section-title">Bereit für deinen Termin?</h2>
-        <p className="piercing-section-lead">
-          Schreib uns dein Wunsch-Piercing — wir melden uns binnen 48 Stunden mit einem Vorschlag.
-        </p>
-        <button type="button" className="pink-cta" onClick={() => onBook(GENERAL_PIERCING_REQUEST)}>
-          Termin anfragen →
+        <h2 className="piercing-section-title">{f.title}</h2>
+        <p className="piercing-section-lead">{f.lead}</p>
+        <button type="button" className="pink-cta" onClick={() => onBook(buildGeneralPiercingRequest(t))}>
+          {f.cta}
         </button>
       </section>
     </div>

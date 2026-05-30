@@ -3,6 +3,7 @@ import { arrayUnion, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/f
 
 import CookieBanner from './components/CookieBanner';
 import ErrorBoundary from './components/ErrorBoundary';
+import LanguageToggle from './components/LanguageToggle';
 import { WheelInviteModal, WheelModal } from './components/WheelModals';
 import { Imprint, Privacy, SiteFooter } from './components/Legal';
 import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakRadio } from './components/TweaksPanel';
@@ -18,8 +19,8 @@ import Account from './pages/Account';
 import WannaDos from './pages/WannaDos';
 
 import { useAuth } from './context/AuthContext';
+import { useI18n } from './i18n';
 import { getFirstName } from './lib/format';
-import { PAGE_TITLES } from './data/navigation';
 import { db } from './firebase';
 import './styles.css';
 
@@ -34,10 +35,11 @@ function getInviteStorageKey(uid, opportunityIndex) {
 }
 
 export default function App() {
+  const { t } = useI18n();
   const [page, setPage] = useState('home');
   const [selectedWannado, setSelectedWannado] = useState(null);
   const [selectedPiercing, setSelectedPiercing] = useState(null);
-  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [tw, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const mainRef = useRef(null);
 
   const { user } = useAuth();
@@ -53,8 +55,11 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = PAGE_TITLES[page] || PAGE_TITLES.home;
   }, [page]);
+
+  useEffect(() => {
+    document.title = t.pageTitles[page] || t.pageTitles.home;
+  }, [page, t]);
 
   useEffect(() => {
     if (!db) {
@@ -182,7 +187,7 @@ export default function App() {
       setWheelJustWon(entry);
     } catch (err) {
       console.error('[App] Spin write failed:', err);
-      setWheelSaveError('Dein Gewinn konnte nicht gespeichert werden. Bitte zeig den Bildschirm im Studio.');
+      setWheelSaveError(t.wheel.spin.saveError);
     } finally {
       setWheelSaving(false);
     }
@@ -214,7 +219,9 @@ export default function App() {
 
   return (
     <>
-      <a href="#main-content" className="skip-link">Zum Inhalt springen</a>
+      <a href="#main-content" className="skip-link">{t.common.skipLink}</a>
+
+      <LanguageToggle />
 
       <main id="main-content" ref={mainRef} tabIndex={-1}>
         <ErrorBoundary
@@ -227,12 +234,12 @@ export default function App() {
                 <p className="cormorant" style={{ fontSize: 18, color: 'var(--ivory)', opacity: 0.9 }}>
                   Dieser Bereich konnte nicht geladen werden. Bitte versuch es erneut.
                 </p>
-                <button className="page-back" style={{ marginTop: 28 }} onClick={onBack}>← Zurück zur Startseite</button>
+                <button className="page-back" style={{ marginTop: 28 }} onClick={onBack}>{t.common.backToSite}</button>
               </div>
             </div>
           }
         >
-          {page === 'home'         && <Landing onNav={goTo} tweaks={t} />}
+          {page === 'home'         && <Landing onNav={goTo} tweaks={tw} />}
           {page === 'gallery'      && <Gallery onBack={onBack} />}
           {page === 'about'        && <About onBack={onBack} />}
           {page === 'booking'      && <Booking onBack={onBack} wannado={selectedWannado} piercing={selectedPiercing} />}
@@ -281,12 +288,12 @@ export default function App() {
           <TweakSection label="Vibe" />
           <TweakSlider
             label="Gold-Intensität" unit="%"
-            value={t.gold} min={20} max={100} step={5}
+            value={tw.gold} min={20} max={100} step={5}
             onChange={(v) => setTweak('gold', v)}
           />
           <TweakRadio
             label="Hintergrund"
-            value={t.bgMode}
+            value={tw.bgMode}
             options={[
               { value: 'particles',   label: 'Sand'  },
               { value: 'hieroglyphs', label: 'Hiero' },
@@ -297,7 +304,7 @@ export default function App() {
           <TweakSection label="Kleopatra" />
           <TweakRadio
             label="3D-Stil"
-            value={t.headStyle}
+            value={tw.headStyle}
             options={[
               { value: 'classic', label: 'Classic' },
               { value: 'faceted', label: 'Faceted' },

@@ -1,27 +1,30 @@
 import PageHead from '../components/PageHead';
+import { useI18n } from '../i18n';
 import { TESTIMONIALS } from '../data/testimonials';
 
 export default function Testimonials({ onBack }) {
+  const { t } = useI18n();
+  const te = t.testimonials;
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Stimmen · Google"
-        title="Was unsere" titleEm="Kunden sagen"
+        kicker={te.kicker}
+        title={te.title} titleEm={te.titleEm}
         meta={<>
-          <b>5,0 ★</b>
-          <div>23 Bewertungen</div>
-          <div>Google</div>
+          <b>{te.rating}</b>
+          <div>{te.count}</div>
+          <div>{te.source}</div>
         </>}
         onBack={onBack}
       />
       <div className="testi-grid">
-        {TESTIMONIALS.map((t, i) => (
+        {TESTIMONIALS.map((item, i) => (
           <div key={i} className="testi">
-            <div className="testi-stars">{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>
-            <div className="testi-quote">{t.text}</div>
+            <div className="testi-stars">{'★'.repeat(item.stars)}{'☆'.repeat(5 - item.stars)}</div>
+            <div className="testi-quote">{item.text}</div>
             <div className="testi-meta">
-              <div className="testi-name">{t.name}</div>
-              <div className="testi-info">{t.info}</div>
+              <div className="testi-name">{item.name}</div>
+              <div className="testi-info">{te.ago(item.ago.n, item.ago.unit)}</div>
             </div>
           </div>
         ))}

@@ -3,9 +3,10 @@ import { doc, getDoc } from 'firebase/firestore';
 import Background from '../components/Background';
 import KleopatraHead from '../components/KleopatraHead';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 import { getFirstName } from '../lib/format';
 import { db } from '../firebase';
-import { NAV } from '../data/navigation';
+import { NAV_LAYOUT } from '../data/navigation';
 
 const KleopatraHead3D = lazy(() => import('../components/KleopatraHead3D'));
 
@@ -14,6 +15,7 @@ const HAS_3D_MODEL = false;
 
 function AccountStatus({ onAccount }) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [firstName, setFirstName] = useState('');
 
   useEffect(() => {
@@ -38,8 +40,8 @@ function AccountStatus({ onAccount }) {
   }, [user]);
 
   const label = user
-    ? `Eingeloggt als ${firstName || user.displayName || user.email || 'User'}`
-    : 'Account / Login';
+    ? t.landing.loggedInAs(firstName || user.displayName || user.email || 'User')
+    : t.landing.accountLogin;
 
   return (
     <button className={`account-top ${user ? 'is-logged-in' : ''}`} onClick={onAccount}>
@@ -50,8 +52,11 @@ function AccountStatus({ onAccount }) {
 }
 
 export default function Landing({ onNav, tweaks }) {
+  const { t } = useI18n();
   const dialRef = useRef(null);
   const [hoveredNav, setHoveredNav] = useState(null);
+
+  const nav = NAV_LAYOUT.map((n) => ({ ...n, ...t.nav[n.id] }));
 
   return (
     <div className="stage">
@@ -68,20 +73,18 @@ export default function Landing({ onNav, tweaks }) {
           />
           <span className="brand-copy">
             <span>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></span>
-            <span className="brand-sub">Tattoo &amp; Piercing · Gunzenhausen</span>
+            <span className="brand-sub">{t.landing.brandSub}</span>
           </span>
         </h1>
         <div className="chrome-actions">
           <div className="chrome-meta" aria-hidden="true">
-            <span>EST 2018</span>
-            <span>GUNZENHAUSEN</span>
-            <span>DI — SA</span>
+            {t.landing.meta.map((m) => <span key={m}>{m}</span>)}
           </div>
           <AccountStatus onAccount={() => onNav('account')} />
         </div>
       </header>
 
-      <div className="composition" role="navigation" aria-label="Hauptnavigation">
+      <div className="composition" role="navigation" aria-label={t.landing.navAria}>
         <div className="dial" ref={dialRef}>
           <div className="dial-ring outer" />
           <div className="dial-ring" />
@@ -114,7 +117,7 @@ export default function Landing({ onNav, tweaks }) {
             }
           </div>
 
-          {NAV.map((n) => {
+          {nav.map((n) => {
             const rad = (n.angle * Math.PI) / 180;
             const x = 50 + Math.cos(rad) * 58;
             const y = 50 + Math.sin(rad) * 58;
@@ -142,8 +145,8 @@ export default function Landing({ onNav, tweaks }) {
         </div>
       </div>
 
-      <nav className="mobile-nav" aria-label="Hauptnavigation Mobil">
-        {NAV.map((n) => (
+      <nav className="mobile-nav" aria-label={t.landing.navAria}>
+        {nav.map((n) => (
           <button
             key={n.id}
             className={`mobile-nav-item mobile-nav-${n.id}`}
@@ -164,14 +167,14 @@ export default function Landing({ onNav, tweaks }) {
         <div><a className="gold corner-tel" href="tel:+49983168421">+49 9831 6 84 21</a></div>
       </address>
       <div className="corner br" aria-hidden="true">
-        <div>Beratung · Termin</div>
-        <div>Fineline · Dotwork · Realism</div>
-        <div>Neotraditional · Oldschool</div>
+        <div>{t.landing.cornerConsult}</div>
+        <div>{t.landing.cornerStyles1}</div>
+        <div>{t.landing.cornerStyles2}</div>
       </div>
 
       <div className="tagline">
-        <div className="tagline-kicker">SEIT 2018 · GUNZENHAUSEN</div>
-        <div className="tagline-main">Kunst auf deiner Haut.</div>
+        <div className="tagline-kicker">{t.landing.taglineKicker}</div>
+        <div className="tagline-main">{t.landing.taglineMain}</div>
       </div>
     </div>
   );

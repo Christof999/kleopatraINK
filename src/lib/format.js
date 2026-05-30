@@ -1,26 +1,25 @@
 // Shared formatting + small pure helpers used across pages and components.
 
-const EUR_FORMATTER = new Intl.NumberFormat('de-DE', {
-  style: 'currency',
-  currency: 'EUR',
-});
+const EURO_LOCALES = { de: 'de-DE', en: 'en-IE', tr: 'tr-TR' };
 
-export function formatEuro(price) {
+export function formatEuro(price, lang = 'de', onRequest = 'Preis auf Anfrage') {
   const value = Number(price);
-  return Number.isFinite(value) ? EUR_FORMATTER.format(value) : 'Preis auf Anfrage';
+  if (!Number.isFinite(value)) return onRequest;
+  return new Intl.NumberFormat(EURO_LOCALES[lang] || 'de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(value);
 }
 
-const SPIN_DATE_FORMATTER = new Intl.DateTimeFormat('de-DE', {
-  day: '2-digit',
-  month: 'long',
-  year: 'numeric',
-});
+const SPIN_DATE_LOCALES = { de: 'de-DE', en: 'en-GB', tr: 'tr-TR' };
 
-export function formatSpinDate(iso) {
+export function formatSpinDate(iso, lang = 'de') {
   if (!iso) return '';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
-  return SPIN_DATE_FORMATTER.format(date);
+  return new Intl.DateTimeFormat(SPIN_DATE_LOCALES[lang] || 'de-DE', {
+    day: '2-digit', month: 'long', year: 'numeric',
+  }).format(date);
 }
 
 export function getFirstName(profile) {
@@ -29,19 +28,21 @@ export function getFirstName(profile) {
   return '';
 }
 
-export function getAuthErrorMessage(error) {
+// Maps a Firebase auth error to a localized message from the i18n dictionary.
+export function getAuthErrorMessage(error, t) {
+  const e = t.account.authError;
   switch (error?.code) {
     case 'auth/email-already-in-use':
-      return 'Diese E-Mail-Adresse ist bereits registriert.';
+      return e.emailInUse;
     case 'auth/invalid-email':
-      return 'Bitte gib eine gültige E-Mail-Adresse ein.';
+      return e.invalidEmail;
     case 'auth/invalid-credential':
     case 'auth/user-not-found':
     case 'auth/wrong-password':
-      return 'E-Mail oder Passwort ist nicht korrekt.';
+      return e.invalidCredential;
     case 'auth/weak-password':
-      return 'Bitte wähle ein stärkeres Passwort mit mindestens 6 Zeichen.';
+      return e.weakPassword;
     default:
-      return 'Die Anmeldung ist gerade nicht möglich. Bitte versuche es erneut.';
+      return e.generic;
   }
 }

@@ -1,22 +1,26 @@
+import { useI18n } from '../i18n';
 import PageHead from './PageHead';
 
+
 export function Imprint({ onBack }) {
+  const { t } = useI18n();
+  const m = t.imprint;
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Impressum · § 5 TMG"
-        title="Impres" titleEm="sum"
+        kicker={m.kicker}
+        title={m.title} titleEm={m.titleEm}
         meta={<>
-          <b>Pflichtangaben</b>
-          <div>Kleopatra INK</div>
-          <div>Gunzenhausen</div>
+          <b>{m.metaMandatory}</b>
+          <div>{m.metaBrand}</div>
+          <div>{m.metaCity}</div>
         </>}
         onBack={onBack}
       />
 
       <div className="legal-content">
         <section>
-          <h2 className="legal-h2">Anbieter</h2>
+          <h2 className="legal-h2">{m.provider}</h2>
           <p>
             Nadia Reyhani<br />
             Kleopatra INK – Tattoo &amp; Piercing<br />
@@ -27,23 +31,23 @@ export function Imprint({ onBack }) {
         </section>
 
         <section>
-          <h2 className="legal-h2">Kontakt</h2>
+          <h2 className="legal-h2">{m.contact}</h2>
           <p>
-            Telefon: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a><br />
-            E-Mail: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a>
+            {t.booking.labelPhone}: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a><br />
+            {t.account.email}: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a>
           </p>
         </section>
 
         <section>
-          <h2 className="legal-h2">Umsatzsteuer-ID</h2>
+          <h2 className="legal-h2">{m.vatId}</h2>
           <p>
-            Umsatzsteuer-Identifikationsnummer gemäß § 27&nbsp;a UStG:<br />
-            <em className="legal-todo">[USt-IdNr. eintragen – sonst Hinweis: „Kleinunternehmer nach § 19 UStG"]</em>
+            {m.vatText}<br />
+            <em className="legal-todo">{m.vatTodo}</em>
           </p>
         </section>
 
         <section>
-          <h2 className="legal-h2">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+          <h2 className="legal-h2">{m.responsible}</h2>
           <p>
             Nadia Reyhani<br />
             Marktplatz 7, 91710 Gunzenhausen
@@ -51,49 +55,30 @@ export function Imprint({ onBack }) {
         </section>
 
         <section>
-          <h2 className="legal-h2">EU-Streitschlichtung</h2>
+          <h2 className="legal-h2">{m.euDispute}</h2>
           <p>
-            Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:{' '}
+            {m.euDisputeText1Pre}
             <a className="legal-link" href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noreferrer">
               https://ec.europa.eu/consumers/odr/
             </a>
-            . Unsere E-Mail-Adresse findest du oben.
+            {m.euDisputeText1Post}
           </p>
-          <p>
-            Wir sind nicht bereit oder verpflichtet, an Streitbeilegungs­verfahren vor einer
-            Verbraucher­schlichtungs­stelle teilzunehmen.
-          </p>
+          <p>{m.euDisputeText2}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">Haftung für Inhalte</h2>
-          <p>
-            Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten
-            nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als
-            Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde
-            Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechts­widrige
-            Tätigkeit hinweisen.
-          </p>
+          <h2 className="legal-h2">{m.liabilityContent}</h2>
+          <p>{m.liabilityContentText}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">Haftung für Links</h2>
-          <p>
-            Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
-            Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr
-            übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter
-            oder Betreiber der Seiten verantwortlich.
-          </p>
+          <h2 className="legal-h2">{m.liabilityLinks}</h2>
+          <p>{m.liabilityLinksText}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">Urheberrecht</h2>
-          <p>
-            Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unter­liegen
-            dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art
-            der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen
-            Zustimmung des jeweiligen Autors bzw. Erstellers.
-          </p>
+          <h2 className="legal-h2">{m.copyright}</h2>
+          <p>{m.copyrightText}</p>
         </section>
       </div>
     </div>
@@ -101,139 +86,91 @@ export function Imprint({ onBack }) {
 }
 
 export function Privacy({ onBack }) {
+  const { t } = useI18n();
+  const p = t.privacy;
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Datenschutz · DSGVO"
-        title="Daten" titleEm="schutz"
+        kicker={p.kicker}
+        title={p.title} titleEm={p.titleEm}
         meta={<>
-          <b>Stand: Mai 2026</b>
-          <div>DSGVO-konform</div>
-          <div>Kleopatra INK</div>
+          <b>{p.metaStand}</b>
+          <div>{p.metaConform}</div>
+          <div>{p.metaBrand}</div>
         </>}
         onBack={onBack}
       />
 
       <div className="legal-content">
         <section>
-          <h2 className="legal-h2">1. Verantwortlicher</h2>
+          <h2 className="legal-h2">{p.s1Title}</h2>
           <p>
-            Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br />
+            {p.s1Pre}<br />
             Nadia Reyhani — Kleopatra INK<br />
             Marktplatz 7, 91710 Gunzenhausen<br />
-            E-Mail: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a><br />
-            Telefon: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a>
+            {t.account.email}: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a><br />
+            {t.booking.labelPhone}: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a>
           </p>
         </section>
 
         <section>
-          <h2 className="legal-h2">2. Allgemeines zur Datenverarbeitung</h2>
-          <p>
-            Wir erheben und verwenden personen­bezogene Daten nur, soweit dies zur Bereitstellung
-            einer funktions­fähigen Website sowie unserer Inhalte und Leistungen erforderlich ist.
-            Rechts­grundlage ist je nach Verarbeitung Art. 6 Abs. 1 lit. a, b, c oder f DSGVO.
-          </p>
+          <h2 className="legal-h2">{p.s2Title}</h2>
+          <p>{p.s2Text}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">3. Server-Logfiles</h2>
-          <p>
-            Beim Aufruf der Website werden technisch notwendige Daten (IP-Adresse, Datum/Uhrzeit,
-            User-Agent, aufgerufene Seite) durch unseren Hosting-Provider verarbeitet.
-            Rechts­grundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem stabilen
-            Betrieb). Speicherdauer: max. 7 Tage.
-          </p>
+          <h2 className="legal-h2">{p.s3Title}</h2>
+          <p>{p.s3Text}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">4. Cookies &amp; lokaler Speicher</h2>
-          <p>
-            Wir verwenden nur technisch notwendige Cookies bzw. localStorage-Einträge, sowie nach
-            deiner Einwilligung optionale funktionale Inhalte. Du kannst deine Einwilligung jederzeit
-            widerrufen, indem du den Browser­speicher leerst oder uns kontaktierst.
-          </p>
+          <h2 className="legal-h2">{p.s4Title}</h2>
+          <p>{p.s4Text}</p>
           <ul className="legal-list">
-            <li><b>kink_consent_v1</b> – speichert deine Cookie-Auswahl (essenziell, kein Ablauf, localStorage).</li>
-            <li><b>Firebase Auth Session</b> – nur bei Login aktiv, dient der Anmeldung.</li>
+            <li><b>kink_consent_v1</b>{p.s4Li1}</li>
+            <li><b>{p.s4Li2Name}</b>{p.s4Li2}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="legal-h2">5. Termin- und Kontaktanfragen</h2>
-          <p>
-            Wenn du eine Termin­anfrage oder Piercing-Anfrage stellst, verarbeiten wir Name,
-            E-Mail-Adresse, optional Telefonnummer und deine Nachricht. Diese Daten verwenden wir
-            ausschließlich zur Bearbeitung deiner Anfrage. Rechts­grundlage: Art. 6 Abs. 1 lit. b
-            DSGVO (vorvertragliche Maßnahmen). Speicherdauer: bis zum Abschluss des Anliegens, danach
-            gemäß handels- und steuer­rechtlicher Aufbewahrungs­pflichten.
-          </p>
+          <h2 className="legal-h2">{p.s5Title}</h2>
+          <p>{p.s5Text}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">6. Kunden-Account (Firebase Authentication)</h2>
-          <p>
-            Wenn du einen Account erstellst, nutzen wir Firebase Authentication (Google Ireland Ltd.,
-            Gordon House, Barrow Street, Dublin 4, Irland) sowie Cloud Firestore zur Speicherung
-            deines Profils (Name, E-Mail, Telefon). Daten können dabei in Rechen­zentren in der EU
-            sowie ggf. in die USA übertragen werden — Google ist gemäß EU-US Data Privacy Framework
-            zertifiziert. Rechts­grundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertrag), Art. 46 DSGVO
-            (Standard­vertrags­klauseln).
-          </p>
-          <p>
-            Du kannst deinen Account jederzeit löschen lassen — schreib uns kurz eine E-Mail.
-          </p>
+          <h2 className="legal-h2">{p.s6Title}</h2>
+          <p>{p.s6Text1}</p>
+          <p>{p.s6Text2}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">7. Google Fonts</h2>
-          <p>
-            Wir binden Schriften von Google Fonts (Google Ireland Ltd.) ein. Beim Aufruf der Seite
-            stellt dein Browser eine Verbindung zu fonts.googleapis.com und fonts.gstatic.com her,
-            wodurch deine IP-Adresse an Google übermittelt werden kann. Rechtsgrundlage: Art. 6
-            Abs. 1 lit. a DSGVO (Einwilligung über den Cookie-Banner) bzw. lit. f (berechtigtes
-            Interesse an einer ansprechenden Darstellung).
-          </p>
+          <h2 className="legal-h2">{p.s7Title}</h2>
+          <p>{p.s7Text}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">8. Instagram-Einbindung</h2>
-          <p>
-            Auf der Seite „Instagram" zeigen wir Inhalte aus unserem Instagram-Profil
-            (@kleopatra.ink). Der Abruf erfolgt serverseitig über die Instagram Graph API; es werden
-            keine Tracking-Skripte von Meta direkt eingebunden. Beim Klick auf einen Beitrag wirst du
-            zu Instagram weitergeleitet — es gilt dann die Datenschutz­erklärung von Meta Platforms
-            Ireland Ltd.
-          </p>
+          <h2 className="legal-h2">{p.s8Title}</h2>
+          <p>{p.s8Text}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">9. Hosting &amp; Backend</h2>
-          <p>
-            Diese Website wird bei einem in der EU/EWR ansässigen Hosting-Provider betrieben. Der
-            Provider verarbeitet personen­bezogene Daten ausschließlich auf unsere Weisung im Rahmen
-            eines Auftrags­verarbeitungs­vertrages gemäß Art. 28 DSGVO.
-          </p>
+          <h2 className="legal-h2">{p.s9Title}</h2>
+          <p>{p.s9Text}</p>
         </section>
 
         <section>
-          <h2 className="legal-h2">10. Deine Rechte</h2>
-          <p>Du hast jederzeit das Recht:</p>
+          <h2 className="legal-h2">{p.s10Title}</h2>
+          <p>{p.s10Pre}</p>
           <ul className="legal-list">
-            <li>auf Auskunft über deine gespeicherten Daten (Art. 15 DSGVO),</li>
-            <li>auf Berichtigung unrichtiger Daten (Art. 16 DSGVO),</li>
-            <li>auf Löschung (Art. 17 DSGVO),</li>
-            <li>auf Einschränkung der Verarbeitung (Art. 18 DSGVO),</li>
-            <li>auf Datenübertrag­barkeit (Art. 20 DSGVO),</li>
-            <li>auf Widerspruch gegen die Verarbeitung (Art. 21 DSGVO),</li>
-            <li>auf Widerruf deiner Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO),</li>
-            <li>auf Beschwerde bei einer Aufsichts­behörde (Art. 77 DSGVO) — z.&nbsp;B. dem Bayerischen Landesamt für Datenschutzaufsicht (BayLDA), Promenade 18, 91522 Ansbach.</li>
+            {p.s10List.map((li, i) => <li key={i}>{li}</li>)}
+            <li>{p.s10Authority}</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="legal-h2">11. Kontakt für Datenschutzanfragen</h2>
+          <h2 className="legal-h2">{p.s11Title}</h2>
           <p>
-            Für alle Fragen zum Datenschutz erreichst du uns unter{' '}
+            {p.s11Pre}
             <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a>.
           </p>
         </section>
@@ -243,21 +180,22 @@ export function Privacy({ onBack }) {
 }
 
 export function SiteFooter({ onNav }) {
+  const { t } = useI18n();
   const year = new Date().getFullYear();
   return (
-    <footer className="site-footer" aria-label="Seitenfuß">
+    <footer className="site-footer" aria-label={t.footer.aria}>
       <div className="site-footer-inner">
         <div className="site-footer-brand">
           <span className="site-footer-mark">K</span>
           <span>KLEOPATRA <span style={{ color: 'var(--ivory-dim)' }}>INK</span></span>
         </div>
-        <nav className="site-footer-nav" aria-label="Rechtliche Hinweise">
-          <button type="button" onClick={() => onNav('imprint')}>Impressum</button>
+        <nav className="site-footer-nav" aria-label={t.footer.legalAria}>
+          <button type="button" onClick={() => onNav('imprint')}>{t.footer.imprint}</button>
           <span className="site-footer-sep" aria-hidden="true">·</span>
-          <button type="button" onClick={() => onNav('privacy')}>Datenschutz</button>
+          <button type="button" onClick={() => onNav('privacy')}>{t.footer.privacy}</button>
         </nav>
         <div className="site-footer-meta">
-          © {year} Kleopatra INK · Marktplatz 7, 91710 Gunzenhausen
+          {t.footer.meta(year)}
         </div>
       </div>
     </footer>

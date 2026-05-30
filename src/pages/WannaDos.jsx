@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 import PageHead from '../components/PageHead';
+import { useI18n } from '../i18n';
 import { useWannados } from '../hooks/useWannados';
 
 const Body3DViewer = lazy(() => import('../components/Body3DViewer'));
@@ -7,6 +8,7 @@ const Body3DViewer = lazy(() => import('../components/Body3DViewer'));
 const HAS_3D_BODY = true;
 
 export default function WannaDos({ onBack, onBook }) {
+  const { t } = useI18n();
   const [filter,   setFilter]   = useState('Alle');
   const [viewItem, setViewItem] = useState(null);
   const { items: allItems, loading } = useWannados();
@@ -16,14 +18,16 @@ export default function WannaDos({ onBack, onBook }) {
     ? allItems
     : allItems.filter((i) => i.target === filter || i.target === 'Alle');
 
+  const wd = t.wannados;
+
   return (
     <div className="page with-bg">
       <PageHead
-        kicker="Flash & Wanna-dos · Kleopatra INK"
-        title="Wanna-" titleEm="dos"
+        kicker={wd.kicker}
+        title={wd.title} titleEm={wd.titleEm}
         meta={<>
-          <b>{available.length > 0 ? `${available.length} verfügbar` : 'Demnächst'}</b>
-          <div>Flash & Unikate</div>
+          <b>{available.length > 0 ? wd.available(available.length) : t.common.soon}</b>
+          <div>{wd.sub}</div>
         </>}
         onBack={onBack}
       />
@@ -33,7 +37,7 @@ export default function WannaDos({ onBack, onBook }) {
           <button key={f}
             className={`gal-chip ${filter === f ? 'active' : ''}`}
             onClick={() => setFilter(f)}
-          >{f}</button>
+          >{wd.filters[f]}</button>
         ))}
       </div>
 
@@ -41,7 +45,7 @@ export default function WannaDos({ onBack, onBook }) {
         <div className="fb-loading"><div className="ig-spinner" /></div>
       ) : items.length === 0 ? (
         <p className="gal-empty">
-          {filter === 'Alle' ? 'Neue Motive folgen bald.' : `Keine Motive für ${filter} verfügbar.`}
+          {filter === 'Alle' ? wd.emptyAll : wd.emptyFilter(wd.filters[filter])}
         </p>
       ) : (
         <div className="wd-grid">
@@ -50,7 +54,7 @@ export default function WannaDos({ onBack, onBook }) {
               <div className="wd-img-wrap">
                 <img src={item.src} alt={item.title} className="wd-img" loading="lazy" />
                 {item.available === false && (
-                  <div className="wd-overlay-taken">Vergeben</div>
+                  <div className="wd-overlay-taken">{wd.taken}</div>
                 )}
               </div>
               <div className="wd-info">
@@ -67,7 +71,7 @@ export default function WannaDos({ onBack, onBook }) {
                       className={`wd-btn-view${viewItem === item ? ' active' : ''}`}
                       onClick={() => setViewItem(viewItem === item ? null : item)}
                     >
-                      {viewItem === item ? '3D aktiv ✓' : 'Auf Körper zeigen'}
+                      {viewItem === item ? wd.active3d : wd.showOnBody}
                     </button>
                   )}
                   <button
@@ -75,7 +79,7 @@ export default function WannaDos({ onBack, onBook }) {
                     disabled={item.available === false}
                     onClick={() => item.available !== false && onBook(item)}
                   >
-                    {item.available === false ? 'Vergeben' : 'Ich will das →'}
+                    {item.available === false ? wd.taken : wd.iWantThis}
                   </button>
                 </div>
               </div>
@@ -87,14 +91,12 @@ export default function WannaDos({ onBack, onBook }) {
       {HAS_3D_BODY && (
         <div className="wd-3d-section">
           <div className="wd-3d-header">
-            <h3 className="wd-3d-title">Tattoo visualisieren</h3>
+            <h3 className="wd-3d-title">{wd.visualizeTitle}</h3>
             <p className="wd-3d-sub">
-              {viewItem
-                ? `„${viewItem.title}" — klick auf den Körper um es zu platzieren`
-                : 'Wähle ein Motiv aus und klicke auf „Auf Körper zeigen"'}
+              {viewItem ? wd.visualizeHint(viewItem.title) : wd.visualizeIdle}
             </p>
           </div>
-          <Suspense fallback={<div className="body3d-loading">3D-Modell wird geladen …</div>}>
+          <Suspense fallback={<div className="body3d-loading">{wd.loading3d}</div>}>
             <Body3DViewer tatSrc={viewItem?.src ?? null} placement3d={viewItem?.placement3d ?? null} />
           </Suspense>
         </div>

@@ -13,6 +13,7 @@ serverless Instagram proxy.
 | 3D              | three.js via `@react-three/fiber` / `drei` (lazy)  |
 | Auth & data     | Firebase Authentication + Cloud Firestore + Storage|
 | Instagram feed  | Serverless function (`api/instagram.js`, Vercel)   |
+| i18n            | Context-based, DE / EN / TR (`src/i18n.jsx`)       |
 | Styling         | Hand-written CSS (`src/styles.css`)                |
 
 ## Getting started
@@ -71,8 +72,9 @@ src/
     AuthContext.jsx    # Single Firebase auth listener, shared via context
   pages/               # One module per screen (Landing, Gallery, Booking, …)
   components/          # Reusable UI (PageHead, ErrorBoundary, modals, 3D, …)
-  data/                # Static content (navigation, testimonials, piercing, …)
+  data/                # Structural content (nav layout, slots, piercing ids, …)
   hooks/               # Firestore data hooks (gallery, wannados, prices)
+  i18n.jsx             # LanguageProvider/useI18n + DE/EN/TR translation strings
   lib/format.js        # Shared formatting/helpers (currency, dates, auth errors)
   firebase.js          # Firebase initialisation (guarded by env presence)
 api/

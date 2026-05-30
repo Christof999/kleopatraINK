@@ -1,12 +1,15 @@
 import { useEffect, useId, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import PageHead from '../components/PageHead';
+import { useI18n } from '../i18n';
 import { formatEuro } from '../lib/format';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { SLOTS, DISABLED_SLOTS, INTERESTS } from '../data/booking';
+import { SLOTS, DISABLED_SLOTS } from '../data/booking';
 
 export default function Booking({ onBack, wannado, piercing }) {
+  const { t, lang } = useI18n();
+  const b = t.booking;
   const { user } = useAuth();
   const [interest, setInterest] = useState('unsure');
   const [slot, setSlot] = useState(null);
@@ -26,7 +29,7 @@ export default function Booking({ onBack, wannado, piercing }) {
   useEffect(() => {
     if (isPiercingBooking) {
       setInterest('piercing');
-      setDesc((current) => current || `Piercing-Anfrage: ${piercing.title}${piercing.desc ? ` — ${piercing.desc}` : ''}`);
+      setDesc((current) => current || `${b.bannerPiercingLabel}: ${piercing.title}${piercing.desc ? ` — ${piercing.desc}` : ''}`);
     }
   }, [isPiercingBooking, piercing]);
 
@@ -62,12 +65,12 @@ export default function Booking({ onBack, wannado, piercing }) {
     return (
       <div className={`page with-bg${isPiercingBooking ? ' theme-piercing' : ''}`} style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
         <div style={{ maxWidth: 540, textAlign: 'center', padding: '20px' }}>
-          <div className="page-kicker">{isPiercingBooking ? 'Piercing-Anfrage gesendet' : 'Beratungstermin angefragt'}</div>
-          <h1 className="page-title" style={{ marginBottom: 24 }}>Bis <em>bald</em></h1>
+          <div className="page-kicker">{isPiercingBooking ? b.sentPiercingKicker : b.sentConsultKicker}</div>
+          <h1 className="page-title" style={{ marginBottom: 24 }}>{b.sentTitle} <em>{b.sentTitleEm}</em></h1>
           <p className="cormorant" style={{ fontSize: 20, color: 'var(--ivory)', opacity: 0.9, lineHeight: 1.5 }}>
-            Ich bestätige deinen Beratungstermin innerhalb von 48 Stunden per Mail an <b style={{ color: 'var(--gold)' }}>{email || 'dich'}</b>. Bring gerne Referenzen mit — und viel Zeit für Fragen.
+            {b.sentBody(email || b.sentEmailFallback)}
           </p>
-          <button className="page-back" style={{ marginTop: 32 }} onClick={onBack}>← Zurück zur Seite</button>
+          <button className="page-back" style={{ marginTop: 32 }} onClick={onBack}>{t.common.backToSite}</button>
         </div>
       </div>
     );
@@ -76,12 +79,13 @@ export default function Booking({ onBack, wannado, piercing }) {
   return (
     <div className={`page with-bg${isPiercingBooking ? ' theme-piercing' : ''}`}>
       <PageHead
-        kicker={isPiercingBooking ? 'Piercing-Anfrage · Kleopatra INK' : 'Beratungstermin · kostenlos'}
-        title={isPiercingBooking ? 'Piercing' : 'Termin'} titleEm={isPiercingBooking ? 'anfragen' : 'buchen'}
+        kicker={isPiercingBooking ? b.kickerPiercing : b.kickerConsult}
+        title={isPiercingBooking ? b.titlePiercing : b.titleConsult}
+        titleEm={isPiercingBooking ? b.titlePiercingEm : b.titleConsultEm}
         meta={<>
-          <b>{isPiercingBooking ? 'Anfrage' : '~45 min'}</b>
-          <div>{isPiercingBooking ? piercing.title : 'Kostenfrei'}</div>
-          <div>Unverbindlich</div>
+          <b>{isPiercingBooking ? b.metaRequest : b.metaDuration}</b>
+          <div>{isPiercingBooking ? piercing.title : b.metaFree}</div>
+          <div>{b.metaNonbinding}</div>
         </>}
         onBack={onBack}
       />
@@ -89,7 +93,7 @@ export default function Booking({ onBack, wannado, piercing }) {
         <div className="wd-booking-banner">
           <img src={wannado.src} alt={wannado.title} className="wd-booking-img" />
           <div>
-            <div className="wd-booking-label">Ausgewähltes Motiv</div>
+            <div className="wd-booking-label">{b.bannerWannadoLabel}</div>
             <div className="wd-booking-name">{wannado.title}</div>
             <div className="wd-booking-meta">{wannado.style} · {wannado.placement}</div>
           </div>
@@ -98,10 +102,10 @@ export default function Booking({ onBack, wannado, piercing }) {
       {piercing && (
         <div className="wd-booking-banner piercing-booking-banner">
           <div>
-            <div className="wd-booking-label">Ausgewähltes Piercing</div>
+            <div className="wd-booking-label">{b.bannerPiercingLabel}</div>
             <div className="wd-booking-name">{piercing.title}</div>
             <div className="wd-booking-meta">
-              {piercing.desc ? `${piercing.desc} · ` : ''}{formatEuro(piercing.price)}
+              {piercing.desc ? `${piercing.desc} · ` : ''}{formatEuro(piercing.price, lang, t.piercing.priceOnRequest)}
             </div>
           </div>
         </div>
@@ -109,29 +113,21 @@ export default function Booking({ onBack, wannado, piercing }) {
 
       <div className="book-intro">
         <p className="cormorant">
-          {isPiercingBooking ? (
-            <>
-              <b className="gold">Deine Piercing-Anfrage ist vorbereitet.</b> Name und Kontaktdaten werden aus deinem Account übernommen, wenn du eingeloggt bist. Wähle noch einen Wunsch-Slot und ergänze bei Bedarf Hinweise.
-            </>
-          ) : (
-            <>
-              <b className="gold">Jedes Tattoo beginnt mit einem Gespräch.</b> Bevor die Nadel ansetzt, treffen wir uns für eine unverbindliche Beratung — im Studio oder per Video. Wir besprechen dein Motiv, schauen Referenzen an, ich skizziere, wir klären Platzierung, Aufwand und einen realistischen Preis. Erst danach vereinbaren wir den eigentlichen Tattoo-Termin.
-            </>
-          )}
+          {isPiercingBooking ? b.introPiercing : b.introConsult}
         </p>
       </div>
       <div className="booking-wrap">
         <div className="book-col">
-          <h3>01 · Worum geht&apos;s ungefähr?</h3>
+          <h3>{b.step1}</h3>
           {isPiercingBooking ? (
             <div className="booking-selected-service">
-              <div className="booking-selected-label">Piercing</div>
+              <div className="booking-selected-label">{b.selectedPiercing}</div>
               <div className="booking-selected-title">{piercing.title}</div>
               {piercing.desc && <div className="booking-selected-desc">{piercing.desc}</div>}
             </div>
           ) : (
-            <div className="style-grid" role="radiogroup" aria-label="Interesse / Tattoo-Stil">
-              {INTERESTS.map((s) => (
+            <div className="style-grid" role="radiogroup" aria-label={b.interestAria}>
+              {b.interests.map((s) => (
                 <button
                   key={s.id}
                   type="button"
@@ -146,8 +142,8 @@ export default function Booking({ onBack, wannado, piercing }) {
             </div>
           )}
 
-          <h3 style={{ marginTop: 36 }}>02 · Dein Wunsch-Slot — Di 12. Mai</h3>
-          <div className="slot-grid" role="radiogroup" aria-label="Verfügbare Uhrzeiten">
+          <h3 style={{ marginTop: 36 }}>{b.step2}</h3>
+          <div className="slot-grid" role="radiogroup" aria-label={b.slotAria}>
             {SLOTS.map((s) => (
               <button key={s}
                 type="button"
@@ -160,36 +156,36 @@ export default function Booking({ onBack, wannado, piercing }) {
             ))}
           </div>
           <div style={{ fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.08em', marginBottom: 24, marginTop: -8 }}>
-            Dauer ca. 45 Minuten. Andere Tage? Schreib&apos;s unten ins Freitextfeld.
+            {b.slotNote}
           </div>
 
-          <h3 style={{ marginTop: 12 }}>03 · Deine Details</h3>
+          <h3 style={{ marginTop: 12 }}>{b.step3}</h3>
           <div className="field">
-            <label htmlFor={ids.name}>Name</label>
-            <input id={ids.name} type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" />
+            <label htmlFor={ids.name}>{b.labelName}</label>
+            <input id={ids.name} type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder={b.phName} />
           </div>
           <div className="field">
-            <label htmlFor={ids.email}>E-Mail</label>
-            <input id={ids.email} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="deine@email.de" />
+            <label htmlFor={ids.email}>{b.labelEmail}</label>
+            <input id={ids.email} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={b.phEmail} />
           </div>
           <div className="field">
-            <label htmlFor={ids.phone}>Telefon <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-            <input id={ids.phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+49 …" />
+            <label htmlFor={ids.phone}>{b.labelPhone} <span style={{ opacity: 0.5, textTransform: 'none', letterSpacing: 0 }}>{b.optional}</span></label>
+            <input id={ids.phone} type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={b.phPhone} />
           </div>
           <div className="field">
-            <label htmlFor={ids.desc}>Kurz zu deiner Idee</label>
-            <textarea id={ids.desc} rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Motiv, Körperstelle, ungefähre Größe, Referenzen — alles was dir einfällt. Keine Angst, noch muss nichts feststehen." />
+            <label htmlFor={ids.desc}>{b.labelIdea}</label>
+            <textarea id={ids.desc} rows={4} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={b.phIdea} />
           </div>
         </div>
 
         <div className="summary">
-          <h4>Dein Beratungstermin</h4>
-          <div className="sum-row"><span className="sum-k">Art</span><span className="sum-v">{isPiercingBooking ? 'Piercing-Anfrage' : 'Erstberatung'}</span></div>
-          <div className="sum-row"><span className="sum-k">Thema</span><span className="sum-v">{isPiercingBooking ? piercing.title : INTERESTS.find((s) => s.id === interest)?.name}</span></div>
-          {name && <div className="sum-row"><span className="sum-k">Name</span><span className="sum-v">{name}</span></div>}
-          <div className="sum-row"><span className="sum-k">Termin</span><span className={`sum-v ${slot ? '' : 'empty'}`}>{slot ? `Di 12. Mai · ${slot}` : 'noch nicht gewählt'}</span></div>
-          <div className="sum-row"><span className="sum-k">Dauer</span><span className="sum-v">~45 Min</span></div>
-          <div className="sum-row"><span className="sum-k">Kosten</span><span className="sum-v gold">{isPiercingBooking ? formatEuro(piercing.price) : 'Kostenfrei'}</span></div>
+          <h4>{b.summaryTitle}</h4>
+          <div className="sum-row"><span className="sum-k">{b.sumKind}</span><span className="sum-v">{isPiercingBooking ? b.sumKindPiercing : b.sumKindConsult}</span></div>
+          <div className="sum-row"><span className="sum-k">{b.sumTopic}</span><span className="sum-v">{isPiercingBooking ? piercing.title : b.interests.find((s) => s.id === interest)?.name}</span></div>
+          {name && <div className="sum-row"><span className="sum-k">{b.sumName}</span><span className="sum-v">{name}</span></div>}
+          <div className="sum-row"><span className="sum-k">{b.sumDate}</span><span className={`sum-v ${slot ? '' : 'empty'}`}>{slot ? b.sumDateValue(slot) : b.sumDateEmpty}</span></div>
+          <div className="sum-row"><span className="sum-k">{b.sumDuration}</span><span className="sum-v">{b.sumDurationValue}</span></div>
+          <div className="sum-row"><span className="sum-k">{b.sumCost}</span><span className="sum-v gold">{isPiercingBooking ? formatEuro(piercing.price, lang, t.piercing.priceOnRequest) : b.metaFree}</span></div>
           <button
             type="button"
             className="btn-primary"
@@ -197,11 +193,10 @@ export default function Booking({ onBack, wannado, piercing }) {
             disabled={!(slot && name && email)}
             aria-disabled={!(slot && name && email)}
             onClick={() => setSubmitted(true)}>
-            {isPiercingBooking ? 'Piercing anfragen →' : 'Beratung anfragen →'}
+            {isPiercingBooking ? b.submitPiercing : b.submitConsult}
           </button>
           <p style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
-            Unverbindlich. Bestätigung per Mail binnen 48 Stunden. Mit dem Absenden stimmst du der
-            Verarbeitung deiner Angaben gemäß unserer Datenschutz­erklärung zu.
+            {b.disclaimer}
           </p>
         </div>
       </div>
