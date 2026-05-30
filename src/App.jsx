@@ -6,7 +6,6 @@ import Background from './components/Background';
 import InstagramFeed from './components/InstagramFeed';
 import CookieBanner from './components/CookieBanner';
 import LanguageToggle from './components/LanguageToggle';
-import StencilStudio from './components/StencilStudio';
 import { formatSegment } from './components/LuckyWheel';
 import { WheelInviteModal, WheelModal } from './components/WheelModals';
 import { Imprint, Privacy, SiteFooter } from './components/Legal';
@@ -1574,16 +1573,6 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [page]);
 
-  // Direkter Aufruf des internen Stencil-Werkzeugs über #stencil.
-  useEffect(() => {
-    const applyHash = () => {
-      if (window.location.hash === '#stencil') setPage('stencil');
-    };
-    applyHash();
-    window.addEventListener('hashchange', applyHash);
-    return () => window.removeEventListener('hashchange', applyHash);
-  }, []);
-
   useEffect(() => {
     document.title = t.pageTitles[page] || t.pageTitles.home;
   }, [page, t]);
@@ -1770,7 +1759,6 @@ export default function App() {
         {page === 'wannados'     && <WannaDos onBack={onBack} onBook={onBookWannado} />}
         {page === 'imprint'      && <Imprint onBack={onBack} />}
         {page === 'privacy'      && <Privacy onBack={onBack} />}
-        {page === 'stencil'      && <StencilStudio onBack={onBack} />}
       </main>
 
       <SiteFooter onNav={goTo} />
