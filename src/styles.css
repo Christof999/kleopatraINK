@@ -3871,12 +3871,33 @@ ul.gal-grid {
   outline-offset: 2px;
 }
 
-@media (max-width: 480px) {
+/* Auf Tablet/Handy: schlanke, oben angedockte Leiste statt schwebender Pille,
+   damit nichts den Header/das Logo überlappt. Reserviert eigene Höhe und
+   bleibt beim Scrollen sichtbar. */
+@media (max-width: 900px) {
   .lang-toggle {
-    top: 10px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 8px;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 1px solid rgba(212, 165, 55, 0.22);
+    background: rgba(10, 8, 6, 0.9);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   }
+}
+
+@media (max-width: 480px) {
   .lang-toggle-btn {
-    padding: 5px 9px;
+    padding: 6px 14px;
     font-size: 10px;
   }
 }
