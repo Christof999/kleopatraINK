@@ -3822,3 +3822,61 @@ ul.gal-grid {
 @media (max-width: 480px) {
   .piercing-section { padding: 32px 0; }
 }
+
+/* ── Sprachumschalter (Language Toggle) ─────────────────────────────────── */
+.lang-toggle {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(20, 16, 8, 0.72);
+  border: 1px solid rgba(212, 165, 55, 0.32);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.lang-toggle-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--ivory-dim);
+  background: transparent;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.lang-toggle-btn:hover {
+  color: var(--ivory);
+}
+
+.lang-toggle-btn.active {
+  color: var(--gold-ink);
+  background: var(--gold);
+}
+
+.lang-toggle-btn:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .lang-toggle {
+    top: 10px;
+  }
+  .lang-toggle-btn {
+    padding: 5px 9px;
+    font-size: 10px;
+  }
+}

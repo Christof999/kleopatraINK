@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useI18n } from '../i18n';
 
 function PostGrid({ posts }) {
+  const { t } = useI18n();
   return (
     <div className="ig-grid">
       {posts.map((post) => (
@@ -21,7 +23,7 @@ function PostGrid({ posts }) {
                   : post.caption}
               </p>
             )}
-            <span className="ig-open">↗ öffnen</span>
+            <span className="ig-open">{t.instagram.open}</span>
           </div>
         </a>
       ))}
@@ -30,6 +32,7 @@ function PostGrid({ posts }) {
 }
 
 function NotConfigured() {
+  const { t } = useI18n();
   return (
     <div className="ig-static-card">
       <a
@@ -42,18 +45,18 @@ function NotConfigured() {
           <span className="ig-username">@kleopatra.ink</span>
           <span className="ig-meta">Instagram</span>
         </div>
-        <span className="ig-follow-btn">Folgen ↗</span>
+        <span className="ig-follow-btn">{t.instagram.follow}</span>
       </a>
 
       <div className="ig-static-stats">
         <div className="ig-stat">
           <b>309</b>
-          <span>Beiträge</span>
+          <span>{t.instagram.posts}</span>
         </div>
         <div className="ig-stat-divider" />
         <div className="ig-stat">
           <b>4.520</b>
-          <span>Follower</span>
+          <span>{t.instagram.followers}</span>
         </div>
       </div>
 
@@ -63,13 +66,14 @@ function NotConfigured() {
         rel="noopener noreferrer"
         className="ig-visit-link"
       >
-        Alle Beiträge auf Instagram ansehen →
+        {t.instagram.visit}
       </a>
     </div>
   );
 }
 
 export default function InstagramFeed() {
+  const { t } = useI18n();
   const [state, setState] = useState({ status: 'loading', posts: [], profile: null });
 
   useEffect(() => {
@@ -116,10 +120,10 @@ export default function InstagramFeed() {
         <div className="ig-profile-info">
           <span className="ig-username">@{state.profile?.username ?? 'kleopatra.ink'}</span>
           {state.profile?.mediaCount != null && (
-            <span className="ig-meta">{state.profile.mediaCount} Beiträge</span>
+            <span className="ig-meta">{state.profile.mediaCount} {t.instagram.posts}</span>
           )}
         </div>
-        <span className="ig-follow-btn">Folgen ↗</span>
+        <span className="ig-follow-btn">{t.instagram.follow}</span>
       </a>
 
       {state.posts.length > 0 ? (

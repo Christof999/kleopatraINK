@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import LuckyWheel, { formatSegment } from './LuckyWheel';
+import { useI18n } from '../i18n';
 
 function useBodyScrollLock(active) {
   useEffect(() => {
@@ -22,6 +23,8 @@ function useEscapeToClose(active, onClose) {
 }
 
 export function WheelInviteModal({ open, firstName, onAccept, onDismiss }) {
+  const { t } = useI18n();
+  const w = t.wheel.invite;
   useBodyScrollLock(open);
   useEscapeToClose(open, onDismiss);
 
@@ -40,7 +43,7 @@ export function WheelInviteModal({ open, firstName, onAccept, onDismiss }) {
           type="button"
           className="wheel-modal-close"
           onClick={onDismiss}
-          aria-label="Schließen"
+          aria-label={w.close}
         >×</button>
 
         <div className="wheel-invite-icon" aria-hidden="true">
@@ -54,21 +57,18 @@ export function WheelInviteModal({ open, firstName, onAccept, onDismiss }) {
           </svg>
         </div>
 
-        <div className="wheel-invite-kicker">Exklusiv für Kunden</div>
+        <div className="wheel-invite-kicker">{w.kicker}</div>
         <h2 id="wheel-invite-title" className="wheel-invite-title">
-          {firstName ? `${firstName}, du hast einen Dreh frei!` : 'Du hast einen Dreh frei!'}
+          {firstName ? w.titleNamed(firstName) : w.title}
         </h2>
-        <p className="wheel-invite-copy">
-          Als Kunde von Kleopatra INK kannst du jetzt einmalig am Glücksrad drehen
-          und dir einen Vorteil sichern — einlösbar bei deinem nächsten Studio-Besuch.
-        </p>
+        <p className="wheel-invite-copy">{w.copy}</p>
 
         <div className="wheel-invite-actions">
           <button type="button" className="wheel-invite-cta" onClick={onAccept}>
-            Zum Glücksrad →
+            {w.cta}
           </button>
           <button type="button" className="wheel-invite-skip" onClick={onDismiss}>
-            Später
+            {w.later}
           </button>
         </div>
       </div>
@@ -85,6 +85,8 @@ export function WheelModal({
   onSpinResult,
   onClose,
 }) {
+  const { t } = useI18n();
+  const w = t.wheel.spin;
   useBodyScrollLock(open);
   useEscapeToClose(open, saving ? () => {} : onClose);
 
@@ -108,17 +110,15 @@ export function WheelModal({
           className="wheel-modal-close"
           onClick={onClose}
           disabled={saving}
-          aria-label="Schließen"
+          aria-label={w.close}
         >×</button>
 
-        <div className="wheel-spin-kicker">Kleopatra INK · Glücksrad</div>
+        <div className="wheel-spin-kicker">{w.kicker}</div>
         <h2 id="wheel-spin-title" className="wheel-spin-title">
-          {justWon ? 'Glückwunsch!' : 'Dreh das Rad'}
+          {justWon ? w.won : w.spinTitle}
         </h2>
         <p className="wheel-spin-sub">
-          {justWon
-            ? 'Zeig deinen Gewinn beim nächsten Studio-Besuch — wir lösen ihn dann für dich ein.'
-            : 'Drück auf „Jetzt drehen" und sichere dir deinen Vorteil.'}
+          {justWon ? w.wonSub : w.spinSub}
         </p>
 
         <div className="wheel-spin-stage">
@@ -126,7 +126,7 @@ export function WheelModal({
             segments={segments}
             onResult={onSpinResult}
             size={380}
-            buttonLabel="Jetzt drehen"
+            buttonLabel={w.spinNow}
             disabled={saving || !!justWon}
           />
         </div>
@@ -137,10 +137,10 @@ export function WheelModal({
 
         {justWon && !saveError && (
           <div className="wheel-spin-redeem">
-            <div className="wheel-spin-redeem-kicker">Dein Gewinn ist gespeichert</div>
+            <div className="wheel-spin-redeem-kicker">{w.saved}</div>
             <div className="wheel-spin-redeem-value">{formatSegment(justWon)}</div>
             <button type="button" className="wheel-invite-cta" onClick={onClose}>
-              Schließen
+              {w.close}
             </button>
           </div>
         )}

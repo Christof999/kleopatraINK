@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useI18n } from '../i18n';
 
 const STORAGE_KEY = 'kink_consent_v1';
 
@@ -20,6 +21,8 @@ function writeConsent(consent) {
 }
 
 export default function CookieBanner({ onChange, onOpenPrivacy }) {
+  const { t } = useI18n();
+  const c = t.cookie;
   const [open, setOpen] = useState(false);
   const acceptRef = useRef(null);
 
@@ -68,17 +71,14 @@ export default function CookieBanner({ onChange, onOpenPrivacy }) {
         aria-describedby="cookie-desc"
       >
         <div className="cookie-banner-head">
-          <span className="cookie-banner-kicker">Cookies &amp; Datenschutz</span>
+          <span className="cookie-banner-kicker">{c.kicker}</span>
           <h2 id="cookie-title" className="cookie-banner-title">
-            Deine <em>Privatsphäre</em>
+            {c.titlePre} <em>{c.titleEm}</em>
           </h2>
         </div>
 
         <p id="cookie-desc" className="cookie-banner-text">
-          Diese Website verwendet technisch notwendige Cookies, damit Login, Termin­buchung und
-          Account funktionieren. Optional helfen uns funktionale Cookies (z.&nbsp;B. Google Fonts,
-          Instagram-Einbettung), das Erlebnis zu verbessern. Du entscheidest. Details findest du in
-          unserer{' '}
+          {c.text.pre}
           <button
             type="button"
             className="cookie-banner-link"
@@ -87,25 +87,21 @@ export default function CookieBanner({ onChange, onOpenPrivacy }) {
               setOpen(false);
             }}
           >
-            Datenschutzerklärung
+            {c.text.link}
           </button>
-          .
+          {c.text.post}
         </p>
 
-        <ul className="cookie-banner-list" aria-label="Cookie-Kategorien">
+        <ul className="cookie-banner-list" aria-label={c.catAria}>
           <li>
-            <span className="cookie-cat-name">Essenziell</span>
-            <span className="cookie-cat-state cookie-cat-on" aria-hidden="true">Immer aktiv</span>
-            <span className="cookie-cat-desc">
-              Auth-Session, Cookie-Einstellung selbst, Sicherheit.
-            </span>
+            <span className="cookie-cat-name">{c.essential}</span>
+            <span className="cookie-cat-state cookie-cat-on" aria-hidden="true">{c.essentialState}</span>
+            <span className="cookie-cat-desc">{c.essentialDesc}</span>
           </li>
           <li>
-            <span className="cookie-cat-name">Funktional</span>
-            <span className="cookie-cat-state" aria-hidden="true">Optional</span>
-            <span className="cookie-cat-desc">
-              Google Fonts, Instagram-Vorschau, eingebettete Inhalte.
-            </span>
+            <span className="cookie-cat-name">{c.functional}</span>
+            <span className="cookie-cat-state" aria-hidden="true">{c.functionalState}</span>
+            <span className="cookie-cat-desc">{c.functionalDesc}</span>
           </li>
         </ul>
 
@@ -116,14 +112,14 @@ export default function CookieBanner({ onChange, onOpenPrivacy }) {
             className="btn-primary cookie-btn-accept"
             onClick={() => save('all')}
           >
-            Alle akzeptieren
+            {c.acceptAll}
           </button>
           <button
             type="button"
             className="cookie-btn-decline"
             onClick={() => save('essential')}
           >
-            Nur essenzielle
+            {c.essentialOnly}
           </button>
         </div>
       </div>
