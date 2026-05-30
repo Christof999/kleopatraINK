@@ -207,6 +207,8 @@ export function SiteFooter({ onNav }) {
           <button type="button" onClick={() => onNav('imprint')}>{t.footer.imprint}</button>
           <span className="site-footer-sep" aria-hidden="true">·</span>
           <button type="button" onClick={() => onNav('privacy')}>{t.footer.privacy}</button>
+          <span className="site-footer-sep" aria-hidden="true">·</span>
+          <button type="button" className="site-footer-tool" onClick={() => onNav('stencil')}>{t.footer.studioTool}</button>
         </nav>
         <div className="site-footer-meta">
           {t.footer.meta(year)}
