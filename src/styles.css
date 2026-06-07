@@ -14,6 +14,20 @@
   --line: rgba(212, 165, 55, 0.18);
   --line-strong: rgba(212, 165, 55, 0.45);
   --gold-glow: 0 0 40px rgba(240, 200, 96, 0.35);
+
+  /* Globaler Schrift-Skalierungsfaktor — eine zentrale Stellschraube für die
+     website-weite Schriftgröße. Alle font-size-Werte werden hiermit
+     multipliziert (siehe calc(... * var(--font-scale))). */
+  --font-scale: 1.06;
+}
+
+/* Auf Tablets etwas größer, auf Mobilgeräten am größten — dort wurde die
+   bessere Lesbarkeit ausdrücklich gewünscht. */
+@media (max-width: 900px) {
+  :root { --font-scale: 1.12; }
+}
+@media (max-width: 560px) {
+  :root { --font-scale: 1.16; }
 }
 
 * { box-sizing: border-box; }
@@ -72,7 +86,7 @@ body {
   display: flex; align-items: center; gap: 12px;
   font-family: 'Cinzel', serif;
   font-weight: 600;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   letter-spacing: 0.22em;
   color: var(--gold);
 }
@@ -94,7 +108,7 @@ body {
 }
 
 .brand-sub {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -104,7 +118,7 @@ body {
 
 .chrome-meta {
   display: flex; gap: 28px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -136,7 +150,7 @@ body {
   background: rgba(20, 16, 8, 0.62);
   color: var(--ivory-dim);
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -273,7 +287,7 @@ body {
 
 .node-lbl {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -281,7 +295,7 @@ body {
 }
 
 .node-sub {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.18em;
   color: var(--ivory-dim);
   text-transform: uppercase;
@@ -295,7 +309,7 @@ body {
 .corner {
   position: absolute;
   z-index: 4;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -317,7 +331,7 @@ body {
 }
 .tagline-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.5em;
   color: var(--gold);
   margin-bottom: 12px;
@@ -325,7 +339,7 @@ body {
 .tagline-main {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   color: var(--ivory);
   opacity: 0.85;
 }
@@ -341,7 +355,7 @@ body {
 .page-back {
   display: inline-flex; align-items: center; gap: 8px;
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--gold);
@@ -371,7 +385,7 @@ body {
 .page-title {
   font-family: 'Cinzel', serif;
   font-weight: 500;
-  font-size: clamp(48px, 7vw, 88px);
+  font-size: calc(clamp(48px, 7vw, 88px) * var(--font-scale));
   line-height: 1;
   letter-spacing: 0.02em;
   margin: 0;
@@ -386,21 +400,21 @@ body {
 }
 .page-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.4em;
   color: var(--gold);
   text-transform: uppercase;
   margin-bottom: 18px;
 }
 .page-meta {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ivory-dim);
   text-align: right;
   min-width: 200px;
 }
-.page-meta b { color: var(--gold); font-weight: 500; display: block; font-size: 14px; letter-spacing: 0.1em; }
+.page-meta b { color: var(--gold); font-weight: 500; display: block; font-size: calc(14px * var(--font-scale)); letter-spacing: 0.1em; }
 
 /* gallery */
 
@@ -409,7 +423,7 @@ body {
 }
 .gal-chip {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 8px 14px;
@@ -450,7 +464,7 @@ body {
 .gal-empty {
   color: var(--muted);
   font-family: 'Cinzel', serif;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-align: center;
@@ -479,7 +493,7 @@ body {
 
 .gal-caption-style {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   color: var(--gold);
   text-transform: uppercase;
@@ -487,7 +501,7 @@ body {
 }
 
 .gal-caption-piece {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: var(--ivory);
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
@@ -518,7 +532,7 @@ body {
 }
 .ph-label {
   font-family: ui-monospace, 'SF Mono', monospace;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   color: var(--gold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -526,7 +540,7 @@ body {
 }
 .ph-sub {
   font-family: ui-monospace, monospace;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   color: var(--ivory-dim);
   margin-top: 3px;
   position: relative;
@@ -536,7 +550,7 @@ body {
 /* about */
 
 .about-section-title {
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -559,7 +573,7 @@ body {
 
 .about-mv-block p {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
+  font-size: calc(20px * var(--font-scale));
   line-height: 1.55;
   color: var(--ivory);
   margin: 0;
@@ -574,14 +588,14 @@ body {
 }
 .about-copy p {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   line-height: 1.55;
   color: var(--ivory);
   margin: 0 0 20px;
 }
 .about-copy p:first-child::first-letter {
   font-family: 'Cinzel', serif;
-  font-size: 72px;
+  font-size: calc(72px * var(--font-scale));
   float: left;
   line-height: 1;
   padding: 6px 14px 0 0;
@@ -634,7 +648,7 @@ body {
 
 .about-material-copy p {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
+  font-size: calc(20px * var(--font-scale));
   line-height: 1.55;
   color: var(--ivory);
   margin: 0;
@@ -665,14 +679,14 @@ body {
 .team-info { padding: 20px 22px 24px; }
 .team-name {
   font-family: 'Cinzel', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   letter-spacing: 0.1em;
   color: var(--gold);
   margin: 0 0 4px;
   font-weight: 500;
 }
 .team-role {
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -680,7 +694,7 @@ body {
 }
 .team-bio {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   color: var(--ivory);
   line-height: 1.5;
   opacity: 0.9;
@@ -691,7 +705,7 @@ body {
 }
 .spec {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 4px 8px;
@@ -715,7 +729,7 @@ body {
 
 .family-copy p {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   line-height: 1.55;
   color: var(--ivory);
   margin: 0 0 20px;
@@ -728,7 +742,7 @@ body {
     gap: 28px;
     margin-bottom: 50px;
   }
-  .family-copy p { font-size: 18px; }
+  .family-copy p { font-size: calc(18px * var(--font-scale)); }
 }
 
 /* booking */
@@ -742,7 +756,7 @@ body {
 }
 .book-intro p {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 19px;
+  font-size: calc(19px * var(--font-scale));
   line-height: 1.55;
   margin: 0;
   color: var(--ivory);
@@ -759,7 +773,7 @@ body {
 
 .book-col h3 {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -793,7 +807,7 @@ body {
 }
 .style-name {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -806,7 +820,7 @@ body {
 }
 .field label {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -817,7 +831,7 @@ body {
   color: var(--ivory);
   padding: 12px 14px;
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   transition: all 200ms;
   outline: none;
 }
@@ -839,7 +853,7 @@ body {
   color: var(--ivory);
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   transition: all 200ms;
   text-align: center;
   appearance: none;
@@ -863,7 +877,7 @@ body {
   color: var(--gold-ink);
   border: 0;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   font-weight: 600;
@@ -886,7 +900,7 @@ body {
 }
 .summary h4 {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -898,17 +912,17 @@ body {
 .sum-row {
   display: flex; justify-content: space-between;
   padding: 10px 0;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   border-bottom: 1px dashed rgba(212,165,55,0.12);
 }
 .sum-row:last-child { border-bottom: 0; }
-.sum-k { color: var(--ivory-dim); letter-spacing: 0.1em; text-transform: uppercase; font-size: 10px; flex-shrink: 0; }
+.sum-k { color: var(--ivory-dim); letter-spacing: 0.1em; text-transform: uppercase; font-size: calc(10px * var(--font-scale)); flex-shrink: 0; }
 .sum-v {
   min-width: 0;
   max-width: 68%;
   color: var(--ivory);
   font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   text-align: right;
   overflow-wrap: anywhere;
 }
@@ -946,7 +960,7 @@ body {
 
 .piercing-title {
   font-family: 'Cinzel', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -956,7 +970,7 @@ body {
 
 .piercing-desc {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   line-height: 1.45;
   color: var(--ivory-dim);
   margin: 0;
@@ -966,7 +980,7 @@ body {
   align-self: flex-start;
   white-space: nowrap;
   font-family: 'Cinzel', serif;
-  font-size: 20px;
+  font-size: calc(20px * var(--font-scale));
   letter-spacing: 0.08em;
   color: var(--gold-bright);
 }
@@ -985,7 +999,7 @@ body {
   color: var(--gold);
   padding: 10px 14px;
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -1012,7 +1026,7 @@ body {
 
 .booking-selected-label {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1021,7 +1035,7 @@ body {
 
 .booking-selected-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 28px;
+  font-size: calc(28px * var(--font-scale));
   line-height: 1.1;
   color: var(--ivory);
 }
@@ -1029,7 +1043,7 @@ body {
 .booking-selected-desc {
   margin-top: 8px;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale));
   color: var(--ivory-dim);
   line-height: 1.4;
 }
@@ -1071,7 +1085,7 @@ body {
 
 .account-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1080,7 +1094,7 @@ body {
 
 .account-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: calc(clamp(34px, 5vw, 58px) * var(--font-scale));
   font-weight: 400;
   line-height: 1;
   color: var(--ivory);
@@ -1089,7 +1103,7 @@ body {
 
 .account-copy {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   line-height: 1.5;
   color: var(--ivory-dim);
   margin: 0 0 24px;
@@ -1099,7 +1113,7 @@ body {
   border: 1px solid var(--line);
   padding: 12px 14px;
   margin: 8px 0 18px;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   line-height: 1.45;
   letter-spacing: 0.04em;
 }
@@ -1138,7 +1152,7 @@ body {
   background: transparent;
   color: var(--gold);
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -1173,7 +1187,7 @@ body {
 .testi-quote {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   line-height: 1.5;
   color: var(--ivory);
   margin-bottom: 20px;
@@ -1181,7 +1195,7 @@ body {
 .testi-quote::before {
   content: '\201C';
   font-family: 'Cinzel', serif;
-  font-size: 56px;
+  font-size: calc(56px * var(--font-scale));
   color: var(--gold);
   line-height: 0;
   vertical-align: -18px;
@@ -1195,17 +1209,17 @@ body {
 }
 .testi-name {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.14em;
   color: var(--gold);
 }
 .testi-info {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ivory-dim);
 }
-.testi-stars { color: var(--gold); letter-spacing: 4px; margin-bottom: 12px; font-size: 14px; }
+.testi-stars { color: var(--gold); letter-spacing: 4px; margin-bottom: 12px; font-size: calc(14px * var(--font-scale)); }
 
 /* ── Wanna-dos ─────────────────────────────────────────────────────────────── */
 
@@ -1249,7 +1263,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   background: rgba(10, 8, 6, 0.65);
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.3em;
   color: var(--ivory-dim);
   text-transform: uppercase;
@@ -1266,7 +1280,7 @@ body {
 
 .wd-badge {
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1278,14 +1292,14 @@ body {
 
 .wd-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 26px;
+  font-size: calc(26px * var(--font-scale));
   font-weight: 400;
   color: var(--ivory);
   line-height: 1.15;
 }
 
 .wd-meta {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--muted);
@@ -1294,7 +1308,7 @@ body {
 .wd-desc {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   color: var(--ivory-dim);
   line-height: 1.5;
 }
@@ -1304,7 +1318,7 @@ body {
   border: 1px solid var(--line);
   color: var(--gold);
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   padding: 12px 16px;
@@ -1337,7 +1351,7 @@ body {
   border: 1px solid var(--line);
   color: var(--ivory-dim);
   font-family: 'Cinzel', serif;
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   padding: 10px 16px;
@@ -1374,7 +1388,7 @@ body {
 
 .wd-3d-title {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1384,7 +1398,7 @@ body {
 
 .wd-3d-sub {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale));
   color: var(--ivory-dim);
   margin: 0;
   line-height: 1.4;
@@ -1394,7 +1408,7 @@ body {
 .body3d-loading {
   text-align: center;
   padding: 40px;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--muted);
@@ -1424,7 +1438,7 @@ body {
   border: none;
   color: var(--ivory-dim);
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 10px 20px;
@@ -1449,7 +1463,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1466,7 +1480,7 @@ body {
   background: none;
   border: none;
   color: var(--muted);
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1479,7 +1493,7 @@ body {
 .body3d-hint {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   color: var(--ivory-dim);
   margin: 0;
   line-height: 1.4;
@@ -1488,7 +1502,7 @@ body {
 .body3d-hint-error {
   color: #c0392b;
   font-style: normal;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.04em;
 }
 
@@ -1527,7 +1541,7 @@ body {
 }
 
 .wd-booking-label {
-  font-size: 8px;
+  font-size: calc(8px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1536,13 +1550,13 @@ body {
 
 .wd-booking-name {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   color: var(--ivory);
   line-height: 1.1;
 }
 
 .wd-booking-meta {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1555,7 +1569,7 @@ body {
 
 @media (max-width: 560px) {
   .wd-grid { grid-template-columns: 1fr; gap: 14px; }
-  .wd-title { font-size: 22px; }
+  .wd-title { font-size: calc(22px * var(--font-scale)); }
 }
 
 /* socials */
@@ -1599,7 +1613,7 @@ body {
 }
 .soc-platform {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1607,14 +1621,14 @@ body {
 .soc-handle {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
-  font-size: 36px;
+  font-size: calc(36px * var(--font-scale));
   color: var(--gold);
   margin: 20px 0 10px;
   position: relative;
 }
 .soc-desc {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale));
   color: var(--ivory);
   opacity: 0.85;
   line-height: 1.45;
@@ -1630,13 +1644,13 @@ body {
 .soc-stat b {
   display: block;
   font-family: 'Cinzel', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   color: var(--gold);
   font-weight: 500;
   letter-spacing: 0.02em;
 }
 .soc-stat span {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1663,14 +1677,14 @@ body {
 
 .ig-username {
   font-family: 'Cinzel', serif;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   font-weight: 600;
   letter-spacing: 0.1em;
   color: var(--gold);
 }
 
 .ig-meta {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1678,7 +1692,7 @@ body {
 
 .ig-follow-btn {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ivory);
@@ -1729,7 +1743,7 @@ body {
 
 .ig-caption {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   color: var(--ivory);
   line-height: 1.4;
   margin: 0 0 8px;
@@ -1741,7 +1755,7 @@ body {
 
 .ig-open {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   color: var(--gold);
   text-transform: uppercase;
@@ -1759,14 +1773,14 @@ body {
 }
 
 .ig-notice-icon {
-  font-size: 32px;
+  font-size: calc(32px * var(--font-scale));
   color: var(--gold);
   opacity: 0.4;
 }
 
 .ig-notice p {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -1789,7 +1803,7 @@ body {
 
 .ig-profile-btn {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold);
@@ -1833,14 +1847,14 @@ body {
 
 .ig-stat b {
   font-family: 'Cinzel', serif;
-  font-size: 32px;
+  font-size: calc(32px * var(--font-scale));
   font-weight: 500;
   color: var(--gold);
   letter-spacing: 0.02em;
 }
 
 .ig-stat span {
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1857,7 +1871,7 @@ body {
   display: block;
   padding: 18px 40px;
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -1871,7 +1885,7 @@ body {
 }
 @media (max-width: 560px) {
   .ig-grid { grid-template-columns: repeat(2, 1fr); gap: 2px; }
-  .ig-username { font-size: 14px; }
+  .ig-username { font-size: calc(14px * var(--font-scale)); }
 }
 
 /* page backgrounds */
@@ -1936,7 +1950,7 @@ body {
 
 .mobile-nav-lbl {
   font-family: 'Cinzel', serif;
-  font-size: 7.5px;
+  font-size: calc(7.5px * var(--font-scale));
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1949,7 +1963,7 @@ body {
 }
 
 .mobile-nav-sub {
-  font-size: 7px;
+  font-size: calc(7px * var(--font-scale));
   letter-spacing: 0.1em;
   color: var(--muted);
   text-transform: uppercase;
@@ -2007,27 +2021,27 @@ body {
     gap: 18px;
     flex-wrap: wrap;
   }
-  .page-meta b { display: inline; font-size: 12px; }
+  .page-meta b { display: inline; font-size: calc(12px * var(--font-scale)); }
   .page-meta div { display: inline; }
   .chrome, .page { padding-left: 20px; padding-right: 20px; }
   .page { padding-top: 24px; padding-bottom: 60px; }
   .about-hero { gap: 28px; margin-bottom: 50px; }
   .about-studio-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 40px; }
   .about-material { grid-template-columns: 1fr; gap: 24px; margin-bottom: 50px; }
-  .about-material-copy p { font-size: 18px; }
+  .about-material-copy p { font-size: calc(18px * var(--font-scale)); }
   .about-mv-grid { grid-template-columns: 1fr; gap: 28px; margin-bottom: 50px; }
   .about-mv-block { padding: 22px 24px 26px; }
-  .about-mv-block p { font-size: 18px; }
+  .about-mv-block p { font-size: calc(18px * var(--font-scale)); }
   .about-hero-img { aspect-ratio: 16/10; max-height: 280px; }
   .about-studio-img { aspect-ratio: 16/10; max-height: 220px; }
-  .about-copy p { font-size: 18px; }
-  .about-copy p:first-child::first-letter { font-size: 56px; padding-right: 10px; }
+  .about-copy p { font-size: calc(18px * var(--font-scale)); }
+  .about-copy p:first-child::first-letter { font-size: calc(56px * var(--font-scale)); padding-right: 10px; }
   .summary { position: static; }
   .soc-card { padding: 28px; min-height: 0; }
-  .soc-handle { font-size: 28px; margin: 14px 0 8px; }
-  .soc-desc { font-size: 15px; margin-bottom: 18px; }
+  .soc-handle { font-size: calc(28px * var(--font-scale)); margin: 14px 0 8px; }
+  .soc-desc { font-size: calc(15px * var(--font-scale)); margin-bottom: 18px; }
   .soc-stats { gap: 20px; padding-top: 14px; }
-  .soc-stat b { font-size: 18px; }
+  .soc-stat b { font-size: calc(18px * var(--font-scale)); }
 }
 
 /* Landing — mobile (circular nodes stay, adapted) */
@@ -2048,12 +2062,12 @@ body {
   }
   .chrome-meta {
     gap: 14px;
-    font-size: 9px;
+    font-size: calc(9px * var(--font-scale));
     letter-spacing: 0.18em;
   }
-  .brand { font-size: 12px; letter-spacing: 0.18em; }
+  .brand { font-size: calc(12px * var(--font-scale)); letter-spacing: 0.18em; }
   .brand-logo-img { width: 42px; height: 42px; }
-  .brand-sub { font-size: 8px; letter-spacing: 0.16em; }
+  .brand-sub { font-size: calc(8px * var(--font-scale)); letter-spacing: 0.16em; }
 
   .dial {
     width: min(62vmin, 420px) !important;
@@ -2066,14 +2080,14 @@ body {
     gap: 7px;
     backdrop-filter: blur(4px);
   }
-  .node-lbl { font-size: 9px; letter-spacing: 0.16em; }
+  .node-lbl { font-size: calc(9px * var(--font-scale)); letter-spacing: 0.16em; }
   .node-sub { display: none; }
   .node-dot { width: 6px; height: 6px; }
 
   .corner { display: none; }
   .tagline { bottom: 7%; }
-  .tagline-main { font-size: 15px; }
-  .tagline-kicker { font-size: 8px; letter-spacing: 0.4em; margin-bottom: 8px; }
+  .tagline-main { font-size: calc(15px * var(--font-scale)); }
+  .tagline-kicker { font-size: calc(8px * var(--font-scale)); letter-spacing: 0.4em; margin-bottom: 8px; }
 }
 
 /* Phone portrait */
@@ -2086,13 +2100,13 @@ body {
   .piercing-card { flex-direction: column; gap: 18px; padding: 22px; }
   .piercing-card-side { align-items: flex-start; width: 100%; }
   .piercing-request { width: 100%; text-align: center; }
-  .piercing-price { font-size: 18px; }
+  .piercing-price { font-size: calc(18px * var(--font-scale)); }
   .team-grid { grid-template-columns: 1fr; gap: 18px; }
   .style-grid { grid-template-columns: repeat(2, 1fr); }
   .slot-grid { grid-template-columns: repeat(3, 1fr); }
   .gal-filters { gap: 6px; }
-  .gal-chip { padding: 7px 11px; font-size: 9px; letter-spacing: 0.16em; }
-  .page-title { font-size: clamp(38px, 11vw, 56px); }
+  .gal-chip { padding: 7px 11px; font-size: calc(9px * var(--font-scale)); letter-spacing: 0.16em; }
+  .page-title { font-size: calc(clamp(38px, 11vw, 56px) * var(--font-scale)); }
   .page { padding-left: 16px; padding-right: 16px; padding-bottom: 48px; }
   .chrome {
     padding: 16px 20px;
@@ -2107,15 +2121,15 @@ body {
     text-align: center;
     line-height: 1.4;
   }
-  .brand { font-size: 15px; letter-spacing: 0.2em; }
+  .brand { font-size: calc(15px * var(--font-scale)); letter-spacing: 0.2em; }
   .brand-logo-img { width: 52px; height: 52px; }
-  .brand-sub { font-size: 8px; letter-spacing: 0.18em; }
+  .brand-sub { font-size: calc(8px * var(--font-scale)); letter-spacing: 0.18em; }
   .testi { padding: 22px; }
-  .testi-quote { font-size: 16px; }
+  .testi-quote { font-size: calc(16px * var(--font-scale)); }
   .soc-card { padding: 22px; }
   .summary { padding: 22px; }
-  .field input, .field textarea { font-size: 16px; }
-  .btn-primary { padding: 14px 24px; font-size: 11px; letter-spacing: 0.24em; }
+  .field input, .field textarea { font-size: calc(16px * var(--font-scale)); }
+  .btn-primary { padding: 14px 24px; font-size: calc(11px * var(--font-scale)); letter-spacing: 0.24em; }
 
   /* ── Landing-Übersicht: scrollbar, mit großzügigen Tap-Cards ────────── */
 
@@ -2163,8 +2177,8 @@ body {
     padding: 0 24px;
     pointer-events: auto;
   }
-  .tagline-main { font-size: 18px; }
-  .tagline-kicker { font-size: 8px; letter-spacing: 0.36em; margin-bottom: 6px; }
+  .tagline-main { font-size: calc(18px * var(--font-scale)); }
+  .tagline-kicker { font-size: calc(8px * var(--font-scale)); letter-spacing: 0.36em; margin-bottom: 6px; }
 
   /* Mobile-Nav: vom Fixed-Bar zum großzügigen 2-Spalten-Grid */
   .mobile-nav {
@@ -2222,7 +2236,7 @@ body {
   .mobile-nav-lbl {
     grid-column: 2;
     grid-row: 1;
-    font-size: 11px;
+    font-size: calc(11px * var(--font-scale));
     letter-spacing: 0.16em;
     white-space: normal;
     overflow: visible;
@@ -2235,7 +2249,7 @@ body {
   .mobile-nav-sub {
     grid-column: 2;
     grid-row: 2;
-    font-size: 8.5px;
+    font-size: calc(8.5px * var(--font-scale));
     letter-spacing: 0.22em;
     color: var(--ivory-dim);
     line-height: 1.1;
@@ -2270,7 +2284,7 @@ body {
     margin: 28px auto 4px;
     padding: 0 24px;
     text-align: center;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale));
     letter-spacing: 0.18em;
     color: var(--ivory-dim);
     line-height: 1.8;
@@ -2282,7 +2296,7 @@ body {
 @media (max-width: 560px) {
   .tweaks-panel, [data-tweaks-panel] {
     max-width: calc(100vw - 24px) !important;
-    font-size: 12px;
+    font-size: calc(12px * var(--font-scale));
   }
 }
 
@@ -2306,7 +2320,7 @@ body {
   background: var(--gold);
   color: var(--gold-ink);
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
@@ -2351,7 +2365,7 @@ address.corner {
 /* Brand: h1 keeps inline appearance */
 h1.brand {
   margin: 0;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   font-weight: 600;
 }
 
@@ -2407,7 +2421,7 @@ ul.gal-grid {
 
 .cookie-banner-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.4em;
   color: var(--gold);
   text-transform: uppercase;
@@ -2418,7 +2432,7 @@ ul.gal-grid {
 .cookie-banner-title {
   font-family: 'Cinzel', serif;
   font-weight: 500;
-  font-size: 28px;
+  font-size: calc(28px * var(--font-scale));
   line-height: 1;
   letter-spacing: 0.02em;
   margin: 0;
@@ -2434,7 +2448,7 @@ ul.gal-grid {
 
 .cookie-banner-text {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale));
   line-height: 1.5;
   color: var(--ivory);
   margin: 0 0 18px;
@@ -2473,14 +2487,14 @@ ul.gal-grid {
 }
 .cookie-cat-name {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ivory);
 }
 .cookie-cat-state {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -2497,7 +2511,7 @@ ul.gal-grid {
 }
 .cookie-cat-desc {
   grid-column: 1 / -1;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   line-height: 1.5;
   color: var(--ivory-dim);
 }
@@ -2521,7 +2535,7 @@ ul.gal-grid {
   border: 1px solid var(--line-strong);
   color: var(--ivory);
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   font-weight: 500;
@@ -2538,8 +2552,8 @@ ul.gal-grid {
 @media (max-width: 560px) {
   .cookie-overlay { padding: 12px; }
   .cookie-banner { padding: 24px 22px 22px; }
-  .cookie-banner-title { font-size: 22px; }
-  .cookie-banner-text { font-size: 15px; }
+  .cookie-banner-title { font-size: calc(22px * var(--font-scale)); }
+  .cookie-banner-text { font-size: calc(15px * var(--font-scale)); }
   .cookie-banner-actions { flex-direction: column; }
   .cookie-btn-accept,
   .cookie-btn-decline { flex: 1 1 auto; width: 100%; }
@@ -2570,7 +2584,7 @@ ul.gal-grid {
   align-items: center;
   gap: 10px;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.22em;
   color: var(--gold);
 }
@@ -2581,7 +2595,7 @@ ul.gal-grid {
   border-radius: 50%;
   display: grid; place-items: center;
   font-weight: 700;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   color: var(--gold-bright);
   background: radial-gradient(circle, rgba(212,165,55,0.15), transparent 70%);
 }
@@ -2597,7 +2611,7 @@ ul.gal-grid {
   border: 0;
   padding: 4px 2px;
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -2610,11 +2624,11 @@ ul.gal-grid {
 }
 .site-footer-sep {
   color: var(--line-strong);
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
 }
 
 .site-footer-meta {
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -2641,7 +2655,7 @@ ul.gal-grid {
   gap: 32px;
   color: var(--ivory);
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   line-height: 1.65;
 }
 
@@ -2652,7 +2666,7 @@ ul.gal-grid {
 
 .legal-h2 {
   font-family: 'Cinzel', serif;
-  font-size: 13px;
+  font-size: calc(13px * var(--font-scale));
   font-weight: 500;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -2690,7 +2704,7 @@ ul.gal-grid {
 }
 
 @media (max-width: 560px) {
-  .legal-content { font-size: 14px; }
+  .legal-content { font-size: calc(14px * var(--font-scale)); }
   .legal-content section { padding-left: 16px; }
 }
 
@@ -2768,7 +2782,7 @@ ul.gal-grid {
   min-width: 220px;
   padding: 14px 32px;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-ink);
@@ -2804,7 +2818,7 @@ ul.gal-grid {
 
 .lucky-wheel-result-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -2812,14 +2826,14 @@ ul.gal-grid {
 
 .lucky-wheel-result-value {
   font-family: 'Cinzel', serif;
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale));
   letter-spacing: 0.06em;
   color: var(--gold-bright);
 }
 
 .lucky-wheel-result-label {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   color: var(--ivory);
   font-style: italic;
 }
@@ -2831,7 +2845,7 @@ ul.gal-grid {
   text-align: center;
   color: var(--muted);
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -2889,7 +2903,7 @@ ul.gal-grid {
   border: none;
   background: transparent;
   color: var(--ivory-dim);
-  font-size: 26px;
+  font-size: calc(26px * var(--font-scale));
   line-height: 1;
   cursor: pointer;
   border-radius: 50%;
@@ -2920,7 +2934,7 @@ ul.gal-grid {
 
 .wheel-invite-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--gold);
@@ -2929,7 +2943,7 @@ ul.gal-grid {
 
 .wheel-invite-title {
   font-family: 'Cinzel', serif;
-  font-size: 24px;
+  font-size: calc(24px * var(--font-scale));
   letter-spacing: 0.08em;
   color: var(--gold-bright);
   margin: 0 0 14px;
@@ -2938,7 +2952,7 @@ ul.gal-grid {
 
 .wheel-invite-copy {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale));
   color: var(--ivory);
   line-height: 1.55;
   margin: 0 0 26px;
@@ -2955,7 +2969,7 @@ ul.gal-grid {
   min-width: 240px;
   padding: 14px 30px;
   font-family: 'Cinzel', serif;
-  font-size: 12px;
+  font-size: calc(12px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold-ink);
@@ -2974,7 +2988,7 @@ ul.gal-grid {
 
 .wheel-invite-skip {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -2998,7 +3012,7 @@ ul.gal-grid {
 
 .wheel-spin-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--gold);
@@ -3007,7 +3021,7 @@ ul.gal-grid {
 
 .wheel-spin-title {
   font-family: 'Cinzel', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   letter-spacing: 0.08em;
   color: var(--gold-bright);
   margin: 0 0 8px;
@@ -3015,7 +3029,7 @@ ul.gal-grid {
 
 .wheel-spin-sub {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-style: italic;
   color: var(--ivory-dim);
   margin: 0 0 22px;
@@ -3047,7 +3061,7 @@ ul.gal-grid {
 
 .wheel-spin-redeem-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -3055,7 +3069,7 @@ ul.gal-grid {
 
 .wheel-spin-redeem-value {
   font-family: 'Cinzel', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   letter-spacing: 0.06em;
   color: var(--gold-bright);
   margin-bottom: 6px;
@@ -3063,8 +3077,8 @@ ul.gal-grid {
 
 @media (max-width: 480px) {
   .wheel-modal-card { padding: 28px 20px 22px; }
-  .wheel-invite-title { font-size: 20px; }
-  .wheel-spin-title { font-size: 19px; }
+  .wheel-invite-title { font-size: calc(20px * var(--font-scale)); }
+  .wheel-spin-title { font-size: calc(19px * var(--font-scale)); }
   .wheel-invite-cta { min-width: 200px; padding: 13px 24px; }
 }
 
@@ -3108,7 +3122,7 @@ ul.gal-grid {
 
 .account-gluecksrad-cta-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -3116,7 +3130,7 @@ ul.gal-grid {
 
 .account-gluecksrad-cta-title {
   font-family: 'Cinzel', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold-bright);
@@ -3124,7 +3138,7 @@ ul.gal-grid {
 
 .account-gluecksrad-cta-sub {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   font-style: italic;
   color: var(--ivory-dim);
 }
@@ -3149,7 +3163,7 @@ ul.gal-grid {
 
 .account-vouchers-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -3157,7 +3171,7 @@ ul.gal-grid {
 
 .account-vouchers-count {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -3202,7 +3216,7 @@ ul.gal-grid {
 
 .account-voucher-value {
   font-family: 'Cinzel', serif;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   letter-spacing: 0.06em;
   color: var(--gold-bright);
 }
@@ -3215,14 +3229,14 @@ ul.gal-grid {
 
 .account-voucher-label {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
+  font-size: calc(15px * var(--font-scale));
   font-style: italic;
   color: var(--ivory);
 }
 
 .account-voucher-date {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -3234,7 +3248,7 @@ ul.gal-grid {
   align-items: center;
   gap: 8px;
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ivory-dim);
@@ -3263,7 +3277,7 @@ ul.gal-grid {
 .account-vouchers-hint {
   margin: 14px 0 0;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 14px;
+  font-size: calc(14px * var(--font-scale));
   font-style: italic;
   color: var(--ivory-dim);
   text-align: center;
@@ -3368,7 +3382,7 @@ ul.gal-grid {
 
 .piercing-hero-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #f9a8d4;
@@ -3377,7 +3391,7 @@ ul.gal-grid {
 
 .piercing-hero-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(40px, 7vw, 78px);
+  font-size: calc(clamp(40px, 7vw, 78px) * var(--font-scale));
   line-height: 1;
   margin: 0 0 22px;
   color: #ffeef6;
@@ -3390,7 +3404,7 @@ ul.gal-grid {
 
 .piercing-hero-lead {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 19px;
+  font-size: calc(19px * var(--font-scale));
   line-height: 1.55;
   color: #f2c5d9;
   margin: 0 0 28px;
@@ -3406,7 +3420,7 @@ ul.gal-grid {
 
 .pink-cta {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   padding: 16px 32px;
@@ -3434,14 +3448,14 @@ ul.gal-grid {
 }
 .piercing-hero-tel-kicker {
   font-family: 'Cinzel', serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--font-scale));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #f9a8d4;
 }
 .piercing-hero-tel-num {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   color: #ffeef6;
 }
 
@@ -3460,7 +3474,7 @@ ul.gal-grid {
 .piercing-section-kicker {
   display: inline-block;
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #f9a8d4;
@@ -3469,7 +3483,7 @@ ul.gal-grid {
 
 .piercing-section-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(32px, 5vw, 52px);
+  font-size: calc(clamp(32px, 5vw, 52px) * var(--font-scale));
   line-height: 1.05;
   margin: 0 0 18px;
   color: #ffeef6;
@@ -3478,7 +3492,7 @@ ul.gal-grid {
 
 .piercing-section-lead {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 18px;
+  font-size: calc(18px * var(--font-scale));
   line-height: 1.55;
   color: #f2c5d9;
   margin: 0;
@@ -3511,7 +3525,7 @@ ul.gal-grid {
   align-items: baseline;
   gap: 14px;
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(22px, 3vw, 32px);
+  font-size: calc(clamp(22px, 3vw, 32px) * var(--font-scale));
   line-height: 1;
   color: #ffeef6;
   margin: 0;
@@ -3520,7 +3534,7 @@ ul.gal-grid {
 
 .piercing-cat-row-num {
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.24em;
   color: #f9a8d4;
   font-style: normal;
@@ -3531,7 +3545,7 @@ ul.gal-grid {
 .piercing-cat-row-examples {
   margin: 0;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 17px;
+  font-size: calc(17px * var(--font-scale));
   color: #f2c5d9;
   line-height: 1.5;
 }
@@ -3598,7 +3612,7 @@ ul.gal-grid {
   align-items: flex-start;
   gap: 10px;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   color: #ffeef6;
   line-height: 1.45;
 }
@@ -3635,7 +3649,7 @@ ul.gal-grid {
 
 .piercing-quality-num {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   letter-spacing: 0.3em;
   color: #f9a8d4;
   padding-bottom: 8px;
@@ -3645,7 +3659,7 @@ ul.gal-grid {
 
 .piercing-quality-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
+  font-size: calc(22px * var(--font-scale));
   font-style: italic;
   color: #ffeef6;
   margin: 0;
@@ -3655,7 +3669,7 @@ ul.gal-grid {
 .piercing-quality-text {
   margin: 0;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   color: #f2c5d9;
   line-height: 1.55;
 }
@@ -3689,7 +3703,7 @@ ul.gal-grid {
 .piercing-menu-title {
   margin: 0;
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(22px, 2.4vw, 28px);
+  font-size: calc(clamp(22px, 2.4vw, 28px) * var(--font-scale));
   font-style: italic;
   color: #ffeef6;
   font-weight: 400;
@@ -3712,7 +3726,7 @@ ul.gal-grid {
 
 .piercing-menu-price {
   font-family: 'Cinzel', serif;
-  font-size: clamp(18px, 2.2vw, 24px);
+  font-size: calc(clamp(18px, 2.2vw, 24px) * var(--font-scale));
   color: #f9a8d4;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -3721,7 +3735,7 @@ ul.gal-grid {
 .piercing-menu-desc {
   margin: 8px 0 0;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 16px;
+  font-size: calc(16px * var(--font-scale));
   font-style: italic;
   color: #f2c5d9;
   line-height: 1.5;
@@ -3734,7 +3748,7 @@ ul.gal-grid {
   background: transparent;
   border: none;
   font-family: 'Cinzel', serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--font-scale));
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #f9a8d4;
@@ -3814,7 +3828,7 @@ ul.gal-grid {
   }
   .piercing-menu-dots { display: none; }
   .piercing-menu-price {
-    font-size: 20px;
+    font-size: calc(20px * var(--font-scale));
     color: #f9a8d4;
   }
 }
@@ -3848,7 +3862,7 @@ ul.gal-grid {
   padding: 5px 11px;
   border-radius: 999px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: calc(11px * var(--font-scale));
   font-weight: 600;
   letter-spacing: 0.08em;
   line-height: 1;
@@ -3898,6 +3912,6 @@ ul.gal-grid {
 @media (max-width: 480px) {
   .lang-toggle-btn {
     padding: 6px 14px;
-    font-size: 10px;
+    font-size: calc(10px * var(--font-scale));
   }
 }

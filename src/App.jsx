@@ -231,7 +231,7 @@ export default function App() {
               <div style={{ maxWidth: 480, textAlign: 'center', padding: 20 }}>
                 <div className="page-kicker">Etwas ist schiefgelaufen</div>
                 <h1 className="page-title" style={{ marginBottom: 24 }}>Ups.</h1>
-                <p className="cormorant" style={{ fontSize: 18, color: 'var(--ivory)', opacity: 0.9 }}>
+                <p className="cormorant" style={{ fontSize: 'calc(18px * var(--font-scale))', color: 'var(--ivory)', opacity: 0.9 }}>
                   Dieser Bereich konnte nicht geladen werden. Bitte versuch es erneut.
                 </p>
                 <button className="page-back" style={{ marginTop: 28 }} onClick={onBack}>{t.common.backToSite}</button>

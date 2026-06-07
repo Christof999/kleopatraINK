@@ -67,7 +67,7 @@ export default function Booking({ onBack, wannado, piercing }) {
         <div style={{ maxWidth: 540, textAlign: 'center', padding: '20px' }}>
           <div className="page-kicker">{isPiercingBooking ? b.sentPiercingKicker : b.sentConsultKicker}</div>
           <h1 className="page-title" style={{ marginBottom: 24 }}>{b.sentTitle} <em>{b.sentTitleEm}</em></h1>
-          <p className="cormorant" style={{ fontSize: 20, color: 'var(--ivory)', opacity: 0.9, lineHeight: 1.5 }}>
+          <p className="cormorant" style={{ fontSize: 'calc(20px * var(--font-scale))', color: 'var(--ivory)', opacity: 0.9, lineHeight: 1.5 }}>
             {b.sentBody(email || b.sentEmailFallback)}
           </p>
           <button className="page-back" style={{ marginTop: 32 }} onClick={onBack}>{t.common.backToSite}</button>
@@ -155,7 +155,7 @@ export default function Booking({ onBack, wannado, piercing }) {
                 onClick={() => setSlot(s)}>{s}</button>
             ))}
           </div>
-          <div style={{ fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.08em', marginBottom: 24, marginTop: -8 }}>
+          <div style={{ fontSize: 'calc(10px * var(--font-scale))', color: 'var(--ivory-dim)', letterSpacing: '0.08em', marginBottom: 24, marginTop: -8 }}>
             {b.slotNote}
           </div>
 
@@ -195,7 +195,7 @@ export default function Booking({ onBack, wannado, piercing }) {
             onClick={() => setSubmitted(true)}>
             {isPiercingBooking ? b.submitPiercing : b.submitConsult}
           </button>
-          <p style={{ marginTop: 14, fontSize: 10, color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
+          <p style={{ marginTop: 14, fontSize: 'calc(10px * var(--font-scale))', color: 'var(--ivory-dim)', letterSpacing: '0.06em', lineHeight: 1.5 }}>
             {b.disclaimer}
           </p>
         </div>
