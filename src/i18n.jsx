@@ -42,6 +42,9 @@ export const translations = {
       close: 'Schließen',
       langName: 'Sprache',
     },
+    contact: {
+      labelMobile: 'Handy',
+    },
     pageTitles: {
       home:         'Kleopatra INK – Tattoostudio Gunzenhausen | Blackwork & Fineline',
       gallery:      'Galerie – Tattoo-Werke | Kleopatra INK Gunzenhausen',
@@ -140,7 +143,7 @@ export const translations = {
         title: ['Jedes Piercing', 'unterstreicht dich.'],
         lead: 'Vom feinen Lobe bis zum kuratierten Ohrlauf — unser Piercing-Studio in Gunzenhausen arbeitet ausschließlich mit hochwertigem Implant-Grade-Schmuck, sauberer Nadel-Technik und ausführlicher Beratung.',
         cta: 'Termin anfragen →',
-        callKicker: 'Direkt anrufen',
+        callKicker: 'Handy',
       },
       categories: {
         kicker: 'Unser Angebot',
@@ -410,7 +413,7 @@ export const translations = {
       legalAria: 'Rechtliche Hinweise',
       imprint: 'Impressum',
       privacy: 'Datenschutz',
-      meta: (year) => `© ${year} Kleopatra INK · Marktplatz 7, 91710 Gunzenhausen`,
+      meta: (year) => `© ${year} Kleopatra INK · Industriestraße 2, 91710 Gunzenhausen`,
     },
     imprint: {
       kicker: 'Impressum · § 5 TMG',
@@ -493,6 +496,9 @@ export const translations = {
       pleaseWait: 'Please wait …',
       close: 'Close',
       langName: 'Language',
+    },
+    contact: {
+      labelMobile: 'Mobile',
     },
     pageTitles: {
       home:         'Kleopatra INK – Tattoo Studio Gunzenhausen | Blackwork & Fineline',
@@ -592,7 +598,7 @@ export const translations = {
         title: ['Every piercing', 'highlights you.'],
         lead: 'From a delicate lobe to a curated ear — our piercing studio in Gunzenhausen works exclusively with high-quality implant-grade jewellery, clean needle technique and thorough consultation.',
         cta: 'Request appointment →',
-        callKicker: 'Call us directly',
+        callKicker: 'Mobile',
       },
       categories: {
         kicker: 'Our services',
@@ -862,7 +868,7 @@ export const translations = {
       legalAria: 'Legal information',
       imprint: 'Legal Notice',
       privacy: 'Privacy',
-      meta: (year) => `© ${year} Kleopatra INK · Marktplatz 7, 91710 Gunzenhausen`,
+      meta: (year) => `© ${year} Kleopatra INK · Industriestraße 2, 91710 Gunzenhausen`,
     },
     imprint: {
       kicker: 'Legal Notice · § 5 TMG',
@@ -945,6 +951,9 @@ export const translations = {
       pleaseWait: 'Lütfen bekleyin …',
       close: 'Kapat',
       langName: 'Dil',
+    },
+    contact: {
+      labelMobile: 'Cep telefonu',
     },
     pageTitles: {
       home:         'Kleopatra INK – Gunzenhausen Dövme Stüdyosu | Blackwork & Fineline',
@@ -1044,7 +1053,7 @@ export const translations = {
         title: ['Her piercing', 'seni öne çıkarır.'],
         lead: 'İnce bir lobe’den özenle kurgulanmış bir kulağa kadar — Gunzenhausen’daki piercing stüdyomuz yalnızca yüksek kaliteli implant sınıfı takı, temiz iğne tekniği ve ayrıntılı danışmanlıkla çalışır.',
         cta: 'Randevu iste →',
-        callKicker: 'Doğrudan ara',
+        callKicker: 'Cep telefonu',
       },
       categories: {
         kicker: 'Hizmetlerimiz',
@@ -1314,7 +1323,7 @@ export const translations = {
       legalAria: 'Yasal bilgiler',
       imprint: 'Künye',
       privacy: 'Gizlilik',
-      meta: (year) => `© ${year} Kleopatra INK · Marktplatz 7, 91710 Gunzenhausen`,
+      meta: (year) => `© ${year} Kleopatra INK · Industriestraße 2, 91710 Gunzenhausen`,
     },
     imprint: {
       kicker: 'Künye · § 5 TMG',

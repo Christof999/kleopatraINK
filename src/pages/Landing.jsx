@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useI18n } from '../i18n';
 import { getFirstName } from '../lib/format';
 import { db } from '../firebase';
+import { STUDIO_ADDRESS, STUDIO_MOBILE } from '../data/contact';
 import { NAV_LAYOUT } from '../data/navigation';
 
 const KleopatraHead3D = lazy(() => import('../components/KleopatraHead3D'));
@@ -162,9 +163,12 @@ export default function Landing({ onNav, tweaks }) {
       </nav>
 
       <address className="corner bl">
-        <div>Marktplatz 7</div>
-        <div>91710 Gunzenhausen</div>
-        <div><a className="gold corner-tel" href="tel:+49983168421">+49 9831 6 84 21</a></div>
+        <div>{STUDIO_ADDRESS.street}</div>
+        <div>{STUDIO_ADDRESS.zip} {STUDIO_ADDRESS.city}</div>
+        <div className="corner-tel-wrap">
+          <span className="corner-tel-label">{t.contact.labelMobile}</span>
+          <a className="gold corner-tel" href={`tel:${STUDIO_MOBILE.tel}`}>{STUDIO_MOBILE.display}</a>
+        </div>
       </address>
       <div className="corner br" aria-hidden="true">
         <div>{t.landing.cornerConsult}</div>

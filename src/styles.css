@@ -2355,6 +2355,17 @@ main:focus { outline: none; }
 address.corner {
   font-style: normal;
 }
+.corner-tel-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.corner-tel-label {
+  font-size: 0.62em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
 .corner-tel {
   color: var(--gold);
   text-decoration: none;
