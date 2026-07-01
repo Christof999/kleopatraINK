@@ -1,3 +1,4 @@
+import { STUDIO_MOBILE } from '../data/contact';
 import PageHead from '../components/PageHead';
 import { useI18n } from '../i18n';
 import { formatEuro } from '../lib/format';
@@ -28,9 +29,9 @@ function PiercingHero({ onBook }) {
           <button type="button" className="pink-cta" onClick={() => onBook(buildGeneralPiercingRequest(t))}>
             {h.cta}
           </button>
-          <a className="piercing-hero-tel" href="tel:+4917660957400">
+          <a className="piercing-hero-tel" href={`tel:${STUDIO_MOBILE.tel}`}>
             <span className="piercing-hero-tel-kicker">{h.callKicker}</span>
-            <span className="piercing-hero-tel-num">0176 60957400</span>
+            <span className="piercing-hero-tel-num">{STUDIO_MOBILE.displayCompact}</span>
           </a>
         </div>
       </div>

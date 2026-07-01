@@ -1,3 +1,4 @@
+import { STUDIO_ADDRESS, STUDIO_ADDRESS_LINE, STUDIO_MOBILE } from '../data/contact';
 import { useI18n } from '../i18n';
 import PageHead from './PageHead';
 
@@ -24,16 +25,16 @@ export function Imprint({ onBack }) {
           <p>
             Nadia Reyhani<br />
             Kleopatra INK – Tattoo &amp; Piercing<br />
-            Marktplatz 7<br />
-            91710 Gunzenhausen<br />
-            Deutschland
+            {STUDIO_ADDRESS.street}<br />
+            {STUDIO_ADDRESS.zip} {STUDIO_ADDRESS.city}<br />
+            {STUDIO_ADDRESS.country}
           </p>
         </section>
 
         <section>
           <h2 className="legal-h2">{m.contact}</h2>
           <p>
-            {t.booking.labelPhone}: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a><br />
+            {t.contact.labelMobile}: <a className="legal-link" href={`tel:${STUDIO_MOBILE.tel}`}>{STUDIO_MOBILE.display}</a><br />
             {t.account.email}: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a>
           </p>
         </section>
@@ -50,7 +51,7 @@ export function Imprint({ onBack }) {
           <h2 className="legal-h2">{m.responsible}</h2>
           <p>
             Nadia Reyhani<br />
-            Marktplatz 7, 91710 Gunzenhausen
+            {STUDIO_ADDRESS_LINE}
           </p>
         </section>
 
@@ -107,9 +108,9 @@ export function Privacy({ onBack }) {
           <p>
             {p.s1Pre}<br />
             Nadia Reyhani — Kleopatra INK<br />
-            Marktplatz 7, 91710 Gunzenhausen<br />
+            {STUDIO_ADDRESS_LINE}<br />
             {t.account.email}: <a className="legal-link" href="mailto:hallo@kleopatraink.de">hallo@kleopatraink.de</a><br />
-            {t.booking.labelPhone}: <a className="legal-link" href="tel:+49983168421">+49 9831 6 84 21</a>
+            {t.contact.labelMobile}: <a className="legal-link" href={`tel:${STUDIO_MOBILE.tel}`}>{STUDIO_MOBILE.display}</a>
           </p>
         </section>
 
