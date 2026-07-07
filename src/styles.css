@@ -1048,6 +1048,74 @@ body {
   line-height: 1.4;
 }
 
+.planity-redirect {
+  margin-top: 36px;
+  padding: 28px 26px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+}
+
+.planity-redirect h3 {
+  font-family: 'Cinzel', serif;
+  font-size: calc(12px * var(--font-scale));
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 16px;
+  font-weight: 500;
+}
+
+.planity-redirect-lead {
+  font-size: calc(18px * var(--font-scale));
+  line-height: 1.55;
+  margin: 0 0 20px;
+  color: var(--ivory);
+  opacity: 0.92;
+}
+
+.planity-redirect-steps {
+  margin: 0 0 20px;
+  padding-left: 1.2em;
+  color: var(--ivory-dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: calc(17px * var(--font-scale));
+  line-height: 1.6;
+}
+
+.planity-redirect-steps li + li {
+  margin-top: 6px;
+}
+
+.planity-redirect-hint {
+  margin: 0;
+  font-size: calc(11px * var(--font-scale));
+  letter-spacing: 0.06em;
+  line-height: 1.55;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+.planity-redirect-hint + .planity-redirect-hint {
+  margin-top: 10px;
+}
+
+a.planity-cta {
+  display: inline-block;
+  margin-top: 24px;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.planity-redirect-note {
+  margin-top: 14px;
+  font-size: calc(10px * var(--font-scale));
+  color: var(--ivory-dim);
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
 /* account */
 .account-layout {
   display: grid;

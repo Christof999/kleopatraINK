@@ -312,7 +312,7 @@ export default function Account({ onBack, onOpenWheel, wheelEligible = false, wh
                   required
                   value={profileForm.email}
                   onChange={(event) => updateProfileForm('email', event.target.value)}
-                  placeholder={t.booking.phEmail}
+                  placeholder={t.account.phEmail}
                 />
               </div>
               <div className="account-actions">
@@ -421,7 +421,7 @@ export default function Account({ onBack, onOpenWheel, wheelEligible = false, wh
                     required
                     value={loginForm.email}
                     onChange={(event) => updateLoginForm('email', event.target.value)}
-                    placeholder={t.booking.phEmail}
+                    placeholder={t.account.phEmail}
                   />
                 </div>
                 <div className="field">
@@ -485,7 +485,7 @@ export default function Account({ onBack, onOpenWheel, wheelEligible = false, wh
                     required
                     value={registerForm.email}
                     onChange={(event) => updateRegisterForm('email', event.target.value)}
-                    placeholder={t.booking.phEmail}
+                    placeholder={t.account.phEmail}
                   />
                 </div>
                 <div className="field">
