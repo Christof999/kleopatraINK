@@ -14,3 +14,6 @@ export const STUDIO_MOBILE = {
 export const STUDIO_ADDRESS_LINE = `${STUDIO_ADDRESS.street}, ${STUDIO_ADDRESS.zip} ${STUDIO_ADDRESS.city}`;
 
 export const STUDIO_MAP_QUERY = `${STUDIO_ADDRESS.street}, ${STUDIO_ADDRESS.zip} ${STUDIO_ADDRESS.city}`;
+
+/** Online-Terminbuchung über Planity (Übergangslösung bis White-Label-Widget). */
+export const PLANITY_BOOKING_URL = 'https://www.planity.com/de-DE/kleopatra-ink-91710-gunzenhausen';
